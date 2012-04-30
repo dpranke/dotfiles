@@ -1,0 +1,2 @@
+#!/bin/bash
+osascript -e 'tell application "System Events" to sleep' 2> /dev/null

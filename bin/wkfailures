@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+
+use strict;
+use File::Basename;
+use File::Copy;
+use File::Path;
+use Getopt::Std;
+use File::Slurp qw( slurp );
+use JSON;
+
+our %ENV;
+our ($opt_b, $opt_d, $opt_h, $opt_n, $opt_p, $opt_r, $opt_R, $opt_s, $opt_v);
+getopts('dhnvp:r:R:s:v');
+
+if ($opt_h) {
+  print STDERR "usage: wkfailures [-dhnv] [-b build-type] [-p platform] [ -r regressions-file ] [ -R output-dir ] [ -s srcdir] \n";
+  print STDERR "   -h -> show-usage\n";
+  print STDERR "   -v -> verbose\n";
+  print STDERR "   -n -> no-execute\n";
+  print STDERR "   -d -> build-type=Debug\n";
+  exit(1);
+}
+
+my $build_type = $opt_d || "Release";
+my $platform = $opt_p || "chromium-win";
+my $src = $opt_s || $ENV{'csrc'} || "/cygdrive/s/src";
+my $results_dir = $opt_R || "/tmp/run-chromium-webkit-tests-layout-test-results";
+my $results_file = $opt_r || "$results_dir/unexpected_results.json";
+
+my $txt = slurp($results_file);
+my $results = from_json($txt);
+
+foreach my $file (keys %{$results->{'tests'}}) {
+  print "$file\n";
+}
+
+

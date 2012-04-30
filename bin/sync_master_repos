@@ -1,0 +1,58 @@
+#!/bin/bash
+if [ -n "$1" ] 
+then
+  echo "usage: sync_master_repos [-h|--help]"
+  exit 1
+fi
+
+GIT=/usr/local/git/bin/git
+src=/src
+
+function sync() {
+    d=$1
+    if [ \! -d "$1" ]
+    then
+      echo "warning: $1 doesn't exist"
+      return 1
+    fi
+
+    cd $1
+    echo "Updating $2 ..."
+    if [ `$GIT branch | awk '$1 == "*" { print $2 }'` != "$3" ]
+    then
+        echo "warning ... not on $3 branch. Skipping update."
+        exit 1
+    fi
+
+    if [ `$GIT status -s -u no | wc -l` -ne 0 ]
+    then
+        echo "warning ... working directory is dirty. Skipping update."
+        exit 1
+    fi
+
+    if [ `$GIT config branch.$3.merge` ]
+    then
+        echo "  .. pulling from Git"
+        $GIT pull || exit 1
+    fi
+
+    if [ `$GIT config svn-remote.svn.url | wc -l` -eq 1 ]
+    then
+        echo " .. rebasing from SVN"
+        $GIT svn rebase || exit 1
+    fi
+    echo "... done"
+    echo ""
+}
+
+start=`date "+%s"`
+echo -n "// Starting sync: "
+date "+%F %T %z"
+echo
+
+sync $src/master/src "Chromium" trunk
+sync $src/master/src/third_party/WebKit "WebKit" master
+sync $src/depot_tools "depot_tools" trunk
+
+end=`date "+%s"`
+echo "// Sync completed in $(($end - $start)) seconds"

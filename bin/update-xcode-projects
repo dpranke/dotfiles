@@ -1,0 +1,165 @@
+#!/usr/bin/perl -w
+
+# Copyright (C) 2010 Google Inc. All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions
+# are met:
+#
+# 1.  Redistributions of source code must retain the above copyright
+#     notice, this list of conditions and the following disclaimer.
+# 2.  Redistributions in binary form must reproduce the above copyright
+#     notice, this list of conditions and the following disclaimer in the
+#     documentation and/or other materials provided with the distribution.
+# 3.  Neither the name of Apple Computer, Inc. ("Apple") nor the names of
+#     its contributors may be used to endorse or promote products derived
+#     from this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+# THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+=pod
+
+=head1 update-xcode-projects
+
+update-xcode-projects - patch WebKit's XCode build projects
+
+=head1 SYNOPSIS
+
+update-xcode-projects [switches]
+
+  --debug       change projects to default to the Debug configuration
+  -h|--help     show this help message
+  -v|--verbose  display verbose output
+  --release     change projects to default to the Release configuration
+
+=head1 DESCRIPTION
+
+This script patches WebKit's XCode build projects to use the default
+WebKit/WebKitBuild directory instead of building into the project dirs.
+
+Note that if the user has the global build dir preference set in XCode
+and it isn't set to the WebKit/WebKitBuild directory, this script does nothing.
+
+Also, this script will not overwrite the project files if they have already
+been modified by the user.
+
+=cut1
+
+use strict;
+
+use File::Basename;
+use File::Find;
+use Getopt::Long;
+use Pod::Usage;
+
+use webkitdirs;
+
+my $showHelp = 0;
+my $verbose = 0;
+
+# Figure out from the command line whether we need to change the configuration
+# as well.
+setConfiguration();
+
+my $getOptionsResult = GetOptions(
+    'help|h' => \$showHelp,
+    'verbose|v' => \$verbose,
+);
+
+if (!$getOptionsResult || $showHelp) {
+    pod2usage(0);
+    exit 1;
+}
+
+updateXCodeProjects(sourceDir(), baseProductDir(), passedConfiguration(),
+                    $verbose);
+
+exit(0);
+
+sub updateXCodeProjects {
+    my ($sourceDir, $basedir, $config, $verbose) = @_;
+    my $userName = $ENV{USER};
+    my $defaultBasedir = "$sourceDir/WebKitBuild";
+    if ($basedir ne $defaultBasedir) {
+        print "base is not the default: '%s', not '%s'", $basedir,
+            $defaultBasedir;
+        exit(1);
+    }
+
+    my @projects = findAllXCodeProjects($sourceDir);
+    for my $project (@projects) {
+        my $projectPrefsRelPath = "$project/$userName.pbxuser";
+        my $projectDir = "$sourceDir/$project";
+        my $projectPrefsPath = "$sourceDir/$projectPrefsRelPath";
+        if (-f $projectPrefsPath) {
+            print "$projectPrefsRelPath exists, skipping\n" if $verbose;
+            next;
+        }
+
+        my $rootObject = findRootObject($projectDir);
+
+        print "writing $projectPrefsRelPath\n";
+        open my $prefsFh, ">", "$projectPrefsPath" ||
+             die "Could not open $projectPrefsPath for writing: $!";
+        writePrefs($prefsFh, $rootObject, $basedir, $config);
+        close $prefsFh;
+    }
+}
+
+sub findAllXCodeProjects {
+    my $sourceDir = shift;
+    my @projects;
+    my $callback = sub {
+        my ($name, $path, $suffix) = fileparse($_, ".xcodeproj");
+        if ($suffix eq ".xcodeproj") {
+            $path = "$File::Find::dir/$_";
+            $path =~ s/$sourceDir\///;
+            push @projects, $path;
+        }
+    };
+    find($callback, $sourceDir);
+    return @projects;
+}
+
+sub findRootObject {
+    my $projectDir = shift;
+    open my $pbxprojFh, "<", "$projectDir/project.pbxproj" ||
+        die "could not open '$projectDir/project.pbxproj' for reading: $!";
+
+    my $rootObject = undef;
+    while (<$pbxprojFh>) {
+        if (/rootObject = ([0-9A-F]+) \/\* Project object \*\/;/) {
+            $rootObject = $1;
+        }
+    }
+    die "could not find rootObject for $projectDir" unless $rootObject;
+    return $rootObject;
+}
+
+sub writePrefs {
+    my ($fh, $rootObject, $basedir, $config) = @_;
+    print $fh <<"END";
+// !\$*UTF*\$!
+{
+  $rootObject /* Project object */ = {
+END
+    if ($config) {
+        print $fh "    activeBuildConfigurationName = " . $config . ";\n";
+    }
+    print $fh <<"END";
+    userBuildSettings = {
+      SYMROOT = $basedir;
+    };
+  };
+}
+END
+}

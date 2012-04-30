@@ -1,0 +1,51 @@
+#!/bin/bash
+
+function echodo() {
+  local opt_n=0 opt_s=0 opt_x=0 retval=0 opt=0 OPTIND
+  while getopts "nsxh" opt ; do
+    case $opt in
+      n) opt_n=1 ;;
+      x) opt_x=1 ;;
+      s) opt_s=1 ;;
+      h) echo "usage: echodo [-h|--help] [-n] [-s] [-x] args..." ;
+         echo "    -n -> no-execute (echo-only)" ;
+         echo "    -s -> silent (no-echo)" ;
+         echo "    -x -> exit-on-error" ;
+         exit 0
+    esac
+  done
+  shift $((OPTIND-1))
+  if [ "$1" = "--help" ]
+  then
+    echo "usage: echodo [-h|--help] [-n] [-s] [-x] args..."
+    echo "    -n -> no-execute (echo-only)"
+    echo "    -s -> silent (no-echo)"
+    echo "    -x -> exit-on-error"
+    exit 0
+  fi
+
+  if [ $opt_s -eq 0 ]
+  then
+    echo $@
+  fi
+  if [ $opt_n -eq 0 ]
+  then
+    $@
+    retval=$?
+    if [ \( $opt_x -eq 1 \) -a \( $retval -ne 0 \) ]
+    then
+      echo "exiting: '$@' returned: $retval"
+      exit $retval
+    fi
+    return $retval
+  fi
+}
+
+if [ "$0" != "-bash" ]
+then
+  if [ $(basename "$0") = "echodo" ]
+  then
+    echodo $@
+    exit $?
+  fi
+fi

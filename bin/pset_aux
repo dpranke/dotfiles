@@ -1,0 +1,26 @@
+#!/usr/bin/perl -w
+use strict;
+
+if (!@ARGV) {
+    print "usage: pset name\n";
+    exit 1;
+}
+
+my $inside = 0;
+my $val = $ARGV[0];
+while (<STDIN>) {
+    if (/^$val/i) {
+        1;
+    }
+
+    if (/^(\w+)=/i) {
+        print if grep { /^$1$/i } @ARGV;
+    }
+    if ($inside && /^}/ ) {
+        $inside = 0;
+        print;
+    } elsif (!$inside && /^(\w+) \(\)/) {
+        $inside = 1 if (grep { /^$1$/i} @ARGV);
+    };
+    print if ($inside);
+}

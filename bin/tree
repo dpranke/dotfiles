@@ -1,0 +1,94 @@
+#!/bin/bash
+#
+# usage: tree
+#
+
+if [ -z "$src" ]
+then
+    echo "\$src needs to be set to find your trees"
+    exit 1
+fi
+
+findrev() {
+    if git log -1 $1 > /dev/null 2>& 1
+    then
+      currev=$(git log -1 $1 | awk '$1 == "git-svn-id:" { sub("^.*@", "", $2); print $2; }') 
+    else
+      currev="-1"
+    fi
+}
+
+gitbranch() {
+    b=$(git symbolic-ref HEAD 2>/dev/null)
+    branch=$(echo ${b##refs/heads/})
+    let "local = 0"
+    findrev HEAD~$local
+    while [ -z "$currev" ]
+    do
+        let "local += 1"
+        findrev HEAD~$local
+    done
+
+    if [ $currev = -1 ]
+    then
+       echo "  $1: $branch => ??"
+    elif [ $local = 0 ]
+    then
+       echo "  $1: $branch => r$currev (nothing local)"
+    else
+       echo "  $1: $branch => r$currev +$local"
+    fi
+    currev=""
+}
+
+chromerev() {
+    gitbranch chrome
+}
+
+webkitrev() {
+    gitbranch webkit
+}
+
+svnrev() {
+    currev=$(svn info $1 | awk '$1 == "Revision:" { print $2 }')
+    echo "  $2: r$currev"
+}
+
+depsrev() {
+    currev=$(awk '$1 == "\"'$3'\":" { print substr($2, 2, length($2)-3) }' $1)
+    echo "  $2: r$currev"
+}
+
+cd $src
+CHECKOUTS="repos master dev dev2 dev3 svn wk"
+if [ -n "$*" ]
+then
+    CHECKOUTS="$*"
+fi
+
+for i in $CHECKOUTS
+do
+    echo "$i:"
+    if [ "$i" = "repos" ]
+    then
+       svnrev svn://svn.chromium.org/chrome/trunk/src chrome 
+       svnrev http://svn.webkit.org/repository/webkit webkit
+    elif [ -d "$src/$i/src/.git" ]
+    then
+        cd $src/$i/src
+        chromerev
+        if [ -d "$src/$i/src/third_party/WebKit/.git" ]
+        then
+            cd $src/$i/src/third_party/WebKit
+            webkitrev
+        fi
+    elif [ -d "$src/$i/src/.svn" ]
+    then
+        svnrev "$src/$i/src" chrome
+        depsrev "$src/$i/src/DEPS" webkit webkit_revision
+    elif [ -d "$src/$i/.svn" -a -d "$src/$i/LayoutTests" ]
+    then
+        svnrev "$src/$i" webkit
+    fi
+    echo
+done

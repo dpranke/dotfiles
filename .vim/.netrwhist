@@ -1,0 +1,6 @@
+let g:netrw_dirhistmax  =10
+let g:netrw_dirhist_cnt =4
+let g:netrw_dirhist_1='/Volumes/Src/src/c/depot_dev/git_cl/test'
+let g:netrw_dirhist_2='/Volumes/Src/src/depot_svn/.svn/gcl_info/changes'
+let g:netrw_dirhist_3='/Volumes/Src/src/master/src/third_party/WebKit/Tools/BuildSlaveSupport/build.webkit.org-config'
+let g:netrw_dirhist_4='/src/wk/Source/WebCore/WebCore.gyp'

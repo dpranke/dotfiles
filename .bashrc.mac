@@ -1,0 +1,114 @@
+#
+# .bashrc for Mac-specific stuff
+#
+
+export EMAIL_ADDRESS=dpranke@chromium.org
+export GYP_GENERATORS=ninja
+
+if [ -d /Dropbox/Shared/dotfiles ]
+then
+  export dotfiles=/Dropbox/Shared/dotfiles
+elif [ -d $HOME/Dropbox/Shared/dotfiles ]
+then
+  export dotfiles=$HOME/Dropbox/Shared/dotfiles
+fi
+
+
+if [ -d /Volumes/Src/src ]
+then
+    export src=/Volumes/Src/src
+else
+    export src=/src
+fi
+
+#
+# Set up PATH
+#
+
+export PATH=/opt/subversion/bin:${PATH}:/opt/local/bin
+
+if [ -d /Developer/usr/bin ]
+then
+  export PATH=${PATH/:\/usr\/bin/:/Developer/usr/bin:/usr/bin}
+fi
+
+ap /src/pylint/bin
+ap /usr/local/git/bin
+ap /usr/texbin
+
+export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
+export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
+
+export PYTHONPATH=
+function addappengpath() {
+  PYTHONPATH=$PYTHONPATH:/usr/local/google_appengine/
+  PYTHONPATH=$PYTHONPATH:/usr/local/google_appengine/lib/django
+  PYTHONPATH=$PYTHONPATH:/usr/local/google_appengine/lib/webob
+  PYTHONPATH=$PYTHONPATH:/usr/local/google_appengine/lib/yaml
+}
+
+
+if [ -d "$src/depot_tools" -a -z "$depot_view" ]
+then
+    export PATH=${PATH}:${src}/depot_tools
+fi
+
+if [ -n "$GOMA" ]
+then
+  export PATH=$GOMA:$PATH
+fi
+
+#
+# Mac-specific functions
+#
+
+function clobber() {
+  if [ -z "$csrc" ]
+  then
+    echo "not in a view"
+  else
+    echodo rm -fr $csrc/out
+  fi
+}
+
+function dbgpath() {
+  if [ -z "$csrc" ]
+  then
+    echo "not in a view"
+    return
+  fi
+
+  if echo $PATH | grep "$bdir/Release" > /dev/null
+  then
+    export PATH=$(echo $PATH | sed "s-$bdir/Release-$bdir/Debug-g")
+  elif echo $PATH | grep "$bdir/Debug" > /dev/null
+  then
+    true; # do nothing, already present
+  else
+    export PATH=$PATH:${csrc}/${bdir}/Debug/TestShell.app/Contents/MacOS
+    export PATH=$PATH:${csrc}/${bdir}/Debug
+    export PATH=$PATH:${wk}/WebKitBuild/Debug
+  fi
+}
+
+function relpath() {
+  if [ -z "$csrc" ]
+  then
+    echo "not in a view"
+    return
+  fi
+
+  if echo $PATH | grep "$bdir/Debug" > /dev/null
+  then
+    export PATH=$(echo $PATH | sed "s-$bdir/Debug-$bdir/Release-g")
+  elif echo $PATH | grep "$bdir/Release" > /dev/null
+  then
+    true; # do nothing, already present
+  else
+    export PATH=$PATH:${csrc}/${bdir}/Release/TestShell.app/Contents/MacOS
+    export PATH=$PATH:${csrc}/${bdir}/Release
+    export PATH=$PATH:${wk}/WebKitBuild/Release
+  fi
+}
+
+

@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+#
+# wrapper to build webkit and chrome the "best" way on a given platform
+#
+
+import optparse
+import os
+import sys
+import subprocess
+
+def echodo(options, cmd):
+    if options.verbose or options.dryrun:
+        print cmd
+    if not options.dryrun:
+        subprocess.call(cmd, shell=True)
+
+
+def exit(msg):
+    print >>sys.stderr, msg
+    sys.exit(1)
+
+
+def system(cmd):
+    p = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE)
+    return os.waitpid(p.pid, 0)
+
+
+def env(var):
+    return os.getenv(var)
+
+
+def script(options, target):
+    prefix = 'goma-xcodebuild ' if env('GOMA') else ''
+    config =  '--' + options.configuration.lower()
+    echodo(options, '%sTools/Scripts/%s %s | Tools/Scripts/filter-build-webkit' %
+                    (prefix, target, config))
+
+
+def ninja(options, args):
+    os.chdir(env('csrc'))
+    echodo(options, 'ninja -C out/%s %s' % (options.configuration, ' '.join(args)))
+
+
+parser = optparse.OptionParser()
+parser.add_option('-a', '--apple', dest='port', action='store_const', const='apple')
+parser.add_option('-c', '--chromium', dest='port', action='store_const', const='chromium', help='(default)')
+parser.add_option('-d', '--debug', dest='configuration', action='store_const', const='Debug')
+parser.add_option('-n', '--dryrun', action='store_true', default=False)
+parser.add_option('-r', '--release', dest='configuration', action='store_const', const='Release', help='(default)')
+parser.add_option('-v', '--verbose', action='store_true', default=False)
+options, args = parser.parse_args()
+
+options.port = options.port or 'chromium'
+options.configuration = options.configuration or 'Release'
+
+if not env('csrc') and not env('wk'):
+    exit('Not in a checkout...')
+
+if not system('which ninja'):
+    exit('ninja not installed ...')
+
+if sys.platform == 'darwin':
+    os.chdir(env('wk'))
+    if options.port == 'apple':
+        script(options, 'build-webkit')
+        script(options, 'build-dumprendertree')
+    else:
+        ninja(options, args)
+
+elif sys.platform in ('Linux2', 'Linux3'):
+    if options.port == 'apple':
+        exit("Can't build the Apple port on Linux")
+    else:
+        ninja(options, args)
+else:
+    exit("Unsupported platform")
