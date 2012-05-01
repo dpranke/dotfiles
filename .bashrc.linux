@@ -16,58 +16,22 @@ unset GOMA
 if [ -d /src/goma ]
 then
   export GOMA=/src/goma
-  export PATH=$GOMA:${PATH}
 fi
-
-if [ -d /usr/local/gold/bin ]
-then
-  export PATH=/usr/local/gold/bin:${PATH}
-  export CXX="g++ -B/usr/local/gold/bin"
-fi
-
 
 export GYP_DEFINES=target_arch=x64
+export GYP_GENERATORS=ninja
 
-export EMAIL_ADDRESS=dpranke@chromium.org
-
-if [ -d /Dropbox/Shared/dotfiles ]
+if [ -d /src/dotfiles ]
 then
-  export dotfiles=/Dropbox/Shared/dotfiles
-elif [ -d $HOME/Dropbox/Shared/dotfiles ]
-then
-  export dotfiles=$HOME/Dropbox/Shared/dotfiles
+  export dotfiles=/src/dotfiles
 fi
 
+export EMAIL_ADDRESS=dpranke@chromium.org
 
 if [ -n "$DISPLAY" ]
 then
    export DEFAULT_DISPLAY=$DISPLAY
 fi
-
-function cbuild() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if [ "$1" = "--debug" ]
-  then
-    cfg="Debug"
-    shift
-  else
-    cfg="Release"
-  fi
-  if [ -n "$1" ]
-  then
-    target="$1"
-  else
-    target="chrome"
-  fi
-
-  ( set -x ; cd $csrc ; time make -j 5 BUILDTYPE=$cfg $target )
-}
-
 
 function clobber() {
   if [ -z "$csrc" ]
@@ -114,16 +78,16 @@ function rwt() {
 }
 
 
-# run layout tests w/ command command line flags
-function rwtd() {
-  rwt --clobber-old-results --print config,default --noshow-results \
-      --no-new-test-results --no-retry-failures $*
+# run layout tests w/ common chromium flags
+function rwtc() {
+  rwtd --chromium --additional-expectations ~/local_expectations.txt $*
 }
 
 
-# run layout tests under python debugger
-function rwtdbg() {
-  python -m pdb $wks/new-run-webkit-tests $*
+# run layout tests w/ command command line flags
+function rwtd() {
+  rwt --clobber-old-results --print config,default --noshow-results \
+      --no-new-test-results $*
 }
 
 
@@ -154,93 +118,6 @@ function relpath() {
   fi
 }
 
-
-function tsbuild() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if [ "$1" = "--debug" ]
-  then
-    cfg="Debug"
-  else
-    cfg="Release"
-  fi
-
-  ( set -x ; cd $csrc ; \
-    time make -j 5 BUILDTYPE=$cfg test_shell test_shell_tests DumpRenderTree ImageDiff )
-}
-
-function gabuild() {
-  if [ -z "$GOMA" ]
-  then
-    echo "goma not installed"
-    return
-  fi
-
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if [ "$1" = "--debug" ]
-  then
-    cfg="Debug"
-    shift
-  else
-    cfg="Release"
-  fi
-
-  if [ -n "$*" ]
-  then
-    target="$*"
-  else
-    target="all"
-  fi
-
-  ( set -x ; \
-    cd $csrc ; PATH="$GOMA:$PATH" \
-    time make -j 100 BUILDTYPE=$cfg $target )
-}
-
-
-function gbuild() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if [ "$1" = "--debug" ]
-  then
-    cfg="Debug"
-    shift
-  else
-    cfg="Release"
-  fi
-
-  if [ -n "$*" ]
-  then
-    targets="$*"
-  else
-    targets="chrome"
-  fi
-
-  ( set -x ; cd $csrc ; PATH="$GOMA:$PATH" \
-    time make -r -j 100 BUILDTYPE=$cfg $targets )
-}
-
-function gomabuild() {
-  if [ -z "$GOMA" ]
-  then
-    echo "goma is not installed."
-    return
-  fi
-  gbuild $*
-}
 
 function gomastart() {
   if [ -z "$GOMA" ]

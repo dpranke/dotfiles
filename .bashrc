@@ -123,6 +123,10 @@ function gitbranch() {
   echo ${b##refs/heads/}
 }
 
+function gpy() {
+  git grep $* -- "*.py"
+}
+
 # cd to WebKit/LayoutTests/platform/chromium/$*
 function ltc() {
   if [ -z "$ltc" ]
@@ -180,6 +184,45 @@ function redot() {
   fi
 }
 
+function repeat() {
+  count=-1
+  no_execute=0
+  verbose=0
+  while getopts "hc:nv" opt; do
+    case $opt in
+    c) count=$OPTARG ;;
+    n) no_execute=1 ;;
+    v) verbose=1 ;;
+    h|\?)
+       echo "usage: repeat [options] command"
+       echo ""
+       echo "  -c -> count"
+       echo "  -n -> no-execute"
+       echo "  -v -> verbose"
+       return 1 ;;
+    esac
+  done
+  shift $((OPTIND-1))
+  OPTIND=1
+
+  while [ $count -ne 0 ]
+  do
+    if [ $no_execute -eq 1 -o $verbose -eq 1 ]
+    then
+      echo '# $' $@
+    fi
+    if [ $no_execute -ne 1 ]
+    then
+      $@
+      if [ $? -gt 128 ]
+      then
+        return
+      fi
+    fi
+    count=$((count - 1))
+  done
+}
+
 
 # revno - print out latest Chromium version number
 function revno() {
@@ -227,12 +270,19 @@ function rwt() {
   time (echodo python $wks/new-run-webkit-tests $* )
 }
 
-# run layout tests w/ command command line flags
-function rwtd() {
-  rwt --clobber-old-results --noshow-results --no-retry-failures \
-      --no-new-test-results --print config,default $*
+# run layout tests w/ chromium-specific flags
+function rwtc() {
+  rwt --chromium --additional-expectations ~/local_expectations.txt $*
 }
 
+# run layout tests w/ command command line flags
+function rwtd() {
+  rwt --clobber-old-results --noshow-results --no-new-test-results --print config,default $*
+}
+
+function rwtl() {
+    rwtc --lint-test-files $*
+}
 
 function setprompt() {
   if [ "$TERM" = "xterm" -o "$TERM" = "xterm-color" -o \
@@ -284,14 +334,13 @@ function shortcuts() {
 }
 
 
-# cd to src/$*
 function src() { cd $src/$* ; }
 
 
 # sv [-d] [name] - setup dev env
 #   usage - 'sv' alone switches to current view. Errors out if there
 #                is no current view.
-#           'sv name' makes $src/c.$name the current view. Errors out
+#           'sv name' makes $src/$name the current view. Errors out
 #                if the dir does not exist.
 #           'sv -d' unsets the current view. Has no effect if there is no
 #                current view.
@@ -317,7 +366,6 @@ function sv() {
     fi
   fi
 
-  # figure out if $1 is a full dir or needs "c." or "wk." prepended.
   # set the $src and $wk dirs accordingly.
   if [ -d "$src/$arg" ]
   then
@@ -338,13 +386,16 @@ function sv() {
   fi
 
   export view=$new_name
-  export csrc=$new_src
+  wkview=0
   if [ -d "$new_src/third_party/WebKit" ]
   then
     export wk=$new_src/third_party/WebKit
+    export csrc=$new_src
   elif [ -d "$new_src/Source/WebCore" ]
   then
     export wk=$new_src
+    export csrc=$new_src/Source/WebKit/chromium
+    wkview=1
   else
     unset wk
   fi
@@ -399,14 +450,15 @@ function sv() {
   unset new_view
   unset new_src
   unset new_wk
-  csrc
+  if [ $wkview -eq 1 ]
+  then
+    wk
+  else
+    csrc
+  fi
+  unset wkview
 }
 
-function wv()
-{
-  sv $*
-  wk
-}
 
 # Bash completion for sv()
 # return any directories matching $src/c\.*
@@ -478,6 +530,13 @@ function wks() {
   fi
 }
 
+function wp { webkit-patch $*; }
+
+function wpd { webkit-patch pretty-diff $*; }
+
+function wppb { webkit-patch print-baselines $*; }
+
+function wppe { webkit-patch print-expectations $*; }
 
 
 #
