@@ -1,0 +1,42 @@
+// fila-macpro running SnowLeopard as of r116666 (2012-05-10)
+
+// problems
+
+// passes
+BUGL : compositing/geometry/empty-embed-rects.html = PASS
+BUGL : fast/css/resize-single-axis.html = PASS
+BUGL : fast/events/autoscroll.html = PASS
+BUGL : fast/forms/input-appearance-preventDefault.html = PASS
+BUGL : fast/forms/input-appearance-selection.html = PASS
+BUGL : fast/forms/search-rtl.html = PASS
+BUGL : fast/images/embed-does-not-propagate-dimensions-to-object-ancestor.html = PASS
+BUGL : fast/loader/loadInProgress.html = PASS
+BUGL : fast/text/selection-rect-rounding.html = PASS
+BUGL : storage/indexeddb/noblobs.html = PASS
+
+// failures
+BUGL : css3/filters/composited-during-animation-layertree.html = TEXT
+BUGL : css3/filters/composited-during-transition-layertree.html = TEXT
+BUGL : fast/css/line-height-determined-by-primary-font.html = IMAGE
+BUGL : fast/dom/52776.html = IMAGE+TEXT
+BUGL : fast/text/complex-text-opacity.html = IMAGE+TEXT
+BUGL : fast/text/international/arabic-justify.html = IMAGE+TEXT
+BUGL : fast/text/international/bidi-AN-after-L.html = IMAGE+TEXT
+BUGL : fast/text/international/bidi-AN-after-empty-run.html = IMAGE
+BUGL : fast/text/international/bidi-CS-after-AN.html = IMAGE+TEXT
+BUGL : fast/text/international/bidi-mirror-he-ar.html = IMAGE+TEXT
+BUGL : fast/text/international/bidi-neutral-directionality-paragraph-start.html = IMAGE+TEXT
+BUGL : fast/text/international/bidi-neutral-run.html = IMAGE
+BUGL : http/tests/loading/pdf-commit-load-callbacks.html = TEXT
+BUGL : platform/chromium/compositing/webgl-loses-compositor-context.html = TIMEOUT
+BUGL : svg/W3C-SVG-1.1/text-fonts-01-t.svg = IMAGE+TEXT
+BUGL : svg/text/text-fonts-01-t.svg = IMAGE+TEXT
+BUGL : tables/mozilla/bugs/bug1188.html = IMAGE+TEXT
+
+// flaky
+BUGL : compositing/sibling-positioning.html = TIMEOUT PASS
+BUGL : fast/events/platform-wheelevent-paging-x-in-scrolling-page.html = TEXT PASS
+BUGL : fast/events/platform-wheelevent-paging-xy-in-scrolling-page.html = TEXT PASS
+BUGL : fast/events/platform-wheelevent-paging-y-in-scrolling-page.html = TEXT PASS
+BUGL : fast/events/scrollbar-double-click.html = TEXT PASS
+BUGL : fast/writing-mode/broken-ideograph-small-caps.html = TIMEOUT CRASH

@@ -47,6 +47,8 @@ BUGL : tables/mozilla/bugs/bug1188.html = IMAGE+TEXT
 
 // flaky
 BUGL : fast/css/getComputedStyle/getComputedStyle-with-pseudo-element.html = TEXT PASS
+BUGL : fast/filesystem/file-write-events.html = TIMEOUT PASS
+BUGL : fast/filesystem/workers/simple-temporary-sync.html = TIMEOUT PASS
 BUGL : fast/repaint/block-selection-gap-in-composited-layer.html = IMAGE PASS
 BUGL : compositing/sibling-positioning.html = TIMEOUT PASS
 BUGL : compositing/animation/busy-indicator.html = IMAGE PASS
