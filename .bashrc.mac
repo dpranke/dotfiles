@@ -2,18 +2,6 @@
 # .bashrc for Mac-specific stuff
 #
 
-export EMAIL_ADDRESS=dpranke@chromium.org
-export GYP_GENERATORS=ninja
-
-if [ -d /Dropbox/Shared/dotfiles ]
-then
-  export dotfiles=/Dropbox/Shared/dotfiles
-elif [ -d $HOME/Dropbox/Shared/dotfiles ]
-then
-  export dotfiles=$HOME/Dropbox/Shared/dotfiles
-fi
-
-
 if [ -d /Volumes/Src/src ]
 then
     export src=/Volumes/Src/src
@@ -21,10 +9,9 @@ else
     export src=/src
 fi
 
-#
-# Set up PATH
-#
+export bdir=xcodebuild
 
+# override the MacOS svn with the one from ports
 export PATH=/opt/subversion/bin:${PATH}:/opt/local/bin
 
 if [ -d /Developer/usr/bin ]
@@ -47,27 +34,64 @@ function addappengpath() {
   PYTHONPATH=$PYTHONPATH:/usr/local/google_appengine/lib/yaml
 }
 
+export EMAIL_ADDRESS=dpranke@chromium.org
+
+if [ -d /src/dotfiles ]
+then
+  export dotfiles=/src/dotfiles
+fi
 
 if [ -d "$src/depot_tools" -a -z "$depot_view" ]
 then
     export PATH=${PATH}:${src}/depot_tools
 fi
 
-if [ -n "$GOMA" ]
+if [ -d /src/goma ]
 then
+  export GOMA=/src/goma
   export PATH=$GOMA:$PATH
+  #export CC=clang
+  #export CXX=clang++
+  # if [ /bin/false -a -d "$csrc/third_party/llvm-build/Relase+Asserts/bin" ]
+  #then
+  #  export PATH=$csrc/third_party/llvm-build/Release+Asserts/bin:$PATH
+  #fi
 fi
 
-#
-# Mac-specific functions
-#
+function cbuild() {
+  if [ -z "$csrc" ]
+  then
+    echo "not in a view"
+    return
+  fi
+
+  if [ "$1" = "--debug" ]
+  then
+    cfg="Debug"
+    shift
+  else
+    cfg="Release"
+  fi
+  if [ -n "$1" ]
+  then
+    target="$1"
+  else
+    target="All"
+  fi
+
+  ( set -x ; \
+    cd $csrc/chrome; \
+    time xcodebuild -project chrome.xcodeproj -configuration $cfg \
+                    -target $target )
+}
+
 
 function clobber() {
   if [ -z "$csrc" ]
   then
     echo "not in a view"
   else
-    echodo rm -fr $csrc/out
+    echodo rm -fr $csrc/$bdir/*
   fi
 }
 
@@ -91,6 +115,21 @@ function dbgpath() {
   fi
 }
 
+# run layout tests w/o any command line flags
+function rwt() {
+  time (echodo python $wks/new-run-webkit-tests $* )
+}
+
+function rwtc() {
+  rwtd --chromium --local-expectations ~/local_expectations.txt $*
+}
+
+# run layout tests w/ common command line flags
+function rwtd() {
+  rwt --clobber-old-results --noshow-results --no-retry-failures \
+      --no-new-test-results --print config,default $*
+}
+
 function relpath() {
   if [ -z "$csrc" ]
   then
@@ -111,4 +150,156 @@ function relpath() {
   fi
 }
 
+function tsbuild() {
+  if [ -z "$csrc" ]
+  then
+    echo "not in a view"
+    return
+  fi
 
+  if [ "$1" = "--debug" ]
+  then
+    cfg="Debug"
+  else
+    cfg="Release"
+  fi
+  ( set -x ; \
+    cd $csrc/webkit/ ; \
+    time xcodebuild -project webkit.xcodeproj -configuration $cfg \
+                    -target All )
+}
+
+function gabuild() {
+  if [ -z "$GOMA" ]
+  then
+    echo "goma not installed"
+    return
+  fi
+
+  if [ -z "$csrc" ]
+  then
+    echo "not in a view"
+    return
+  fi
+
+  if [ "$1" = "--debug" ]
+  then
+    cfg="Debug"
+    shift
+  else
+    cfg="Release"
+  fi
+
+  if [ -n "$*" ]
+  then
+    target="$*"
+  else
+    target="All"
+  fi
+
+  if [ -n "$*" ]
+  then
+    target="$*"
+  else
+    target="All"
+  fi
+
+  ( set -x ; \
+    cd $csrc/build ; \
+    time $GOMA/goma-xcodebuild xcodebuild -project all.xcodeproj \
+        -configuration $cfg -target $target )
+}
+
+function gbuild() {
+  if [ -z "$GOMA" ]
+  then
+    echo "goma not installed"
+    return
+  fi
+
+  if [ -z "$csrc" ]
+  then
+    echo "not in a view"
+    return
+  fi
+
+  if [ "$1" = "--debug" ]
+  then
+    cfg="Debug"
+    shift
+  else
+    cfg="Release"
+  fi
+
+  if [ -n "$*" ]
+  then
+    target="$*"
+  else
+    target="All"
+  fi
+
+  ( set -x ; \
+    cd $csrc/webkit/ ; \
+    time $GOMA/goma-xcodebuild xcodebuild -project webkit.xcodeproj \
+        -configuration $cfg -target $target )
+}
+
+function gcbuild() {
+  if [ -z "$GOMA" ]
+  then
+    echo "goma not installed"
+    return
+  fi
+
+  if [ -z "$csrc" ]
+  then
+    echo "not in a view"
+    return
+  fi
+
+  if [ "$1" = "--debug" ]
+  then
+    cfg="Debug"
+    shift
+  else
+    cfg="Release"
+  fi
+
+  if [ -n "$*" ]
+  then
+    target="$*"
+  else
+    target="All"
+  fi
+
+  ( set -x ; \
+    cd $csrc/chrome ; \
+    time $GOMA/goma-xcodebuild xcodebuild -project chrome.xcodeproj \
+        -configuration $cfg -target $target )
+}
+
+
+function gbuild-webkit() {
+  if [ -z "$GOMA" ]
+  then
+    echo "goma not installed"
+    return
+  fi
+
+  ( cd $wks ; $GOMA/goma-xcodebuild build-webkit $* )
+}
+
+function gbuild-dumprendertree() {
+  if [ -z "$GOMA" ]
+  then
+    echo "goma not installed"
+    return
+  fi
+
+  ( cd $wks ; $GOMA/goma-xcodebuild build-dumprendertree $* )
+}
+
+
+function gomastart() {
+  $GOMA/goma_ctl.sh start
+}

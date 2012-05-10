@@ -1,0 +1,57 @@
+// fila-macpro running SnowLeopard as of r116666 (2012-05-10)
+
+// problems
+
+// passes
+BUGL : compositing/reflections/reflection-opacity.html = PASS
+BUGL : fast/css/resize-single-axis.html = PASS
+BUGL : fast/events/autoscroll.html = PASS
+BUGL : fast/filesystem/workers/file-writer-sync-truncate-extend.html = PASS
+BUGL : fast/forms/input-appearance-preventDefault.html = PASS
+BUGL : fast/forms/input-appearance-selection.html = PASS
+BUGL : fast/forms/search-rtl.html = PASS
+BUGL : http/tests/cache/history-only-cached-subresource-loads-max-age-https.html = PASS
+BUGL : storage/indexeddb/noblobs.html = PASS
+BUGL : svg/as-background-image/svg-as-background-6.html = PASS
+BUGL : svg/custom/clip-path-referencing-use2.svg = PASS
+
+// failures
+BUGL : css2.1/t0905-c414-flt-fit-01-d-g.html = IMAGE+TEXT
+BUGL : css2.1/t0905-c5525-flthw-00-c-g.html = IMAGE+TEXT
+BUGL : css2.1/t0905-c5526-flthw-00-c-g.html = IMAGE+TEXT
+BUGL : css3/filters/composited-during-animation-layertree.html = TEXT
+BUGL : css3/filters/composited-during-transition-layertree.html = TEXT
+BUGL : fast/css/line-height-determined-by-primary-font.html = IMAGE
+BUGL : fast/dom/52776.html = IMAGE+TEXT
+BUGL : fast/loader/recursive-before-unload-crash.html = TIMEOUT
+BUGL : fast/text/fallback-traits-fixup.html = IMAGE+TEXT
+BUGL : fast/text/international/arabic-justify.html = IMAGE+TEXT
+BUGL : fast/text/international/bidi-AN-after-L.html = IMAGE
+BUGL : fast/text/international/bidi-AN-after-empty-run.html = IMAGE
+BUGL : fast/text/international/bidi-CS-after-AN.html = IMAGE
+BUGL : fast/text/international/bidi-mirror-he-ar.html = IMAGE
+BUGL : fast/text/international/bidi-neutral-directionality-paragraph-start.html = IMAGE+TEXT
+BUGL : fast/text/international/bidi-neutral-run.html = IMAGE
+BUGL : fast/text/international/complex-character-based-fallback.html = IMAGE+TEXT
+BUGL : fast/text/international/danda-space.html = IMAGE+TEXT
+BUGL : fast/text/international/hindi-spacing.html = IMAGE+TEXT
+BUGL : fast/text/international/hindi-whitespace.html = IMAGE+TEXT
+BUGL : fast/text/international/plane2.html = IMAGE
+BUGL : fast/text/midword-break-before-surrogate-pair.html = IMAGE+TEXT
+BUGL : http/tests/loading/bad-server-subframe.html = TIMEOUT
+BUGL : svg/W3C-SVG-1.1/text-fonts-01-t.svg = IMAGE+TEXT
+BUGL : svg/hixie/intrinsic/003.html = IMAGE+TEXT
+BUGL : svg/text/non-bmp-positioning-lists.svg = IMAGE
+BUGL : svg/text/text-fonts-01-t.svg = IMAGE+TEXT
+BUGL : tables/mozilla/bugs/bug1188.html = IMAGE+TEXT
+
+// flaky
+BUGL : fast/css/getComputedStyle/getComputedStyle-with-pseudo-element.html = TEXT PASS
+BUGL : fast/repaint/block-selection-gap-in-composited-layer.html = IMAGE PASS
+BUGL : compositing/sibling-positioning.html = TIMEOUT PASS
+BUGL : compositing/animation/busy-indicator.html = IMAGE PASS
+BUGL : http/tests/websocket/tests/hybi/workers/close-code-and-reason.html = TEXT PASS
+BUGL : platform/chromium/compositing/webgl-loses-compositor-context.html = TIMEOUT PASS
+BUGL : svg/filters/feImage-animated-transform-on-target-rect.svg = IMAGE PASS
+BUGL : svg/repaint/image-with-clip-path.svg = IMAGE PASS
+BUGL : transitions/move-after-transition.html = IMAGE PASS
