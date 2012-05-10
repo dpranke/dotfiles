@@ -35,6 +35,7 @@ BUGL : tables/mozilla/bugs/bug1188.html = IMAGE+TEXT
 
 // flaky
 BUGL : compositing/sibling-positioning.html = TIMEOUT PASS
+BUGL : compositing/video/video-with-invalid-source.html = TIMEOUT PASS
 BUGL : fast/events/platform-wheelevent-paging-x-in-scrolling-page.html = TEXT PASS
 BUGL : fast/events/platform-wheelevent-paging-xy-in-scrolling-page.html = TEXT PASS
 BUGL : fast/events/platform-wheelevent-paging-y-in-scrolling-page.html = TEXT PASS
