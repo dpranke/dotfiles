@@ -13,7 +13,6 @@ BUGL : storage/indexeddb/noblobs.html = PASS
 // failures
 BUGL : fast/frames/lots-of-objects.html = TIMEOUT
 BUGL : fast/loader/javascript-url-in-embed.html = TEXT
-BUGL : fast/repaint/fixed-transformed.html = IMAGE
 BUGL : fast/workers/storage/interrupt-database.html = TIMEOUT
 BUGL : http/tests/cache/history-only-cached-subresource-loads.html = MISSING
 BUGL : http/tests/cache/history-only-cached-subresource-loads-max-age-https.html = MISSING
@@ -25,6 +24,12 @@ BUGL : tables/mozilla/bugs/bug1188.html = IMAGE+TEXT
 // flaky
 BUGL : compositing/sibling-positioning.html = TIMEOUT PASS
 BUGL : fast/frames/lots-of-iframes.html = TIMEOUT PASS
+BUGL : fast/repaint/fixed-scale.html = IMAGE PASS
+BUGL : fast/repaint/fixed-table-overflow-zindex.html = IMAGE PASS
+BUGL : fast/repaint/fixed-tranformed.html = IMAGE PASS
+BUGL : fast/repaint/scroll-fixed-reflected-layer.html = IMAGE PASS
+BUGL : inspector/timeline/timeline-script-tag-1.html = TEXT PASS
 BUGL : perf/mouse-event.html = TEXT PASS
 BUGL : platform/chromium/compositing/webgl-loses-compositor-context.html = TIMEOUT PASS
 BUGL : svg/custom/js-late-pattern-creation.svg = IMAGE PASS
+
