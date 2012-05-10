@@ -2,9 +2,9 @@
 # .bashrc for Mac-specific stuff
 #
 
-if [ -d /Volumes/Src/src ]
+if [ -d /Volumes/Source/src ]
 then
-    export src=/Volumes/Src/src
+    export src=/Volumes/Source/src
 else
     export src=/src
 fi
@@ -46,17 +46,11 @@ then
     export PATH=${PATH}:${src}/depot_tools
 fi
 
-if [ -d /src/goma ]
-then
-  export GOMA=/src/goma
-  export PATH=$GOMA:$PATH
-  #export CC=clang
-  #export CXX=clang++
-  # if [ /bin/false -a -d "$csrc/third_party/llvm-build/Relase+Asserts/bin" ]
-  #then
-  #  export PATH=$csrc/third_party/llvm-build/Release+Asserts/bin:$PATH
-  #fi
-fi
+#if [ -d /src/goma ]
+#then
+#  export GOMA=/src/goma
+#  export PATH=$GOMA:$PATH
+#fi
 
 function cbuild() {
   if [ -z "$csrc" ]
@@ -95,61 +89,6 @@ function clobber() {
   fi
 }
 
-function dbgpath() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if echo $PATH | grep "$bdir/Release" > /dev/null
-  then
-    export PATH=$(echo $PATH | sed "s-$bdir/Release-$bdir/Debug-g")
-  elif echo $PATH | grep "$bdir/Debug" > /dev/null
-  then
-    true; # do nothing, already present
-  else
-    export PATH=$PATH:${csrc}/${bdir}/Debug/TestShell.app/Contents/MacOS
-    export PATH=$PATH:${csrc}/${bdir}/Debug
-    export PATH=$PATH:${wk}/WebKitBuild/Debug
-  fi
-}
-
-# run layout tests w/o any command line flags
-function rwt() {
-  time (echodo python $wks/new-run-webkit-tests $* )
-}
-
-function rwtc() {
-  rwtd --chromium --local-expectations ~/local_expectations.txt $*
-}
-
-# run layout tests w/ common command line flags
-function rwtd() {
-  rwt --clobber-old-results --noshow-results --no-retry-failures \
-      --no-new-test-results --print config,default $*
-}
-
-function relpath() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if echo $PATH | grep "$bdir/Debug" > /dev/null
-  then
-    export PATH=$(echo $PATH | sed "s-$bdir/Debug-$bdir/Release-g")
-  elif echo $PATH | grep "$bdir/Release" > /dev/null
-  then
-    true; # do nothing, already present
-  else
-    export PATH=$PATH:${csrc}/${bdir}/Release/TestShell.app/Contents/MacOS
-    export PATH=$PATH:${csrc}/${bdir}/Release
-    export PATH=$PATH:${wk}/WebKitBuild/Release
-  fi
-}
-
 function tsbuild() {
   if [ -z "$csrc" ]
   then
@@ -167,136 +106,6 @@ function tsbuild() {
     cd $csrc/webkit/ ; \
     time xcodebuild -project webkit.xcodeproj -configuration $cfg \
                     -target All )
-}
-
-function gabuild() {
-  if [ -z "$GOMA" ]
-  then
-    echo "goma not installed"
-    return
-  fi
-
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if [ "$1" = "--debug" ]
-  then
-    cfg="Debug"
-    shift
-  else
-    cfg="Release"
-  fi
-
-  if [ -n "$*" ]
-  then
-    target="$*"
-  else
-    target="All"
-  fi
-
-  if [ -n "$*" ]
-  then
-    target="$*"
-  else
-    target="All"
-  fi
-
-  ( set -x ; \
-    cd $csrc/build ; \
-    time $GOMA/goma-xcodebuild xcodebuild -project all.xcodeproj \
-        -configuration $cfg -target $target )
-}
-
-function gbuild() {
-  if [ -z "$GOMA" ]
-  then
-    echo "goma not installed"
-    return
-  fi
-
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if [ "$1" = "--debug" ]
-  then
-    cfg="Debug"
-    shift
-  else
-    cfg="Release"
-  fi
-
-  if [ -n "$*" ]
-  then
-    target="$*"
-  else
-    target="All"
-  fi
-
-  ( set -x ; \
-    cd $csrc/webkit/ ; \
-    time $GOMA/goma-xcodebuild xcodebuild -project webkit.xcodeproj \
-        -configuration $cfg -target $target )
-}
-
-function gcbuild() {
-  if [ -z "$GOMA" ]
-  then
-    echo "goma not installed"
-    return
-  fi
-
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if [ "$1" = "--debug" ]
-  then
-    cfg="Debug"
-    shift
-  else
-    cfg="Release"
-  fi
-
-  if [ -n "$*" ]
-  then
-    target="$*"
-  else
-    target="All"
-  fi
-
-  ( set -x ; \
-    cd $csrc/chrome ; \
-    time $GOMA/goma-xcodebuild xcodebuild -project chrome.xcodeproj \
-        -configuration $cfg -target $target )
-}
-
-
-function gbuild-webkit() {
-  if [ -z "$GOMA" ]
-  then
-    echo "goma not installed"
-    return
-  fi
-
-  ( cd $wks ; $GOMA/goma-xcodebuild build-webkit $* )
-}
-
-function gbuild-dumprendertree() {
-  if [ -z "$GOMA" ]
-  then
-    echo "goma not installed"
-    return
-  fi
-
-  ( cd $wks ; $GOMA/goma-xcodebuild build-dumprendertree $* )
 }
 
 

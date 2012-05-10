@@ -272,7 +272,7 @@ function rwt() {
 
 # run layout tests w/ chromium-specific flags
 function rwtc() {
-  rwt --chromium --additional-expectations ~/local_expectations.txt $*
+  rwtd --chromium --additional-expectations ~/local_expectations.txt $*
 }
 
 # run layout tests w/ command command line flags
