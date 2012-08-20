@@ -1,7 +1,7 @@
 #!/bin/bash
 
 function usage() {
-  echo "usage: sync_REPODIR [-hnruv] [ -R repo-dir ] [ -H home-dir ] "
+  echo "usage: sync_dotfiles [-hnruv] [ -R repo-dir ] [ -H home-dir ] "
   echo "  -h -> show-usage"
   echo "  -n -> no-execute"
   echo "  -r -> refresh repo from home"
@@ -11,7 +11,12 @@ function usage() {
 }
 
 HOMEDIR=$HOME
-REPODIR=/src/dotfiles
+if [ "$src" != "" ]
+then
+  REPODIR=$src/dotfiles
+else
+  REPODIR=/src/dotfiles
+fi
 opt_n=0
 opt_r=0
 opt_u=0
@@ -19,7 +24,7 @@ opt_v=0
 while getopts hH:nrR:uU:v arg
 do
   case "$arg" in
-    D) REPODIR=$OPTARG ;;
+    R) REPODIR=$OPTARG ;;
     h) usage   ;;
     H) HOMEDIR=$OPTARG ;;
     n) opt_n=1 ;;

@@ -7,10 +7,18 @@ then
   export srcdrive=d
   export src=/cygdrive/$srcdrive/src
   export winsrc=$srcdrive:\\src
-else
+elif [ -d "/cygdrive/c/src" ]
+then
   export srcdrive=c
   export src=/cygdrive/$srcdrive/src
   export winsrc=$srcdrive:\\src
+elif [ -d "/d/src" ]
+then
+  export srcdrive=d
+  export src=/d/src
+else
+  export srcdrive=c
+  export src=/c/src
 fi
 
 if [ -d "$src/depot_tools" ]
