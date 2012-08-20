@@ -1,5 +1,5 @@
 umask 022
-export PATH=$HOME/bin:/usr/kerberos/bin:/usr/local/bin:/bin:/usr/bin
+export PATH=$HOME/bin:/usr/kerberos/bin:/usr/bin:/usr/local/bin:/bin
 export PATH=$PATH:/usr/X11R6/bin:/sbin:/usr/sbin:/usr/local/sbin
 export LD_LIBRARY_PATH=/usr/X11R6/lib
 
@@ -158,6 +158,9 @@ function lts() {
   fi
 }
 
+function pd { webkit-patch pretty-diff $*; }
+
+function pdu { webkit-patch pretty-diff -g UPSTREAM.... $*; }
 
 function pset() {
     set | pset_aux $*
@@ -185,25 +188,22 @@ function redot() {
 }
 
 function repeat() {
-  count=-1
   no_execute=0
   verbose=0
-  while getopts "hc:nv" opt; do
+  while getopts "hnv" opt "$*"; do
     case $opt in
-    c) count=$OPTARG ;;
     n) no_execute=1 ;;
     v) verbose=1 ;;
-    h|\?)
-       echo "usage: repeat [options] command"
-       echo ""
-       echo "  -c -> count"
-       echo "  -n -> no-execute"
-       echo "  -v -> verbose"
+    h|\?) echo "usage: repeat [options] count command" ;
+       echo "" ;
+       echo "  -n -> no-execute" ;
+       echo "  -v -> verbose" ;
        return 1 ;;
     esac
   done
-  shift $((OPTIND-1))
-  OPTIND=1
+  shift $((OPTIND-2))
+  count=$1
+  shift
 
   while [ $count -ne 0 ]
   do
@@ -272,7 +272,7 @@ function rwt() {
 
 # run layout tests w/ chromium-specific flags
 function rwtc() {
-  rwtd --chromium --additional-expectations ~/local_expectations.txt $*
+  rwtd --chromium $*
 }
 
 # run layout tests w/ command command line flags
@@ -323,13 +323,9 @@ function shortcuts() {
     export lts=$csrc/webkit/tools/layout_tests
     export ltw=$wk/LayoutTests
     export ltc=$ltw/platform/chromium
-    if [ -d "$wk/Tools" ]
-    then
-      export wks=$wk/Tools/Scripts
-    else
-      export wks=$wk/WebKitTools/Scripts
-    fi
-    export wkt=$wks/webkitpy/layout_tests
+    export wks=$wk/Tools/Scripts
+    export wkp=$wks/webkitpy
+    export wkt=$wkp/layout_tests
   fi
 }
 
@@ -337,34 +333,8 @@ function shortcuts() {
 function src() { cd $src/$* ; }
 
 
-# sv [-d] [name] - setup dev env
-#   usage - 'sv' alone switches to current view. Errors out if there
-#                is no current view.
-#           'sv name' makes $src/$name the current view. Errors out
-#                if the dir does not exist.
-#           'sv -d' unsets the current view. Has no effect if there is no
-#                current view.
 function sv() {
-  if [ "$1" = "-d" ]
-  then
-    export view=
-    shortcuts
-    setprompt
-    return
-  fi
-
   arg=$1
-  if [ -z "$arg" ]
-  then
-    # if no $1, then we just want to print the current view, if any
-    if [ -z "$view_name" ]
-    then
-      echo "no current view"
-      return
-    else
-      echo "$view_name -> $src/$view_dir"
-    fi
-  fi
 
   # set the $src and $wk dirs accordingly.
   if [ -d "$src/$arg" ]
@@ -509,6 +479,17 @@ function wk() {
 }
 
 
+# cd to "$wkp/$*"
+function wkp() {
+  if [ -z "$wkp" ]
+  then
+    echo "not in a view"
+  else
+    cd $wkp/$*
+  fi
+}
+
+
 # cd to "$wkt/$*"
 function wkt() {
   if [ -z "$wkt" ]
@@ -531,8 +512,6 @@ function wks() {
 }
 
 function wp { webkit-patch $*; }
-
-function wpd { webkit-patch pretty-diff $*; }
 
 function wppb { webkit-patch print-baselines $*; }
 

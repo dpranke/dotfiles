@@ -80,7 +80,7 @@ function rwt() {
 
 # run layout tests w/ common chromium flags
 function rwtc() {
-  rwtd --chromium --additional-expectations ~/local_expectations.txt $*
+  rwtd --chromium $*
 }
 
 

@@ -2,19 +2,13 @@
 # .bashrc for cygwin on windows
 #
 
-if [ -d "/cygdrive/r" ]
+if [ -d "/cygdrive/d/src" ]
 then
-  export srcdrive=r
-  if [ -d /cygdrive/r/src ]
-  then
-    export src=/cygdrive/r/src
-    export winsrc=$srcdrive:\\src
-  else
-    export src=/cygdrive/r
-    export winsrc=$srcdrive:
-  fi
-else
   export srcdrive=d
+  export src=/cygdrive/$srcdrive/src
+  export winsrc=$srcdrive:\\src
+else
+  export srcdrive=c
   export src=/cygdrive/$srcdrive/src
   export winsrc=$srcdrive:\\src
 fi
@@ -49,20 +43,6 @@ then
     PATH="${PATH}:${PFX86}/PuTTY"
 fi
 
-if [ -d "${PFX86}/Rational/Common" ]
-then
-  PATH="${PATH}:${PFX86}/Rational/Common"
-fi
-if [ -d "/cygdrive/c/Users/dpranke/Documents/Rational/Purify/cache" ]
-then
-  PATH="${PATH}:/cygdrive/c/Users/dpranke/Documents/Rational/Purify/cache"
-fi
-
-if [ -d "${HOME}/My Documents/My Dropbox/Shared/dotfiles" ]
-then
-  export dotfiles="${HOME}/My Documents/My Dropbox/Shared/dotfiles"
-fi
-
 export PATH
 
 function ge () {
@@ -71,15 +51,6 @@ function ge () {
     "${PFX86}/Vim/vim72/gvim.exe" $*
   else
     echo "gvim not found"
-  fi
-}
-
-function mate() {
-  if [ -d "${PFX86}/e" ]
-  then
-    "${PFX86}/e/e.exe" $*
-  else
-    echo "e (mate) not found"
   fi
 }
 
@@ -122,8 +93,7 @@ function clobber() {
   then
     echo "not in a view"
   else
-    echodo rm -fr $csrc/chrome/Debug/* $csrc/chrome/Release/* \
-                  $csrc/webkit/Debug/* $csrc/webkit/Release/*
+    echodo rm -fr $csrc/out/*
   fi
 }
 
@@ -148,14 +118,7 @@ function rwt() {
 # run layout tests w/ command command line flags
 function rwtd() {
   time ( echodo python $(cygpath -wa $wks/new-run-webkit-tests) \
-                    --experimental-fully-parallel --clobber-old-results \
-                    --print config,default --noshow-results $*)
-}
-
-
-# run new-run-webkit-tests under debugger
-function rwtdbg() {
-  python -m pdb $(cygpath -wa $wks/new-run-webkit-tests) $*
+                    --clobber-old-results --noshow-results $*)
 }
 
 

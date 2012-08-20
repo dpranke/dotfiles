@@ -104,10 +104,10 @@ for f in $(find . -name .git -prune -o -type f -a \! -name '*.swp' -print | sed 
 do
     d=$(dirname "$f")
     maybe_mkdir "$HOMEDIR/$d"
-    if ! diff -q $HOMEDIR/$f $REPODIR/$f 2> /dev/null
+    if ! diff -q $HOMEDIR/$f $REPODIR/$f > /dev/null 2> /dev/null
     then
       copynewer "$f"
-    elif [ $opt_v -eq 1 -o $opt_n -eq 1 ]
+    elif [ $opt_v -eq 1 ]
     then
       echo "$f is up-to-date"
     fi

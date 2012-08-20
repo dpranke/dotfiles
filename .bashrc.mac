@@ -2,26 +2,40 @@
 # .bashrc for Mac-specific stuff
 #
 
-if [ -d /Volumes/Source/src ]
-then
-    export src=/Volumes/Source/src
-else
-    export src=/src
-fi
+export src=/src
+
+export GYP_GENERATORS=ninja
 
 export bdir=xcodebuild
 
 # override the MacOS svn with the one from ports
-export PATH=/opt/subversion/bin:${PATH}:/opt/local/bin
+if [ -d /opt/subversion/bin ]
+then
+  rp /opt/subversion/bin
+  export PATH=/opt/subversion/bin:${PATH}
+fi
+ap /opt/local/bin
 
 if [ -d /Developer/usr/bin ]
 then
-  export PATH=${PATH/:\/usr\/bin/:/Developer/usr/bin:/usr/bin}
+  export PATH=${PATH/:\/usr\/bin:\/usr\/local\/bin/:\/Developer\/usr\/bin:\/usr\/bin:\/usr\/local\/bin}
 fi
 
-ap /src/pylint/bin
-ap /usr/local/git/bin
-ap /usr/texbin
+if [ -d /src/pylint/bin ]
+then
+  ap /src/pylint/bin
+fi
+
+if [ -d /usr/local/git/bin ]
+then
+  ap /usr/local/git/bin
+fi
+
+if [ -d /usr/texbin ]
+then
+  ap /usr/texbin
+fi
+
 
 export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
 export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
