@@ -275,9 +275,13 @@ function rwtc() {
   rwtd --chromium $*
 }
 
-# run layout tests w/ command command line flags
+# run layout tests w/ common command line flags
 function rwtd() {
-  rwt --clobber-old-results --noshow-results --no-new-test-results --print config,default $*
+  rwt --clobber-old-results --no-new-test-results $*
+}
+
+function rwtn() {
+  rwtd --no-show-results $*
 }
 
 function rwtl() {
