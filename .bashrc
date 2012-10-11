@@ -26,7 +26,7 @@ alias h='history'
 
 export EDITOR=vim
 
-# ap - add path component
+# ap - add path component if it's not already there
 #   usage: ap [var] value
 function ap() {
   if [ $# -eq 2 ]
@@ -39,7 +39,8 @@ function ap() {
   if ( echo ${!var} | grep "$1" > /dev/null )
   then
     return
-  else
+  elif [ -d "$1" ]
+  then
     export ${var}="${!var}:$1"
   fi
 }

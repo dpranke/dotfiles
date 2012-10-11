@@ -6,8 +6,6 @@ export src=/src
 
 export GYP_GENERATORS=ninja
 
-export bdir=xcodebuild
-
 # override the MacOS svn with the one from ports
 if [ -d /opt/subversion/bin ]
 then
@@ -21,21 +19,10 @@ then
   export PATH=${PATH/:\/usr\/bin:\/usr\/local\/bin/:\/Developer\/usr\/bin:\/usr\/bin:\/usr\/local\/bin}
 fi
 
-if [ -d /src/pylint/bin ]
-then
-  ap /src/pylint/bin
-fi
-
-if [ -d /usr/local/git/bin ]
-then
-  ap /usr/local/git/bin
-fi
-
-if [ -d /usr/texbin ]
-then
-  ap /usr/texbin
-fi
-
+ap /src/pylint/bin
+ap /usr/local/git/bin
+ap /usr/texbin
+ap /src/rtp
 
 export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
 export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
@@ -99,7 +86,7 @@ function clobber() {
   then
     echo "not in a view"
   else
-    echodo rm -fr $csrc/$bdir/*
+    echodo rm -fr $csrc/xcodebuild/* $csrc/out/*
   fi
 }
 
