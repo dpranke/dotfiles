@@ -11,7 +11,7 @@ set expandtab
 set tabstop=4
 set shiftwidth=4
 set shiftround
-set textwidth=72
+set textwidth=0
 
 " enable mouse support if available
 set mouse=a
