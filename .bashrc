@@ -1,7 +1,6 @@
 umask 022
 export PATH=$HOME/bin:/usr/kerberos/bin:/usr/bin:/usr/local/bin:/bin
 export PATH=$PATH:/usr/X11R6/bin:/sbin:/usr/sbin:/usr/local/sbin
-export LD_LIBRARY_PATH=/usr/X11R6/lib
 
 export NO_BREAKPAD=1
 
@@ -51,6 +50,15 @@ function gb() {
     else
         git branch | \
           awk '$0 !~ /\.old|-old|-landed|-wf/ || $0 ~ /^\*/ { print }'
+    fi
+}
+
+function ge() {
+    if which mvim > /dev/null
+    then
+      mvim $*
+    else
+      e $*
     fi
 }
 

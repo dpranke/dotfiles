@@ -60,10 +60,12 @@ depsrev() {
 }
 
 cd $src
-CHECKOUTS="repos wk wk2 wksvn c csvn"
+CHECKOUTS=$(ls -1 $src | egrep '^(wk|c)')
 if [ -n "$*" ]
 then
     CHECKOUTS="$*"
+else
+    CHECKOUTS="repos $(ls -1 $src | egrep '^(wk|c)')"
 fi
 
 for i in $CHECKOUTS

@@ -2,6 +2,8 @@
 # .bashrc for Linux Google-specific stuff
 #
 
+export LD_LIBRARY_PATH=/usr/X11R6/lib
+
 export src=/src
 export bdir=out
 
