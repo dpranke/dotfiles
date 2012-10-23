@@ -135,6 +135,10 @@ enable-auto-props = yes
 # *.sh = svn:eol-style=native;svn:executable
 # *.txt = svn:eol-style=native;svn:keywords=Author Date Id Rev URL;
 *.png = svn:mime-type=image/png
+<<<<<<< HEAD
 *.jpg = svn:mime-type=image/jpeg
+=======
+# *.jpg = svn:mime-type=image/jpeg
+>>>>>>> 0370acadedba41246f7e8dadff1a0e13701557fc
 # Makefile = svn:eol-style=native
 
