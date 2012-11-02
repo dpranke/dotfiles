@@ -25,7 +25,7 @@ alias h='history'
 
 export EDITOR=vim
 
-# ap - add path component if it's not already there
+# ap - add path component if it's not already there and it exists
 #   usage: ap [var] value
 function ap() {
   if [ $# -eq 2 ]
@@ -39,7 +39,6 @@ function ap() {
   then
     return
   elif [ -d "$1" ]
-  then
     export ${var}="${!var}:$1"
   fi
 }
@@ -132,17 +131,34 @@ function gitbranch() {
   echo ${b##refs/heads/}
 }
 
+function gom() {
+  if [ -z "$gom" ]
+  then
+    echo "not in a view"
+  else
+    cd $gom/$* ;
+  fi
+}
+  
 function gpy() {
   git grep $* -- "*.py"
 }
 
-# cd to WebKit/LayoutTests/platform/chromium/$*
 function ltc() {
   if [ -z "$ltc" ]
   then
     echo "not in a view"
   else
     cd $ltc/$* ;
+  fi
+}
+
+function ltml() {
+  if [ -z "$ltml" ]
+  then
+    echo "not in a view"
+  else
+    cd $ltml/$* ;
   fi
 }
 
@@ -332,10 +348,13 @@ function shortcuts() {
     unset ltw
     unset wks
     unset wkt
+    unset gom
   else
+    export gom=$wk/Tools/BuildSlaveSupport/build.webkit.org-config/public_html/TestFailures
     export lts=$csrc/webkit/tools/layout_tests
     export ltw=$wk/LayoutTests
     export ltc=$ltw/platform/chromium
+    export ltml=$ltw/platform/chromium-mac-mountainlion
     export wks=$wk/Tools/Scripts
     export wkp=$wks/webkitpy
     export wkt=$wkp/layout_tests
@@ -525,6 +544,8 @@ function wks() {
 }
 
 function wp { webkit-patch $*; }
+
+function wpg { webkit-patch garden-o-matic $*; }
 
 function wppb { webkit-patch print-baselines $*; }
 
