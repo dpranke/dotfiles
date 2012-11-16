@@ -119,3 +119,6 @@ au BufEnter /private/tmp/crontab.* setl backupcopy=yes
 
 " Command-T settings
 let g:CommandTMaxFiles=50000
+
+" Ensure that we get the correct indentation for python from our plugins
+filetype plugin indent on
