@@ -87,19 +87,19 @@ do
     elif [ -d "$src/$i/.git" ]
     then
         cd $src/$i
-        webkitrev
         if [ -d "Source/WebKit/chromium/webkit" ]
         then
           svnrev "Source/WebKit/chromium/webkit" chrome
         fi
+        webkitrev
     elif [ -d "$src/$i/.svn" ]
     then
         cd $src/$i
-        svnrev "." webkit
         if [ -d "Source/WebKit/chromium/webkit" ]
         then
           svnrev "Source/WebKit/chromium/webkit" chrome
         fi
+        svnrev "." webkit
     elif [ -d "$src/$i/src/.svn" ]
     then
         svnrev "$src/$i/src" chrome
