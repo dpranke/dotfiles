@@ -23,6 +23,7 @@ ap /src/pylint/bin
 ap /usr/local/git/bin
 ap /usr/texbin
 ap /src/rtp
+ap /src/gcutil
 
 export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
 export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info

@@ -39,6 +39,7 @@ function ap() {
   then
     return
   elif [ -d "$1" ]
+  then
     export ${var}="${!var}:$1"
   fi
 }
@@ -109,6 +110,8 @@ function covrun() {
   coverage annotate
   covreport
 }
+
+function cup () { gclient sync && ninja -C $csrc/out/Release DumpRenderTree; }
 
 # em - edit w/ emacs (in terminal window)
 function em () { emacs -nw $* ; }
@@ -213,36 +216,15 @@ function redot() {
 }
 
 function repeat() {
-  no_execute=0
-  verbose=0
-  while getopts "hnv" opt "$*"; do
-    case $opt in
-    n) no_execute=1 ;;
-    v) verbose=1 ;;
-    h|\?) echo "usage: repeat [options] count command" ;
-       echo "" ;
-       echo "  -n -> no-execute" ;
-       echo "  -v -> verbose" ;
-       return 1 ;;
-    esac
-  done
-  shift $((OPTIND-2))
   count=$1
   shift
 
   while [ $count -ne 0 ]
   do
-    if [ $no_execute -eq 1 -o $verbose -eq 1 ]
+    $@
+    if [ $? -gt 128 ]
     then
-      echo '# $' $@
-    fi
-    if [ $no_execute -ne 1 ]
-    then
-      $@
-      if [ $? -gt 128 ]
-      then
-        return
-      fi
+      return
     fi
     count=$((count - 1))
   done
@@ -542,6 +524,8 @@ function wks() {
     cd $wks/$*
   fi
 }
+
+function wkup { update-webkit --chromium && build-webkit --chromium; }
 
 function wp { webkit-patch $*; }
 
