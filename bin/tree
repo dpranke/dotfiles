@@ -60,7 +60,6 @@ depsrev() {
 }
 
 cd $src
-CHECKOUTS=$(ls -1 $src | egrep '^(wk|c)')
 if [ -n "$*" ]
 then
     CHECKOUTS="$*"

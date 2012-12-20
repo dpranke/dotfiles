@@ -2,6 +2,8 @@ umask 022
 export PATH=$HOME/bin:/usr/kerberos/bin:/usr/bin:/usr/local/bin:/bin
 export PATH=$PATH:/usr/X11R6/bin:/sbin:/usr/sbin:/usr/local/sbin
 
+export HISTSIZE=100
+
 export NO_BREAKPAD=1
 
 alias ll='ls -Fl'
@@ -111,7 +113,7 @@ function covrun() {
   covreport
 }
 
-function cup () { gclient sync && ninja -C $csrc/out/Release DumpRenderTree; }
+function chrup () { gclient sync && ninja -C $csrc/out/Release DumpRenderTree; }
 
 # em - edit w/ emacs (in terminal window)
 function em () { emacs -nw $* ; }
