@@ -111,7 +111,7 @@ function covrun() {
   covreport
 }
 
-function cup () { gclient sync && ninja -C $csrc/out/Release DumpRenderTree; }
+function chrup () { gclient sync && ninja -C $csrc/out/Release DumpRenderTree; }
 
 # em - edit w/ emacs (in terminal window)
 function em () { emacs -nw $* ; }
