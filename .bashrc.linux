@@ -73,6 +73,15 @@ function edis() {
   echo $DISPLAY
 }
 
+function ge() {
+    if which gvim > /dev/null
+    then
+      gvim $*
+    else
+      e $*
+    fi
+}
+
 
 function nulldis() {
   if [ $(ps auxww | grep Xvfb | grep -v  grep | wc -l) = 0 ]
