@@ -529,7 +529,7 @@ function wks() {
 
 function wkup { update-webkit --chromium && build-webkit --chromium; }
 
-function wp { webkit-patch $*; }
+function wp { webkit-patch $@; }
 
 function wpg { webkit-patch garden-o-matic $*; }
 
