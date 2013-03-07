@@ -12,7 +12,11 @@ then
   export srcdrive=c
   export src=/cygdrive/$srcdrive/src
   export winsrc=$srcdrive:\\src
-elif [ -d "/d/src" ]
+elif [ -d "/e/src" ]
+then
+  export srcdrive=e
+  export src=/e/src
+elif [ -d "/e/src" ]
 then
   export srcdrive=d
   export src=/d/src
