@@ -91,6 +91,15 @@ function clobber() {
   fi
 }
 
+function ge() {
+    if which mvim > /dev/null
+    then
+      mvim $*
+    else
+      e $*
+    fi
+}
+
 function tsbuild() {
   if [ -z "$csrc" ]
   then

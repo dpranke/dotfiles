@@ -3,10 +3,13 @@ set ruler
 
 if has("gui_win32")
   set guifont=Consolas:h14
+  set bg=dark
+  colorscheme peaksea
   set lines=50
 elseif has("gui_gtk2")
-  set guifont=Inconsolata:h14
+  set guifont="DejaVu Sans Mono:h10"
   set bg=dark
+  colorscheme peaksea
   set lines=66
 elseif has("gui_macvim")
   set guifont=Inconsolata:h16

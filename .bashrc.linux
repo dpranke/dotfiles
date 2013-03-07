@@ -73,23 +73,13 @@ function edis() {
   echo $DISPLAY
 }
 
-
-# run layout tests w/o any command line flags
-function rwt() {
-  time (echodo python $wks/new-run-webkit-tests $* )
-}
-
-
-# run layout tests w/ common chromium flags
-function rwtc() {
-  rwtd --chromium $*
-}
-
-
-# run layout tests w/ command command line flags
-function rwtd() {
-  rwt --clobber-old-results --print config,default --noshow-results \
-      --no-new-test-results $*
+function ge() {
+    if which gvim > /dev/null
+    then
+      gvim $*
+    else
+      e $*
+    fi
 }
 
 
