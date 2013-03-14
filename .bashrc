@@ -35,7 +35,7 @@ function ap() {
   else
     var=PATH
   fi
-  if ( echo ${!var} | grep "$1" > /dev/null )
+  if ( echo "${!var}" | grep "$1:" > /dev/null )
   then
     return
   elif [ -d "$1" ]
@@ -403,20 +403,6 @@ function sv() {
     rp PYTHONPATH WebKitTools
     ap ${wks}
     ap PYTHONPATH ${wks}
-  fi
-
-  if [ -n "$depot_view" ]
-  then
-    rp depot_tools
-    rp PYTHONPATH depot_tools
-    ap $csrc
-    ap PYTHONPATH $csrc
-    export DEPOT_TOOLS_UPDATE=0
-  else
-    unset DEPOT_TOOLS_UPDATE
-    rp depot_
-    rp PYTHONPATH depot_
-    ap $src/depot_tools
   fi
 
   unset arg
