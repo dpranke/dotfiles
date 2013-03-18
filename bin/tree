@@ -74,36 +74,36 @@ do
     then
        svnrev svn://svn.chromium.org/chrome/trunk/src chrome
        svnrev http://svn.webkit.org/repository/webkit webkit
-    elif [ -d "$src/$i/src/.git" ]
+    elif [ -e "$src/$i/src/.git" ]
     then
         cd $src/$i/src
         chromerev
-        if [ -d "$src/$i/src/third_party/WebKit/.git" ]
+        if [ -e "$src/$i/src/third_party/WebKit/.git" ]
         then
             cd $src/$i/src/third_party/WebKit
             webkitrev
         fi
-    elif [ -d "$src/$i/.git" ]
+    elif [ -e "$src/$i/.git" ]
     then
         cd $src/$i
-        if [ -d "Source/WebKit/chromium/webkit" ]
+        if [ -e "Source/WebKit/chromium/webkit" ]
         then
           svnrev "Source/WebKit/chromium/webkit" chrome
         fi
         webkitrev
-    elif [ -d "$src/$i/.svn" ]
+    elif [ -e "$src/$i/.svn" ]
     then
         cd $src/$i
-        if [ -d "Source/WebKit/chromium/webkit" ]
+        if [ -e "Source/WebKit/chromium/webkit" ]
         then
           svnrev "Source/WebKit/chromium/webkit" chrome
         fi
         svnrev "." webkit
-    elif [ -d "$src/$i/src/.svn" ]
+    elif [ -e "$src/$i/src/.svn" ]
     then
         svnrev "$src/$i/src" chrome
         depsrev "$src/$i/src/DEPS" webkit webkit_revision
-    elif [ -d "$src/$i/.svn" -a -d "$src/$i/LayoutTests" ]
+    elif [ -e "$src/$i/.svn" -a -e "$src/$i/LayoutTests" ]
     then
         svnrev "$src/$i" webkit
     fi
