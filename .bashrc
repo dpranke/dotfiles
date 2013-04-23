@@ -265,7 +265,7 @@ function rp() {
 
 # run layout tests w/o any command line flags
 function rwt() {
-  time (echodo python $wks/new-run-webkit-tests $* )
+  time (echodo python $wks/run-webkit-tests $* )
 }
 
 # run layout tests w/ chromium-specific flags
