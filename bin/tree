@@ -64,7 +64,7 @@ if [ -n "$*" ]
 then
     CHECKOUTS="$*"
 else
-    CHECKOUTS="repos $(ls -1 $src | egrep '^(wk|c)')"
+    CHECKOUTS="repos $(ls -1 $src | egrep '^(wk|c|bl)' | egrep -v crockpot)"
 fi
 
 for i in $CHECKOUTS
@@ -73,6 +73,10 @@ do
     if [ "$i" = "repos" ]
     then
        svnrev svn://svn.chromium.org/chrome/trunk/src chrome
+       svnrev svn://svn.chromium.org/blink/trunk blink
+       deps=$(svn cat svn://svn.chromium.org/chrome/trunk/src/DEPS | \
+              awk '$1 == "\"webkit_revision\":" { print substr($2, 2, 6) }')
+       echo "  deps: r$deps"
        svnrev http://svn.webkit.org/repository/webkit webkit
     elif [ -e "$src/$i/src/.git" ]
     then
