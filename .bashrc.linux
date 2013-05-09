@@ -9,7 +9,7 @@ export bdir=out
 
 if [ -d $src/depot_tools ]
 then
-    export PATH=${PATH}:${src}/depot_tools
+    export PATH=${src}/depot_tools:$PATH
 fi
 
 export PYTHONPATH=
