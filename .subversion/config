@@ -48,3 +48,7 @@ Makefile = svn:eol-style=LF
 *.vsprops = svn:eol-style=native
 *.vcproj = svn:eol-style=native
 *.sln = svn:eol-style=native
+
+[auth]
+password-stores =
+
