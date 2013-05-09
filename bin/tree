@@ -73,7 +73,9 @@ do
     if [ "$i" = "repos" ]
     then
        svnrev svn://svn.chromium.org/chrome/trunk/src chrome
+       echo "   lkgr: r$(curl -s http://chromium-status.appspot.com/lkgr)"
        svnrev svn://svn.chromium.org/blink/trunk blink
+       echo "   lkgr: r$(curl -s http://blink-status.appspot.com/lkgr)"
        deps=$(svn cat svn://svn.chromium.org/chrome/trunk/src/DEPS | \
               awk '$1 == "\"webkit_revision\":" { print substr($2, 2, 6) }')
        echo "  deps: r$deps"
