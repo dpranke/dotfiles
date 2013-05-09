@@ -10,7 +10,7 @@ then
 fi
 
 findrev() {
-    if git log -1 $1 > /dev/null 2>& 1
+    if git log -1 "$1" > /dev/null 2>& 1
     then
       currev=$(git log -1 $1 | awk '$1 == "git-svn-id:" { sub("^.*@", "", $2); print $2; }')
     else
@@ -41,14 +41,6 @@ gitbranch() {
     currev=""
 }
 
-chromerev() {
-    gitbranch
-}
-
-webkitrev() {
-    gitbranch
-}
-
 svnrev() {
     currev=$(svn info $1 | awk '$1 == "Revision:" { print $2 }')
     echo -n "$currev"
@@ -74,14 +66,14 @@ do
     then
        echo -n "  chrome: " 
        svnrev svn://svn.chromium.org/chrome/trunk/src chrome
-       echo -n "(lkgr r$(curl -s http://chromium-status.appspot.com/lkgr), "
+       echo -n " (lkgr r$(curl -s http://chromium-status.appspot.com/lkgr), "
        echo "blink r$(curl -s http://blink-status.appspot.com/lkgr))"
 
        echo -n "   blink: "
        svnrev svn://svn.chromium.org/blink/trunk blink
        deps=$(svn cat svn://svn.chromium.org/chrome/trunk/src/DEPS | \
               awk '$1 == "\"webkit_revision\":" { print substr($2, 2, 6) }')
-       echo "(deps r$deps)"
+       echo " (deps r$deps)"
 
        echo -n "  webkit: "
        svnrev http://svn.webkit.org/repository/webkit webkit
@@ -90,21 +82,20 @@ do
     then
         cd $src/$i/src
         echo -n "  chrome: " 
-        chromerev
+        gitbranch
         echo
         if [ -e "$src/$i/src/third_party/WebKit/.git" ]
         then
             cd $src/$i/src/third_party/WebKit
             echo -n "   blink: "
-            webkitrev
+            gitbranch
             echo
         fi
     elif [ -e "$src/$i/.git" ]
     then
         cd $src/$i
-        echo -n "  webkit: "
-        webkitrev
-        echo 
+        echo -n "      ??: "
+        gitbranch
     elif [ -e "$src/$i/src/.svn" ]
     then
         echo -n "  chrome: "
@@ -112,6 +103,9 @@ do
         echo -n " (deps "
         depsrev "$src/$i/src/DEPS" webkit webkit_revision
         echo ")"
+        echo -n "  webkit: "
+        svnrev "$src/$i/src/third_party/WebKit" 
+        echo 
     elif [ -e "$src/$i/.svn" -a -e "$src/$i/LayoutTests" ]
     then
         echo -n "  webkit: "
