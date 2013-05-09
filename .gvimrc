@@ -2,7 +2,7 @@ set guioptions=egmrLt
 set ruler
 
 if has("gui_win32")
-  set guifont=Consolas:h14
+  set guifont=Consolas:h13
   set bg=dark
   colorscheme peaksea
   set lines=50

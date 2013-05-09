@@ -5,6 +5,7 @@ global-ignores = *.pyc *.user *.suo *.bak *~ #*# *.ncb *.o *.lo *.la .*~ .#* .DS
 enable-auto-props = yes
 
 [auto-props]
+*.asm = svn:eol-style=LF
 *.afm = svn:eol-style=LF
 *.bat = svn:eol-style=CRLF
 *.c = svn:eol-style=LF
@@ -36,6 +37,8 @@ enable-auto-props = yes
 *.png = svn:mime-type=image/png
 *.py = svn:eol-style=LF
 *.pyd = svn:executable
+*.s = svn:eol-style=LF
+*.S = svn:eol-style=LF
 *.rc = svn:eol-style=LF
 *.sh = svn:eol-style=LF;svn:executable
 *.svg = svn:eol-style=LF
