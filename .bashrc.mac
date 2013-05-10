@@ -2,16 +2,13 @@
 # .bashrc for Mac-specific stuff
 #
 
+# bump up the default # of files per process.
+ulimit -n 1000
+
 export src=/src
 
 export GYP_GENERATORS=ninja
 
-# override the MacOS svn with the one from ports
-if [ -d /opt/subversion/bin ]
-then
-  rp /opt/subversion/bin
-  export PATH=/opt/subversion/bin:${PATH}
-fi
 ap /opt/local/bin
 
 if [ -d /Developer/usr/bin ]
@@ -43,53 +40,10 @@ then
   export dotfiles=/src/dotfiles
 fi
 
-if [ -d "$src/depot_tools" -a -z "$depot_view" ]
+if [ -d "$src/depot_tools" ]
 then
-    export PATH=${PATH}:${src}/depot_tools
+  export PATH=${src}/depot_tools:${PATH}
 fi
-
-#if [ -d /src/goma ]
-#then
-#  export GOMA=/src/goma
-#  export PATH=$GOMA:$PATH
-#fi
-
-function cbuild() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if [ "$1" = "--debug" ]
-  then
-    cfg="Debug"
-    shift
-  else
-    cfg="Release"
-  fi
-  if [ -n "$1" ]
-  then
-    target="$1"
-  else
-    target="All"
-  fi
-
-  ( set -x ; \
-    cd $csrc/chrome; \
-    time xcodebuild -project chrome.xcodeproj -configuration $cfg \
-                    -target $target )
-}
-
-
-function clobber() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-  else
-    echodo rm -fr $csrc/xcodebuild/* $csrc/out/*
-  fi
-}
 
 function ge() {
     if which mvim > /dev/null
@@ -100,26 +54,12 @@ function ge() {
     fi
 }
 
-function tsbuild() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if [ "$1" = "--debug" ]
-  then
-    cfg="Debug"
-  else
-    cfg="Release"
-  fi
-  ( set -x ; \
-    cd $csrc/webkit/ ; \
-    time xcodebuild -project webkit.xcodeproj -configuration $cfg \
-                    -target All )
-}
-
-
-function gomastart() {
-  $GOMA/goma_ctl.sh start
-}
+#if [ -d /src/goma ]
+#then
+#  export GOMA=/src/goma
+#  export PATH=$GOMA:$PATH
+#fi
+#
+#function gomastart() {
+#  $GOMA/goma_ctl.sh start
+#}

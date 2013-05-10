@@ -292,9 +292,9 @@ function shortcuts() {
     export gom=$bl/Tools/BuildSlaveSupport/build.webkit.org-config/public_html/TestFailures
     export lts=$csrc/webkit/tools/layout_tests
     export ltw=$bl/LayoutTests
-    export wks=$bl/Tools/Scripts
-    export wkp=$bls/webkitpy
-    export wkt=$blp/layout_tests
+    export bls=$bl/Tools/Scripts
+    export blp=$bls/webkitpy
+    export blt=$blp/layout_tests
   fi
 }
 
@@ -331,7 +331,10 @@ function sv() {
     export bl=$new_src/third_party/WebKit
     export csrc=$new_src
   else
-    unset bl
+    if [ -d "$new_src/LayoutTests" ]
+    then
+      export bl=$new_src
+    fi
     csrc=$new_src
   fi
 
@@ -445,6 +448,11 @@ function bls() {
     cd $bls/$*
   fi
 }
+
+function wk { bl $@; }
+function wks { bls $@; }
+function wkt { blt $@; }
+function wkp { blp $@; }
 
 function wp { webkit-patch $@; }
 
