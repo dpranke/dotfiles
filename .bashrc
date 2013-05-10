@@ -2,8 +2,6 @@ umask 022
 export PATH=$HOME/bin:/usr/kerberos/bin:/usr/bin:/usr/local/bin:/bin
 export PATH=$PATH:/usr/X11R6/bin:/sbin:/usr/sbin:/usr/local/sbin
 
-export HISTSIZE=100
-
 export NO_BREAKPAD=1
 
 alias ll='ls -Fl'
@@ -37,7 +35,7 @@ function ap() {
   else
     var=PATH
   fi
-  if ( echo ${!var} | grep "$1" > /dev/null )
+  if ( echo "${!var}" | grep "$1:" > /dev/null )
   then
     return
   elif [ -d "$1" ]
@@ -56,15 +54,6 @@ function gb() {
     fi
 }
 
-function ge() {
-    if which mvim > /dev/null
-    then
-      mvim $*
-    else
-      e $*
-    fi
-}
-
 # csrc - cd to $csrc/$*
 function csrc() {
   if [ ! -z "$csrc" ]
@@ -77,40 +66,6 @@ function csrc() {
 
 function coverase() {
   coverage erase ; find . -name '*.py,cover' | xargs rm
-}
-
-function covreport() {
-  skipfiles=$wks/test-webkitpy
-  skipfiles="$skipfiles,rebaseline_chromium_webkit_tests"
-  skipfiles="$skipfiles,$wks/webkitpy/__init__"
-  skipfiles="$skipfiles,$wks/webkitpy/common"
-  skipfiles="$skipfiles,$wks/webkitpy/python24"
-  skipfiles="$skipfiles,$wks/webkitpy/style"
-  skipfiles="$skipfiles,$wks/webkitpy/test"
-  skipfiles="$skipfiles,$wks/webkitpy/thirdparty"
-  skipfiles="$skipfiles,$wks/webkitpy/tool"
-  # skipfiles="$skipfiles,$wks/webkitpy/port"
-  skipfiles="$skipfiles,port/apache_http_server"
-  skipfiles="$skipfiles,port/gtk"
-  skipfiles="$skipfiles,port/qt"
-  skipfiles="$skipfiles,port/http_server"
-  skipfiles="$skipfiles,port/http_server_base"
-  skipfiles="$skipfiles,port/server_process"
-  skipfiles="$skipfiles,port/websocket_server"
-  coverage report --omit="$skipfiles"
-}
-
-function covrun() {
-  clear
-  coverase
-  if [ -z "$*" ]
-  then
-    coverage run --rcfile=.coveragerc test_suite.py
-  else
-    coverage run --rcfile=.coveragerc $*
-  fi
-  coverage annotate
-  covreport
 }
 
 function chrup () { gclient sync && ninja -C $csrc/out/Release DumpRenderTree; }
@@ -147,6 +102,10 @@ function gom() {
   
 function gpy() {
   git grep $* -- "*.py"
+}
+
+function latest_roll() {
+  git log -1 $(git blame DEPS | awk '$7 == "\"webkit_revision\":" { print $1 }') | tail -1 | sed -e 's/.*@\(.*\) .*/\1/'
 }
 
 function ltc() {
@@ -276,12 +235,7 @@ function rp() {
 
 # run layout tests w/o any command line flags
 function rwt() {
-  time (echodo python $wks/new-run-webkit-tests $* )
-}
-
-# run layout tests w/ chromium-specific flags
-function rwtc() {
-  rwtd --chromium $*
+  time (echodo python $bls/run-webkit-tests $* )
 }
 
 # run layout tests w/ common command line flags
@@ -330,18 +284,17 @@ function shortcuts() {
     unset ltc
     unset lts
     unset ltw
-    unset wks
-    unset wkt
+    unset bls
+    unset blt
+    unset blp
     unset gom
   else
-    export gom=$wk/Tools/BuildSlaveSupport/build.webkit.org-config/public_html/TestFailures
+    export gom=$bl/Tools/BuildSlaveSupport/build.webkit.org-config/public_html/TestFailures
     export lts=$csrc/webkit/tools/layout_tests
-    export ltw=$wk/LayoutTests
-    export ltc=$ltw/platform/chromium
-    export ltml=$ltw/platform/chromium-mac-mountainlion
-    export wks=$wk/Tools/Scripts
-    export wkp=$wks/webkitpy
-    export wkt=$wkp/layout_tests
+    export ltw=$bl/LayoutTests
+    export wks=$bl/Tools/Scripts
+    export wkp=$bls/webkitpy
+    export wkt=$blp/layout_tests
   fi
 }
 
@@ -372,25 +325,14 @@ function sv() {
   fi
 
   export view=$new_name
-  wkview=0
+  blview=0
   if [ -d "$new_src/third_party/WebKit" ]
   then
-    export wk=$new_src/third_party/WebKit
+    export bl=$new_src/third_party/WebKit
     export csrc=$new_src
-  elif [ -d "$new_src/Source/WebCore" ]
-  then
-    export wk=$new_src
-    export csrc=$new_src/Source/WebKit/chromium
-    wkview=1
   else
-    unset wk
-  fi
-
-  if echo "$view" | grep 'depot' > /dev/null
-  then
-    export depot_view=1
-  else
-    unset depot_view
+    unset bl
+    csrc=$new_src
   fi
 
   if echo "$-" | grep 'i' > /dev/null
@@ -406,28 +348,12 @@ function sv() {
   fi
 
   shift
-  if [ -n "$wk" ]
+  if [ -n "$bl" ]
   then
     rp Tools
-    rp WebKitTools
     rp PYTHONPATH Tools
-    rp PYTHONPATH WebKitTools
-    ap ${wks}
-    ap PYTHONPATH ${wks}
-  fi
-
-  if [ -n "$depot_view" ]
-  then
-    rp depot_tools
-    rp PYTHONPATH depot_tools
-    ap $csrc
-    ap PYTHONPATH $csrc
-    export DEPOT_TOOLS_UPDATE=0
-  else
-    unset DEPOT_TOOLS_UPDATE
-    rp depot_
-    rp PYTHONPATH depot_
-    ap $src/depot_tools
+    ap ${bls}
+    ap PYTHONPATH ${bls}
   fi
 
   unset arg
@@ -435,14 +361,7 @@ function sv() {
   unset new_dir
   unset new_view
   unset new_src
-  unset new_wk
-  if [ $wkview -eq 1 ]
-  then
-    wk
-  else
-    csrc
-  fi
-  unset wkview
+  csrc
 }
 
 
@@ -484,52 +403,50 @@ function window_size() {
 }
 
 
-# cd to $wk/$*
-function wk() {
-  if [ -z "$wk" ]
+# cd to $bl/$*
+function bl() {
+  if [ -z "$bl" ]
   then
     echo "not in a view"
   else
-    cd $wk/$*
+    cd $bl/$*
   fi
 }
 
 
-# cd to "$wkp/$*"
-function wkp() {
-  if [ -z "$wkp" ]
+# cd to "$blp/$*"
+function blp() {
+  if [ -z "$blp" ]
   then
     echo "not in a view"
   else
-    cd $wkp/$*
+    cd $blp/$*
   fi
 }
 
 
-# cd to "$wkt/$*"
-function wkt() {
-  if [ -z "$wkt" ]
+# cd to "$blt/$*"
+function blt() {
+  if [ -z "$blt" ]
   then
     echo "not in a view"
   else
-    cd $wkt/$*
+    cd $blt/$*
   fi
 }
 
 
-# cd to "$wks/$*"
-function wks() {
-  if [ -z "$wks" ]
+# cd to "$bls/$*"
+function bls() {
+  if [ -z "$bls" ]
   then
     echo "not in a view"
   else
-    cd $wks/$*
+    cd $bls/$*
   fi
 }
 
-function wkup { update-webkit --chromium && build-webkit --chromium; }
-
-function wp { webkit-patch $*; }
+function wp { webkit-patch $@; }
 
 function wpg { webkit-patch garden-o-matic $*; }
 

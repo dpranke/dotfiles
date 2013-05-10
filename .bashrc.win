@@ -1,172 +1,59 @@
 #
-# .bashrc for cygwin on windows
+# .bashrc for cygwin or msys on windows
 #
 
-if [ -d "/cygdrive/d/src" ]
+
+if [ "$TERM" = "dumb" ]
+then
+  export TERM=msys
+fi
+
+if [ -d "/cygdrive" ]
+then
+  export cyg="/cygdrive"
+else
+  export cyg=""
+fi
+
+if [ -d "$cyg/e/src" ]
+then
+  export srcdrive=e
+elif [ -d "$cyg/d/src" ]
 then
   export srcdrive=d
-  export src=/cygdrive/$srcdrive/src
-  export winsrc=$srcdrive:\\src
-elif [ -d "/cygdrive/c/src" ]
-then
-  export srcdrive=c
-  export src=/cygdrive/$srcdrive/src
-  export winsrc=$srcdrive:\\src
-elif [ -d "/d/src" ]
-then
-  export srcdrive=d
-  export src=/d/src
 else
   export srcdrive=c
-  export src=/c/src
 fi
 
-if [ -d "$src/depot_tools" ]
-then
-  export PATH="${src}/depot_tools:$PATH"
-fi
+export src=$cyg/$srcdrive/src
+export winsrc=$srcdrive:\\src
 
-if [ -x $src/depot_tools/svn.bat ]
-then
-  alias svn=$src/depot_tools/svn.bat
-  alias python=$src/depot_tools/python.bat
-fi
+ap $src/depot_tools/python_bin
+ap $src/depot_tools/git_bin
+ap $src/depot_tools/svn_bin
+ap $src/depot_tools
 
-PF="/cygdrive/c/Program Files"
-PFX86="/cygdrive/c/Program Files (x86)"
-PATH="${PATH}:${PF}/Windows Resource Kits/Tools"
-PATH="${PATH}:/cygdrive/c/Windows/System32:/cygdrive/c/Windows"
-PATH="${PATH}:/cygdrive/c/Windows/System32/Wbem"
-PATH="${PATH}:/cygdrive/c/Windows/system32/WindowsPowerShell/v1.0"
-PATH="${PATH}:${PF}/Windows Imaging:${PF}/Support Tools"
-PATH="${PATH}:${PFX86}/Microsoft Visual Studio 8/Common7/IDE"
+PF="$cyg/c/Program Files"
+PFX86="$cyg/c/Program Files (x86)"
+ap "${PF}/Windows Resource Kits/Tools"
+ap $cyg/c/Windows/System32
+ap $cyg/c/Windows
+ap $cyg/c/Windows/System32/Wbem
+ap $cyg/c/Windows/system32/WindowsPowerShell/v1.0
+ap "${PF}/Windows Imaging"
+ap "${PF}/Support Tools"
+ap "${PFX86}/Microsoft Visual Studio 8/Common7/IDE"
 
-if [ -d "${PFX86}/Git" ]
-then
-    PATH="${PATH}:${PFX86}/Git/bin"
-fi
-
-if [ -d "${PFX86}/PuTTY" ]
-then
-    PATH="${PATH}:${PFX86}/PuTTY"
-fi
+ap "${PFX86}/Vim/vim73"
+ap "${PFX86}/PuTTY"
 
 export PATH
 
 function ge () {
-  if [ -d "${PFX86}/Vim/vim72" ]
+  if which gvim > /dev/null
   then
-    "${PFX86}/Vim/vim72/gvim.exe" $*
+    gvim $@ &
   else
-    echo "gvim not found"
+    vim $@
   fi
 }
-
-function chr() {
-  if [ -d "${PFX86}/Google/Chrome/Application" ]
-  then
-    "${PFX86}/Google/Chrome/Application/chrome.exe" $(cygpath -wa $*)
-  else
-    echo "chrome not found"
-  fi
-}
-
-
-function cbuild() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if [ "$1" = "--debug" ]
-  then
-    cfg="Debug"
-  else
-    cfg="Release"
-  fi
-  if [ -n "$1" ]
-  then
-    project="/project $1"
-  else
-    project=""
-  fi
-  time ( set -x; cd $csrc/chrome ; time devenv.com chrome.sln /build $cfg \
-                                                   $project /out stdout)
-}
-
-
-function clobber() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-  else
-    echodo rm -fr $csrc/out/*
-  fi
-}
-
-function dbgpath() {
-  if $(echo $PATH | egrep '/webkit/Release' > /dev/null)
-  then
-    export PATH=$(echo $PATH | sed 's-webkit/Release-webkit/Debug-g')
-    export PATH=$(echo $PATH | sed 's-chrome/Release-chrome/Debug-g')
-  else
-    export PATH=${PATH}:${csrc}/webkit/Debug
-    export PATH=${PATH}:${csrc}/chrome/Debug
-  fi
-}
-
-
-# run layout tests w/o any command line flags
-function rwt() {
-  time (echodo python $(cygpath -wa $wks/new-run-webkit-tests $* ))
-}
-
-
-# run layout tests w/ command command line flags
-function rwtd() {
-  time ( echodo python $(cygpath -wa $wks/new-run-webkit-tests) \
-                    --clobber-old-results --noshow-results $*)
-}
-
-
-function relpath() {
-  if $(echo $PATH | egrep '/webkit/Debug' > /dev/null)
-  then
-    export PATH=$(echo $PATH | sed 's-webkit/Debug-webkit/Release-g')
-    export PATH=$(echo $PATH | sed 's-chrome/Debug-chrome/Release-g')
-  else
-    export PATH="${PATH}:${csrc}/webkit/Release"
-    export PATH="${PATH}:${csrc}/chrome/Release"
-  fi
-}
-
-
-function tsbuild() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if [ "$1" = "--debug" ]
-  then
-    cfg="Debug"
-  else
-    cfg="Release"
-  fi
-  if [ -n "$1" ]
-  then
-    project="/project $1"
-  else
-    project=""
-  fi
-  time ( set -x; cd $csrc/webkit ; time devenv.com webkit.sln /build $cfg \
-                                                   $project /out stdout)
-}
-
-
-function xd() {
-  svn diff --diff-cmd=$(cygpath -wa ~/bin/tm) $*
-}
-
