@@ -16,10 +16,12 @@ then
   export PATH=${PATH/:\/usr\/bin:\/usr\/local\/bin/:\/Developer\/usr\/bin:\/usr\/bin:\/usr\/local\/bin}
 fi
 
-ap /src/pylint/bin
-ap /usr/local/git/bin
+if [ -d /usr/local/git/bin ]
+then
+  export PATH=/usr/local/git/bin:$PATH
+fi
+
 ap /usr/texbin
-ap /src/rtp
 ap /src/gcutil
 
 export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
