@@ -62,6 +62,10 @@ autocmd FileType cpp  setlocal sw=2 ts=2 tw=0
 " don't automatically wrap python source code
 autocmd FileType python setlocal tw=0
 
+" set commands to insert and clear debugger breakpoints
+autocmd FileType python nmap ,d Oimport pdb; pdb.set_trace()<ESC>:w
+autocmd FileType python nmap ,D dd:w
+
 " strip trailing whitespace in C/C++/Python code
 autocmd FileType c,cpp,java,python autocmd BufWritePre <buffer> :call setline(1,map(getline(1,"$"),'substitute(v:val,"\\s\\+$","","")'))
 
