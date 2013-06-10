@@ -251,7 +251,7 @@ function rp() {
     var=PATH
   fi
   comp_regex=$1
-  export ${var}="$(echo ${!var} | sed "s-[^:]*${comp_regex}[^:]*--${opt_g}" | \
+  export ${var}="$(echo ${!var} | sed "s#[^:]*${comp_regex}[^:]*##${opt_g}" | \
                       sed "s/::*/:/g" | sed "s/^://" | sed "s/:$//")"
   unset comp_regex
   unset var
