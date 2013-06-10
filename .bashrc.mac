@@ -2,8 +2,8 @@
 # .bashrc for Mac-specific stuff
 #
 
-# bump up the default # of files per process.
-ulimit -n 1000
+# bump up the default # of files and the default stack size per process.
+ulimit -n 1000 -s 16384
 
 export src=/src
 
@@ -14,6 +14,12 @@ ap /opt/local/bin
 if [ -d /Developer/usr/bin ]
 then
   export PATH=${PATH/:\/usr\/bin:\/usr\/local\/bin/:\/Developer\/usr\/bin:\/usr\/bin:\/usr\/local\/bin}
+fi
+
+# if we have a newer version of git than the built in one, get it first.
+if [ -d /usr/local/git ]
+then
+  export PATH=/usr/local/git/bin:${PATH}
 fi
 
 ap /src/pylint/bin
