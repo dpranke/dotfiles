@@ -25,6 +25,8 @@ alias h='history'
 
 export EDITOR=vim
 
+export NINJA_JOBS=''
+
 # ap - add path component if it's not already there and it exists
 #   usage: ap [var] value
 function ap() {
@@ -42,6 +44,30 @@ function ap() {
   then
     export ${var}="${!var}:$1"
   fi
+}
+
+function bld() {
+    ninja -C $csrc/out/Release $NINJA_JOBS all_webkit
+}
+
+function bldd() {
+    ninja -C $csrc/out/Debug $NINJA_JOBS all_webkit
+}
+
+function gomaenv() {
+    if [ "$1" = "-d" ]
+    then
+        rp /src/goma
+        rp $csrc/third_party/llvm-build
+        unset CC
+        unset CXX
+        export NINJA_JOBS=""
+    else
+        export PATH=/src/goma:$csrc/third_party/llvm-build/Release+Asserts/bin:$PATH
+        export CC=clang
+        export CXX=clang++
+        export NINJA_JOBS="-j 250"
+    fi
 }
 
 function gb() {
@@ -235,7 +261,7 @@ function rp() {
 
 # run layout tests w/o any command line flags
 function rwt() {
-  time (echodo python $bls/run-webkit-tests $* )
+  time (echodo $bls/run-webkit-tests $* )
 }
 
 # run layout tests w/ common command line flags
