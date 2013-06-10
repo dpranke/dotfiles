@@ -16,16 +16,12 @@ then
   export PATH=${PATH/:\/usr\/bin:\/usr\/local\/bin/:\/Developer\/usr\/bin:\/usr\/bin:\/usr\/local\/bin}
 fi
 
-# if we have a newer version of git than the built in one, get it first.
-if [ -d /usr/local/git ]
+if [ -d /usr/local/git/bin ]
 then
-  export PATH=/usr/local/git/bin:${PATH}
+  export PATH=/usr/local/git/bin:$PATH
 fi
 
-ap /src/pylint/bin
-ap /usr/local/git/bin
 ap /usr/texbin
-ap /src/rtp
 ap /src/gcutil
 
 export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
@@ -59,13 +55,3 @@ function ge() {
       e $*
     fi
 }
-
-#if [ -d /src/goma ]
-#then
-#  export GOMA=/src/goma
-#  export PATH=$GOMA:$PATH
-#fi
-#
-#function gomastart() {
-#  $GOMA/goma_ctl.sh start
-#}
