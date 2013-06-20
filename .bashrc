@@ -63,9 +63,18 @@ function gomaenv() {
         unset CXX
         export NINJA_JOBS=""
     else
-        export PATH=/src/goma:$csrc/third_party/llvm-build/Release+Asserts/bin:$PATH
-        export CC=clang
-        export CXX=clang++
+        if [ ! -d /src/goma ]
+        then
+          echo "goma not installed"
+          return 1
+        fi
+        if [ "$OSNAME" == "mac" ]
+        then
+          export $csrc/third_party/llvm-build/Release+Asserts/bin:$PATH
+          export CC=clang
+          export CXX=clang++
+        fi
+        export PATH=/src/goma:$PATH
         export NINJA_JOBS="-j 250"
     fi
 }
