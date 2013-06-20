@@ -70,7 +70,7 @@ function gomaenv() {
         fi
         if [ "$OSNAME" == "mac" ]
         then
-          export $csrc/third_party/llvm-build/Release+Asserts/bin:$PATH
+          export PATH=$csrc/third_party/llvm-build/Release+Asserts/bin:$PATH
           export CC=clang
           export CXX=clang++
         fi
