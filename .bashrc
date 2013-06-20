@@ -58,14 +58,19 @@ function gomaenv() {
     if [ "$1" = "-d" ]
     then
         rp /src/goma
-        rp $csrc/third_party/llvm-build
         unset CC
         unset CXX
+        rp $csrc/third_party/llvm-build
         export NINJA_JOBS=""
     else
-        export PATH=/src/goma:$csrc/third_party/llvm-build/Release+Asserts/bin:$PATH
-        export CC=clang
-        export CXX=clang++
+        if [ "$OSNAME" = "mac" ]
+        then
+          export PATH=/src/goma:$csrc/third_party/llvm-build/Release+Asserts/bin:$PATH
+          export CC=clang
+          export CXX=clang++
+        else
+          export PATH=/src/goma:$PATH
+        fi
         export NINJA_JOBS="-j 250"
     fi
 }
