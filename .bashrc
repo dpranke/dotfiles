@@ -47,11 +47,11 @@ function ap() {
 }
 
 function bld() {
-    ninja -C $csrc/out/Release $NINJA_JOBS all_webkit
+    ninja -C $csrc/out/Release $NINJA_JOBS all_webkit $@
 }
 
 function bldd() {
-    ninja -C $csrc/out/Debug $NINJA_JOBS all_webkit
+    ninja -C $csrc/out/Debug $NINJA_JOBS all_webkit $@
 }
 
 function gomaenv() {
