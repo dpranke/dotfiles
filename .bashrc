@@ -58,9 +58,9 @@ function gomaenv() {
     if [ "$1" = "-d" ]
     then
         rp /src/goma
-        rp $csrc/third_party/llvm-build
         unset CC
         unset CXX
+        rp $csrc/third_party/llvm-build
         export NINJA_JOBS=""
     else
         if [ ! -d /src/goma ]
