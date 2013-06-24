@@ -25,6 +25,8 @@ else
   export srcdrive=c
 fi
 
+export GYP_GENERATORS=ninja
+
 export src=$cyg/$srcdrive/src
 export winsrc=$srcdrive:\\src
 
