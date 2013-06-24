@@ -2,6 +2,8 @@
 # .bashrc for Linux Google-specific stuff
 #
 
+export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
+
 export LD_LIBRARY_PATH=/usr/X11R6/lib
 
 export src=/src
@@ -45,25 +47,6 @@ function clobber() {
 }
 
 
-function dbgpath() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if echo $PATH | grep "$bdir/Release" > /dev/null
-  then
-    export PATH=$(echo $PATH | sed "s-$bdir/Release-$bdir/Debug-")
-  elif echo $PATH | grep "$bdir/Debug" > /dev/null
-  then
-    true; # do nothing, already present
-  else
-    export PATH=$PATH:${csrc}/${bdir}/Debug
-  fi
-}
-
-
 function defdis() {
   export DISPLAY=$DEFAULT_DISPLAY
 }
@@ -90,26 +73,6 @@ function nulldis() {
   fi
   export DISPLAY=:4
 }
-
-
-function relpath() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-    return
-  fi
-
-  if echo $PATH | grep "$bdir/Debug" > /dev/null
-  then
-    export PATH=$(echo $PATH | sed "s-$bdir/Debug-$bdir/Release-")
-  elif echo $PATH | grep "$bdir/Release" > /dev/null
-  then
-    true; # do nothing, already present
-  else
-    export PATH=$PATH:${csrc}/$bdir/Release
-  fi
-}
-
 
 function gomastart() {
   if [ -z "$GOMA" ]
