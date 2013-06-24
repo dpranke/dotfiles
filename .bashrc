@@ -47,25 +47,34 @@ function ap() {
 }
 
 function bld() {
-    ninja -C $csrc/out/Release $NINJA_JOBS all_webkit
+    ninja -C $csrc/out/Release $NINJA_JOBS all_webkit $@
 }
 
 function bldd() {
-    ninja -C $csrc/out/Debug $NINJA_JOBS all_webkit
+    ninja -C $csrc/out/Debug $NINJA_JOBS all_webkit $@
 }
 
 function gomaenv() {
     if [ "$1" = "-d" ]
     then
         rp /src/goma
-        rp $csrc/third_party/llvm-build
         unset CC
         unset CXX
+        rp $csrc/third_party/llvm-build
         export NINJA_JOBS=""
     else
-        export PATH=/src/goma:$csrc/third_party/llvm-build/Release+Asserts/bin:$PATH
-        export CC=clang
-        export CXX=clang++
+        if [ ! -d /src/goma ]
+        then
+          echo "goma not installed"
+          return 1
+        fi
+        if [ "$OSNAME" == "mac" ]
+        then
+          export PATH=$csrc/third_party/llvm-build/Release+Asserts/bin:$PATH
+          export CC=clang
+          export CXX=clang++
+        fi
+        export PATH=/src/goma:$PATH
         export NINJA_JOBS="-j 250"
     fi
 }
@@ -251,7 +260,7 @@ function rp() {
     var=PATH
   fi
   comp_regex=$1
-  export ${var}="$(echo ${!var} | sed "s-[^:]*${comp_regex}[^:]*--${opt_g}" | \
+  export ${var}="$(echo ${!var} | sed "s#[^:]*${comp_regex}[^:]*##${opt_g}" | \
                       sed "s/::*/:/g" | sed "s/^://" | sed "s/:$//")"
   unset comp_regex
   unset var

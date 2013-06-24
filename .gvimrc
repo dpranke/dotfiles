@@ -12,7 +12,7 @@ elseif has("gui_gtk2")
   colorscheme peaksea
   set lines=66
 elseif has("gui_macvim")
-  set guifont=Inconsolata:h14
+  set guifont=Inconsolata:h16
   set lines=66
 elseif has("gui")
   set guifont=Inconsolata:h14
