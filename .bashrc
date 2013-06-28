@@ -270,20 +270,12 @@ function rp() {
 
 # run layout tests w/o any command line flags
 function rwt() {
-  time (echodo $bls/run-webkit-tests $* )
+  time (echodo $bls/run-webkit-tests $@ )
 }
 
 # run layout tests w/ common command line flags
 function rwtd() {
-  rwt --clobber-old-results --no-new-test-results $*
-}
-
-function rwtn() {
-  rwtd --no-show-results $*
-}
-
-function rwtl() {
-    rwtc --lint-test-files $*
+  rwt --clobber-old-results --no-new-test-results $@
 }
 
 function setprompt() {
