@@ -54,6 +54,11 @@ function bldd() {
     time ninja -C $csrc/out/Debug $NINJA_JOBS all_webkit $@
 }
 
+export dt=$src/depot_tools
+function dt() {
+    cd $dt/$*
+}
+
 function gomaenv() {
     if [ "$1" = "-d" ]
     then
@@ -80,12 +85,17 @@ function gomaenv() {
 }
 
 function gb() {
-    if [ "$1" == "-a" ]
+    if [ -e "$HOME/bin/git-lsb" ]
     then
-        git branch
+        git-lsb $@
     else
-        git branch | \
-          awk '$0 !~ /\.old|-old|-landed|-wf/ || $0 ~ /^\*/ { print }'
+        if [ "$1" == "-a" ]
+        then
+            git branch
+        else
+            git branch | \
+            awk '$0 !~ /\.old|-old|-landed|-wf/ || $0 ~ /^\*/ { print }'
+        fi
     fi
 }
 
@@ -270,7 +280,7 @@ function rp() {
 
 # run layout tests w/o any command line flags
 function rwt() {
-  time (echodo $bls/run-webkit-tests $@ )
+  time (echodo $wks/run-webkit-tests $@ )
 }
 
 # run layout tests w/ common command line flags
@@ -311,17 +321,17 @@ function shortcuts() {
     unset ltc
     unset lts
     unset ltw
-    unset bls
-    unset blt
-    unset blp
+    unset wks
+    unset wkt
+    unset wkp
     unset gom
   else
-    export gom=$bl/Tools/BuildSlaveSupport/build.webkit.org-config/public_html/TestFailures
+    export gom=$wk/Tools/BuildSlaveSupport/build.webkit.org-config/public_html/TestFailures
     export lts=$csrc/webkit/tools/layout_tests
-    export ltw=$bl/LayoutTests
-    export bls=$bl/Tools/Scripts
-    export blp=$bls/webkitpy
-    export blt=$blp/layout_tests
+    export ltw=$wk/LayoutTests
+    export wks=$wk/Tools/Scripts
+    export wkp=$wks/webkitpy
+    export wkt=$wkp/layout_tests
   fi
 }
 
@@ -355,12 +365,12 @@ function sv() {
   blview=0
   if [ -d "$new_src/third_party/WebKit" ]
   then
-    export bl=$new_src/third_party/WebKit
+    export wk=$new_src/third_party/WebKit
     export csrc=$new_src
   else
     if [ -d "$new_src/LayoutTests" ]
     then
-      export bl=$new_src
+      export wk=$new_src
     fi
     csrc=$new_src
   fi
@@ -378,12 +388,12 @@ function sv() {
   fi
 
   shift
-  if [ -n "$bl" ]
+  if [ -n "$wk" ]
   then
     rp Tools
     rp PYTHONPATH Tools
-    ap ${bls}
-    ap PYTHONPATH ${bls}
+    ap ${wks}
+    ap PYTHONPATH ${wks}
   fi
 
   unset arg
@@ -433,53 +443,44 @@ function window_size() {
 }
 
 
-# cd to $bl/$*
-function bl() {
-  if [ -z "$bl" ]
+function wk() {
+  if [ -z "$wk" ]
   then
     echo "not in a view"
   else
-    cd $bl/$*
+    cd $wk/$*
   fi
 }
 
 
-# cd to "$blp/$*"
-function blp() {
-  if [ -z "$blp" ]
+function wkp() {
+  if [ -z "$wkp" ]
   then
     echo "not in a view"
   else
-    cd $blp/$*
+    cd $wkp/$*
   fi
 }
 
 
-# cd to "$blt/$*"
-function blt() {
-  if [ -z "$blt" ]
+function wkt() {
+  if [ -z "$wkt" ]
   then
     echo "not in a view"
   else
-    cd $blt/$*
+    cd $wkt/$*
   fi
 }
 
 
-# cd to "$bls/$*"
-function bls() {
-  if [ -z "$bls" ]
+function wks() {
+  if [ -z "$wks" ]
   then
     echo "not in a view"
   else
-    cd $bls/$*
+    cd $wks/$*
   fi
 }
-
-function wk { bl $@; }
-function wks { bls $@; }
-function wkt { blt $@; }
-function wkp { blp $@; }
 
 function wp { webkit-patch $@; }
 
