@@ -1,0 +1,95 @@
+#!/usr/bin/env python
+
+import fileinput
+import math
+import optparse
+
+parser = optparse.OptionParser()
+parser.add_option('-r', '--rows', type='int', help="number of rows")
+parser.add_option('--bar', action='store_true')
+parser.add_option('--bars', type='int')
+parser.add_option('--size', action='store', help="size of each row")
+parser.add_option('--hist', action='store_true')
+parser.add_option('-d', '--desc', action='store_true')
+options, args = parser.parse_args()
+
+desc = {}
+rows = {}
+data = []
+
+data_conv = None
+
+def conv(v):
+    global data_conv
+    if not data_conv:
+        try:
+            data_conv = int
+        except ValueError:
+            try:
+                data_conv = float
+            except:
+                data_conv = lambda x: strip(x)
+    return data_conv(v)
+
+def bin_func(data, num_bins):
+    if options.size:
+        bin_size = float(options.size)
+    else:
+        bin_size = (desc['max'] - desc['min']) / float(num_bins)
+
+    def bin(v):
+        return int(math.floor((v - desc['min']) / bin_size))
+
+    def label(b):
+        return "%6.1f - %6.1f" % (desc['min'] + b * bin_size, desc['min'] + (b + 1) * bin_size)
+
+    return bin, label
+
+def val(b, bins):
+    if options.bars:
+        max_t = max(bins.values())
+        return "*" * int(math.ceil(b * options.cols/ max_t))
+    if options.bar:
+        return "*" * b
+    return "%5d" % b
+
+
+bin_fn = None
+
+if not args or args == '-':
+    f = stdin
+else:
+    f = open(args[0])
+
+data = [conv(l) for l in f.readlines()]
+
+desc['min']   = min(data)
+desc['max']   = max(data)
+desc['sum']   = sum(data)
+desc['count'] = len(data)
+desc['uniq']  = len(set(data))
+desc['avg']   = desc['sum'] / desc['count']
+
+if options.desc:
+    for k in ('min', 'max', 'sum', 'count', 'uniq', 'avg'):
+        print "%16s : %10s" % (k, desc[k])
+    if options.hist:
+        print
+
+if options.hist:
+    if options.rows:
+        bin_fn, label = bin_func(data, options.rows)
+    elif desc['uniq'] > 20:
+        bin_fn, label = bin_func(data, 20)
+    else:
+        options.rows = num_uniq
+        bin_fn = label = lambda v: v
+
+    for v in data:
+        i = bin_fn(v)
+        rows.setdefault(i, 0)
+        rows[i] += 1
+
+    max_cnt = max(rows.values())
+    for r in sorted(rows):
+        print "%16s : %10s" % (label(r), val(rows[r], rows))
