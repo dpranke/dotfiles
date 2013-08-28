@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import fileinput
 import math
 import optparse
+import sys
 
 parser = optparse.OptionParser()
 parser.add_option('-r', '--rows', type='int', help="number of rows")
@@ -10,6 +10,7 @@ parser.add_option('--bar', action='store_true')
 parser.add_option('--bars', type='int')
 parser.add_option('--size', action='store', help="size of each row")
 parser.add_option('--hist', action='store_true')
+parser.add_option('--sparse', action='store_true')
 parser.add_option('-d', '--desc', action='store_true')
 options, args = parser.parse_args()
 
@@ -41,7 +42,8 @@ def bin_func(data, num_bins):
         return int(math.floor((v - desc['min']) / bin_size))
 
     def label(b):
-        return "%6.1f - %6.1f" % (desc['min'] + b * bin_size, desc['min'] + (b + 1) * bin_size)
+        fmt = "%%%d.1f - %%%d.1f" % (b_digits, b_digits)
+        return fmt % (desc['min'] + b * bin_size, desc['min'] + (b + 1) * bin_size)
 
     return bin, label
 
@@ -51,13 +53,14 @@ def val(b, bins):
         return "*" * int(math.ceil(b * options.cols/ max_t))
     if options.bar:
         return "*" * b
-    return "%5d" % b
+    fmt = "%%%dd" % b_digits
+    return fmt % b
 
 
 bin_fn = None
 
-if not args or args == '-':
-    f = stdin
+if not args or (args and args[0] == '-'):
+    f = sys.stdin
 else:
     f = open(args[0])
 
@@ -70,17 +73,21 @@ desc['count'] = len(data)
 desc['uniq']  = len(set(data))
 desc['avg']   = desc['sum'] / desc['count']
 
+b_digits = int(math.log(desc['max'], 10)) + 2
+v_digits = int(math.log(desc['sum'], 10)) + 2
+fmt = "%%%ds : %%%ds" % (b_digits * 2 + 5, v_digits)
+
 if options.desc:
     for k in ('min', 'max', 'sum', 'count', 'uniq', 'avg'):
-        print "%16s : %10s" % (k, desc[k])
+        print fmt % (k, desc[k])
     if options.hist:
         print
 
 if options.hist:
     if options.rows:
         bin_fn, label = bin_func(data, options.rows)
-    elif desc['uniq'] > 20:
-        bin_fn, label = bin_func(data, 20)
+    elif desc['uniq'] > 10:
+        bin_fn, label = bin_func(data, 10)
     else:
         options.rows = num_uniq
         bin_fn = label = lambda v: v
@@ -90,6 +97,9 @@ if options.hist:
         rows.setdefault(i, 0)
         rows[i] += 1
 
-    max_cnt = max(rows.values())
+    if not options.sparse:
+        max_row = max(rows)
+        for i in range(max_row):
+            rows.setdefault(i, 0)
     for r in sorted(rows):
-        print "%16s : %10s" % (label(r), val(rows[r], rows))
+        print fmt % (label(r), val(rows[r], rows))
