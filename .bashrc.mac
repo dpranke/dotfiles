@@ -7,8 +7,6 @@ ulimit -n 1000 -s 16384
 
 export src=/src
 
-export GYP_GENERATORS=ninja
-
 ap /opt/local/bin
 
 if [ -d /Developer/usr/bin ]
@@ -23,6 +21,7 @@ fi
 
 ap /usr/texbin
 ap /src/gcutil
+ap /src/gsutil
 
 export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
 export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
