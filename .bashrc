@@ -47,11 +47,11 @@ function ap() {
 }
 
 function bld() {
-    time ninja -C $csrc/out/Release $NINJA_JOBS all_webkit $@
+    time ninja -C $csrc/out/Release $NINJA_JOBS blink_tests $@
 }
 
 function bldd() {
-    time ninja -C $csrc/out/Debug $NINJA_JOBS all_webkit $@
+    time ninja -C $csrc/out/Debug $NINJA_JOBS blink_tests $@
 }
 
 export dt=$src/depot_tools

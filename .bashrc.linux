@@ -22,9 +22,6 @@ then
   export GOMA=/src/goma
 fi
 
-export GYP_DEFINES=target_arch=x64
-export GYP_GENERATORS=ninja
-
 if [ -d /src/dotfiles ]
 then
   export dotfiles=/src/dotfiles
