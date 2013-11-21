@@ -25,12 +25,10 @@ else
   export srcdrive=c
 fi
 
-export GYP_GENERATORS=ninja
-
 export src=$cyg/$srcdrive/src
 export winsrc=$srcdrive:\\src
 
-ap $src/depot_tools/python_bin
+ap $src/depot_tools/python276_bin
 ap $src/depot_tools/git_bin
 ap $src/depot_tools/svn_bin
 ap $src/depot_tools
