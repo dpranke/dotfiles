@@ -74,10 +74,6 @@ do
        deps=$(svn cat svn://svn.chromium.org/chrome/trunk/src/DEPS | \
               awk '$1 == "\"webkit_revision\":" { print substr($2, 2, 6) }')
        echo " (deps r$deps)"
-
-       echo -n "  webkit: "
-       svnrev http://svn.webkit.org/repository/webkit webkit
-       echo
     elif [ -e "$src/$i/src/.git" ]
     then
         cd $src/$i/src

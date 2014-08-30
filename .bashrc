@@ -357,6 +357,9 @@ function sv() {
   if [ -d "$src/$new_dir/src" ]
   then
     new_src=$src/$new_dir/src
+  elif [ -d "$src/$new_dir/build" ]
+  then
+    new_src=$src/$new_dir/build
   else
     new_src=$src/$new_dir
   fi
@@ -517,9 +520,9 @@ fi
 
 if [ -f ~/.git-completion.sh ]
 then
-  . ~/.git-completion.sh
-  GIT_PRESENT=1
-  # GIT_PS1_SHOWDIRTYSTATE=1
+ . ~/.git-completion.sh
+ GIT_PRESENT=1
+ # GIT_PS1_SHOWDIRTYSTATE=1
 fi
 
 setprompt

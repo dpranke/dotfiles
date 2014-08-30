@@ -4,10 +4,12 @@
 
 export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
 
-export LD_LIBRARY_PATH=/usr/X11R6/lib
+# export LD_LIBRARY_PATH=/usr/X11R6/lib
 
 export src=/src
 export bdir=out
+
+export google3=/google/src/cloud/dpranke/lego-perf-internal/google3
 
 if [ -d $src/depot_tools ]
 then
@@ -66,7 +68,7 @@ function ge() {
 function nulldis() {
   if [ $(ps auxww | grep Xvfb | grep -v  grep | wc -l) = 0 ]
   then
-    Xvfb :4 -screen 0 1024x768x24 -ac &
+    Xvfb :4 -screen 0 1024x768x24 -ac > /dev/null 2> /dev/null &
   fi
   export DISPLAY=:4
 }

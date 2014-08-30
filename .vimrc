@@ -34,7 +34,11 @@ set shortmess+=I
 " display a column at 80 characters to indicate long lines
 if version >= 703
   set colorcolumn=80
-  hi ColorColumn guibg=lightgrey ctermbg=lightgrey
+  if &background == "dark"
+    hi ColorColumn guibg=#333 ctermbg=darkgrey
+  else
+    hi ColorColumn guibg=#ddd ctermbg=lightgrey
+  end
 endif
 
 syntax on
