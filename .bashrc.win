@@ -44,7 +44,7 @@ ap "${PF}/Windows Imaging"
 ap "${PF}/Support Tools"
 ap "${PFX86}/Microsoft Visual Studio 8/Common7/IDE"
 
-ap "${PFX86}/Vim/vim73"
+ap "${PFX86}/Vim/vim74"
 ap "${PFX86}/PuTTY"
 
 export PATH

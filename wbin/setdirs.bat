@@ -1,5 +1,5 @@
-@set PATH=%PATH%;e:\src\depot_tools;
-@set PATH=%PATH%;e:\src\depot_tools\python_bin
-@set PATH=%PATH%;e:\src\depot_tools\svn_bin
-@set PATH=%PATH%;e:\src\depot_tools\git_bin
-@"c:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat"
+@set PATH=%SRC%\depot_tools;%PATH%
+@rem @set PATH=%PATH%;%SRC%\depot_tools\python_bin
+@rem @set PATH=%PATH%;%SRC%\depot_tools\svn_bin
+@rem @set PATH=%PATH%;%SRC%\depot_tools\git_bin
+@"d:\src\depot_tools\win_toolchain\vs2013_files\vc\bin\vcvars32.bat"

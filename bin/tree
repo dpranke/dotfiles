@@ -12,7 +12,7 @@ fi
 findrev() {
     if git log -1 "$1" > /dev/null 2>& 1
     then
-      currev=$(git log -1 $1 | awk '$1 == "git-svn-id:" { sub("^.*@", "", $2); print $2; }' | tail -1)
+      currev=$(git log -1 $1 | awk '$1 == "Cr-Commit-Position:" || $1 == "git-svn-id:" { sub("^.*@", "", $2); print $2; }' | tail -1)
     else
       currev="-1"
     fi
@@ -64,7 +64,7 @@ do
     echo "$i:"
     if [ "$i" = "repos" ]
     then
-       echo -n "  chrome: " 
+       echo -n "  chrome: "
        svnrev svn://svn.chromium.org/chrome/trunk/src chrome
        echo -n " (lkgr r$(curl -s http://chromium-status.appspot.com/lkgr), "
        echo "blink r$(curl -s http://blink-status.appspot.com/lkgr))"
@@ -74,10 +74,11 @@ do
        deps=$(svn cat svn://svn.chromium.org/chrome/trunk/src/DEPS | \
               awk '$1 == "\"webkit_revision\":" { print substr($2, 2, 6) }')
        echo " (deps r$deps)"
+
     elif [ -e "$src/$i/src/.git" ]
     then
         cd $src/$i/src
-        echo -n "  chrome: " 
+        echo -n "  chrome: "
         gitbranch
         echo
         if [ -e "$src/$i/src/third_party/WebKit/.git" ]
@@ -95,18 +96,18 @@ do
     elif [ -e "$src/$i/src/.svn" ]
     then
         echo -n "  chrome: "
-        svnrev "$src/$i/src" 
+        svnrev "$src/$i/src"
         echo -n " (deps "
         depsrev "$src/$i/src/DEPS" webkit webkit_revision
         echo ")"
         echo -n "  webkit: "
-        svnrev "$src/$i/src/third_party/WebKit" 
-        echo 
+        svnrev "$src/$i/src/third_party/WebKit"
+        echo
     elif [ -e "$src/$i/.svn" -a -e "$src/$i/LayoutTests" ]
     then
         echo -n "  webkit: "
-        svnrev "$src/$i" 
-        echo 
+        svnrev "$src/$i"
+        echo
     fi
     echo
 done
