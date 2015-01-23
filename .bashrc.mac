@@ -14,11 +14,12 @@ then
   export PATH=${PATH/:\/usr\/bin:\/usr\/local\/bin/:\/Developer\/usr\/bin:\/usr\/bin:\/usr\/local\/bin}
 fi
 
-if [ -d /usr/local/git/bin ]
+if [ -d /usr/local/git/current/bin ]
 then
-  export PATH=/usr/local/git/bin:$PATH
+  export PATH=/usr/local/git/current/bin:$PATH
 fi
 
+ap $HOME/Library/Python/2.7/bin
 ap /usr/texbin
 ap /src/gcutil
 ap /src/gsutil
@@ -46,11 +47,17 @@ then
   export PATH=${src}/depot_tools:${PATH}
 fi
 
+if which mvim > /dev/null
+then
+  alias e='/Applications/MacVim.app/Contents/MacOS/Vim'
+  alias v='/Applications/MacVim.app/Contents/MacOS/Vim -R'
+fi
+
 function ge() {
     if which mvim > /dev/null
     then
-      mvim $*
+      mvim $@
     else
-      e $*
+      e $@
     fi
 }
