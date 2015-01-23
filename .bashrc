@@ -136,21 +136,18 @@ function gitbranch() {
   echo ${b##refs/heads/}
 }
 
-function gom() {
-  if [ -z "$gom" ]
-  then
-    echo "not in a view"
-  else
-    cd $gom/$* ;
-  fi
+ 
+function gng() {
+  git grep $* -- \*.gn \*.gni
 }
-  
+
+
 function gpy() {
   git grep $* -- "*.py"
 }
 
-function latest_roll() {
-  git log -1 $(git blame DEPS | awk '$7 == "\"webkit_revision\":" { print $1 }') | tail -1 | sed -e 's/.*@\(.*\) .*/\1/'
+function gypg() {
+  git grep $* -- \*.gyp \*.gypi
 }
 
 function ltc() {
@@ -192,9 +189,13 @@ function lts() {
   fi
 }
 
-function pd { webkit-patch pretty-diff $*; }
+function ng() {
+    ninja -C $csrc/out/Release_gn $@
+}
 
-function pdu { webkit-patch pretty-diff -g UPSTREAM.... $*; }
+function ngd() {
+    ninja -C $csrc/out/Debug_gn $@
+}
 
 function pset() {
     set | pset_aux $*
@@ -523,6 +524,11 @@ then
  . ~/.git-completion.sh
  GIT_PRESENT=1
  # GIT_PS1_SHOWDIRTYSTATE=1
+fi
+
+if [ -f ~/.bashrc_cloud ]
+then
+  . ~/.bashrc_cloud
 fi
 
 setprompt

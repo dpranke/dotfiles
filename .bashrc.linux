@@ -2,6 +2,13 @@
 # .bashrc for Linux Google-specific stuff
 #
 
+# For some reason terminals launched under Chromoting may not
+# have this set.
+if [ -z "$LANG" ]
+then
+  export LANG="en_US.UTF-8"
+fi
+
 export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
 
 # export LD_LIBRARY_PATH=/usr/X11R6/lib
@@ -15,6 +22,8 @@ if [ -d $src/depot_tools ]
 then
     export PATH=${src}/depot_tools:$PATH
 fi
+
+ap ~/.local/bin
 
 export PYTHONPATH=
 
@@ -33,7 +42,10 @@ export EMAIL_ADDRESS=dpranke@chromium.org
 
 if [ -n "$DISPLAY" ]
 then
-   export DEFAULT_DISPLAY=$DISPLAY
+  # Ensure network X access is disabled
+  xhost - > /dev/null
+
+  export DEFAULT_DISPLAY=$DISPLAY
 fi
 
 function clobber() {
@@ -68,7 +80,7 @@ function ge() {
 function nulldis() {
   if [ $(ps auxww | grep Xvfb | grep -v  grep | wc -l) = 0 ]
   then
-    Xvfb :4 -screen 0 1024x768x24 -ac > /dev/null 2> /dev/null &
+    Xvfb :4 -screen 0 1024x768x24 -ac -nolisten tcp > /dev/null 2> /dev/null &
   fi
   export DISPLAY=:4
 }
