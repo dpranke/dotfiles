@@ -87,13 +87,6 @@ set pastetoggle=<F10>
 "     \    syntax enable <Bar>
 "     \  endif <CR>
 
-"if ! has("gui_running")
-"    set t_Co=16
-"    "set t_Co=256
-"endif
-"colorscheme darkdirk
-" colorscheme solarized
-
 let Tlist_Display_Tag_Scope = 1
 
 "
