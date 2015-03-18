@@ -197,6 +197,14 @@ function ngd() {
     ninja -C $csrc/out/Debug_gn $@
 }
 
+function ngn() {
+    ninja -C $csrc/out/Release_gn gn_all
+}
+
+function ngyp() {
+    $csrc/build/gyp_chromium && ninja -C $csrc/out/Release gn_all
+}
+
 function pset() {
     set | pset_aux $*
 }

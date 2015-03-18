@@ -46,6 +46,9 @@ then
   xhost - > /dev/null
 
   export DEFAULT_DISPLAY=$DISPLAY
+
+  # Turn caps lock into an additional ctrl key
+  setxkbmap -option "ctrl:nocaps"
 fi
 
 function clobber() {
