@@ -35,9 +35,11 @@ set shortmess+=I
 if version >= 703
   set colorcolumn=80
   if &background == "dark"
-    hi ColorColumn guibg=#333 ctermbg=darkgrey
+    "hi ColorColumn guibg=#333 ctermbg=darkgrey
+    hi ColorColumn guibg=darkgrey ctermbg=darkgrey
   else
-    hi ColorColumn guibg=#ddd ctermbg=lightgrey
+    "hi ColorColumn guibg=#ddd ctermbg=lightgrey
+    hi ColorColumn guibg=lightgrey ctermbg=lightgrey
   end
 endif
 
