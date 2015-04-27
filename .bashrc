@@ -2,6 +2,7 @@ umask 022
 export PATH=$HOME/bin:/usr/kerberos/bin:/usr/bin:/usr/local/bin:/bin
 export PATH=$PATH:/usr/X11R6/bin:/sbin:/usr/sbin:/usr/local/sbin
 
+export HISTSIZE=500
 export NO_BREAKPAD=1
 
 alias ll='ls -Fl'
