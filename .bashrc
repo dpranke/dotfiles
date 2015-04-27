@@ -2,6 +2,7 @@ umask 022
 export PATH=$HOME/bin:/usr/kerberos/bin:/usr/bin:/usr/local/bin:/bin
 export PATH=$PATH:/usr/X11R6/bin:/sbin:/usr/sbin:/usr/local/sbin
 
+export HISTSIZE=500
 export NO_BREAKPAD=1
 
 alias ll='ls -Fl'
@@ -195,6 +196,14 @@ function ng() {
 
 function ngd() {
     ninja -C $csrc/out/Debug_gn $@
+}
+
+function ngn() {
+    ninja -C $csrc/out/Release_gn gn_all
+}
+
+function ngyp() {
+    $csrc/build/gyp_chromium && ninja -C $csrc/out/Release gn_all
 }
 
 function pset() {
@@ -435,6 +444,10 @@ function svnr() {
   then
     svn st $* | awk '{gsub(/\\/, "/"); print $NF}' | xargs svn revert
   fi
+}
+
+function train() {
+  $csrc/scripts/slave/unittests/recipe_simulation_test.py train
 }
 
 function tw() {
