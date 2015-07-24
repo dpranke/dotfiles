@@ -446,6 +446,10 @@ function svnr() {
   fi
 }
 
+function train() {
+  $csrc/scripts/slave/unittests/recipe_simulation_test.py train
+}
+
 function tw() {
     test-webkitpy -q $*
 }
