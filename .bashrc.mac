@@ -10,12 +10,11 @@ export src=/src
 ip /usr/local/git/current/bin
 
 export dt=$src/depot_tools
-ip depot_tools
+ip $dt
 
 ap /usr/texbin
 ap /src/gcutil
 ap /src/gsutil
-
 
 export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
 export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
