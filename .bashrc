@@ -295,7 +295,7 @@ function rwt() {
 
 # run layout tests w/ common command line flags
 function rwtd() {
-  rwt --clobber-old-results --no-new-test-results $@
+  rwt --clobber-old-results $@
 }
 
 function setprompt() {
