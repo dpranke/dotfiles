@@ -55,7 +55,6 @@ function bldd() {
     time ninja -C $csrc/out/Debug $NINJA_JOBS blink_tests $@
 }
 
-export dt=$src/depot_tools
 function dt() {
     cd $dt/$*
 }
