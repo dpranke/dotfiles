@@ -9,17 +9,16 @@ export src=/src
 
 ap /opt/local/bin
 
-if [ -d /Developer/usr/bin ]
-then
-  export PATH=${PATH/:\/usr\/bin:\/usr\/local\/bin/:\/Developer\/usr\/bin:\/usr\/bin:\/usr\/local\/bin}
-fi
-
 if [ -d /usr/local/git/current/bin ]
 then
   export PATH=/usr/local/git/current/bin:$PATH
 fi
 
-ap $HOME/Library/Python/2.7/bin
+ap /usr/local/go/bin
+
+ap $HOME/mbin
+ap $HOME/homebrew/bin
+
 ap /usr/texbin
 ap /src/gcutil
 ap /src/gsutil
@@ -49,8 +48,8 @@ fi
 
 if which mvim > /dev/null
 then
-  alias e='/Applications/MacVim.app/Contents/MacOS/Vim'
-  alias v='/Applications/MacVim.app/Contents/MacOS/Vim -R'
+  alias e='mvim -v'
+  alias v='mvim -vR'
 fi
 
 function ge() {
