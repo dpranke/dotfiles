@@ -9,21 +9,42 @@ then
   export LANG="en_US.UTF-8"
 fi
 
+# Turn off GTK's stupid overlay scrollbars, so that the scrollbars
+# are on all the time.
+unset GTK_MODULES
+export GTK_OVERLAY_SCROLLING=0
+
 export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
 
 # export LD_LIBRARY_PATH=/usr/X11R6/lib
 
 export src=/src
+export dt=$src/depot_tools
 export bdir=out
 
 export google3=/google/src/cloud/dpranke/lego-perf-internal/google3
 
-if [ -d $src/depot_tools ]
+
+if [ -d $src/google-cloud-sdk ]
 then
-    export PATH=${src}/depot_tools:$PATH
+  source $src/google-cloud-sdk/path.bash.inc
+  source $src/google-cloud-sdk/completion.bash.inc
 fi
 
-ap ~/.local/bin
+ip /usr/local/buildtools/java/jdk/bin
+ip $src/depot_tools
+ap /src/buck/bin
+
+function addappengpath() {
+  gae=$src/google-cloud-sdk/platform/google_appengine
+  PYTHONPATH=$PYTHONPATH:$gae/lib
+  PYTHONPATH=$PYTHONPATH:$gae/lib/django
+  PYTHONPATH=$PYTHONPATH:$gae/lib/webob
+  PYTHONPATH=$PYTHONPATH:$gae/lib/yaml
+}
+
+
+ap $HOME/bin
 
 export PYTHONPATH=
 
@@ -105,3 +126,5 @@ function gomastop() {
   fi
   $GOMA/goma_ctl.sh stop
 }
+
+

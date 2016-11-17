@@ -28,15 +28,10 @@ fi
 export src=$cyg/$srcdrive/src
 export winsrc=$srcdrive:\\src
 
-if [ -d "$src/depot_tools" ]
-then
-  # Make sure these are at the front of the path to override
-  # msys' git and any other version of Python.
-  export PATH=$src/depot_tools/svn_bin:$PATH
-  # export PATH=$src/depot_tools/git-1.9.0.chromium.6_bin/bin:$PATH
-  export PATH=$src/depot_tools/python276_bin:$PATH
-  export PATH=$src/depot_tools:$PATH
-fi
+export dt=$src/depot_tools
+ip $dt/python276_bin
+ip $dt
+
 
 PF="$cyg/c/Program Files"
 PFX86="$cyg/c/Program Files (x86)"

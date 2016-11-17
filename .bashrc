@@ -28,7 +28,7 @@ export EDITOR=vim
 
 export NINJA_JOBS=''
 
-# ap - add path component if it's not already there and it exists
+# ap - append component to the var if it's not already there and it exists
 #   usage: ap [var] value
 function ap() {
   if [ $# -eq 2 ]
@@ -151,6 +151,26 @@ function gypg() {
   git grep $* -- \*.gyp \*.gypi
 }
 
+# ip - insert component at the front of the var if it's not already 
+#      there and it exists
+#   usage: ip [var] value
+function ip() {
+  if [ $# -eq 2 ]
+  then
+    var="$1"
+    shift
+  else
+    var=PATH
+  fi
+  if ( echo "${!var}" | grep "$1:" > /dev/null )
+  then
+    return
+  elif [ -d "$1" ]
+  then
+    export ${var}="$1:${!var}"
+  fi
+}
+
 function ltc() {
   if [ -z "$ltc" ]
   then
@@ -188,6 +208,14 @@ function lts() {
   else
     cd $lts/$*
   fi
+}
+
+function mb() {
+    $csrc/tools/mb/mb.py "$@"
+}
+
+function md() {
+    $csrc/tools/md_browser/md_browser.py "$@"
 }
 
 function ng() {
@@ -328,16 +356,11 @@ function setprompt() {
 function shortcuts() {
   if [ -z "$csrc" ]
   then
-    unset ltc
-    unset lts
     unset ltw
     unset wks
     unset wkt
     unset wkp
-    unset gom
   else
-    export gom=$wk/Tools/BuildSlaveSupport/build.webkit.org-config/public_html/TestFailures
-    export lts=$csrc/webkit/tools/layout_tests
     export ltw=$wk/LayoutTests
     export wks=$wk/Tools/Scripts
     export wkp=$wks/webkitpy
@@ -403,10 +426,7 @@ function sv() {
   shift
   if [ -n "$wk" ]
   then
-    rp Tools
-    rp PYTHONPATH Tools
     ap ${wks}
-    ap PYTHONPATH ${wks}
   fi
 
   unset arg
@@ -433,19 +453,6 @@ function _sv_comp() {
 
 complete -F _sv_comp sv
 
-
-# svnd - diff file against latest checked-in version
-function svnd() { svn diff --diff-cmd diff -x --normal $*; }
-
-
-# svnr - revert files to latest checked-in version
-function svnr() {
-  if [ "$(svn st $*)" != "" ]
-  then
-    svn st $* | awk '{gsub(/\\/, "/"); print $NF}' | xargs svn revert
-  fi
-}
-
 function train() {
   $csrc/scripts/slave/unittests/recipe_simulation_test.py train
 }
@@ -459,7 +466,6 @@ function window_size() {
     echo "${COLUMNS}x${LINES}"
 }
 
-
 function wk() {
   if [ -z "$wk" ]
   then
@@ -469,7 +475,6 @@ function wk() {
   fi
 }
 
-
 function wkp() {
   if [ -z "$wkp" ]
   then
@@ -478,7 +483,6 @@ function wkp() {
     cd $wkp/$*
   fi
 }
-
 
 function wkt() {
   if [ -z "$wkt" ]
@@ -498,15 +502,6 @@ function wks() {
     cd $wks/$*
   fi
 }
-
-function wp { webkit-patch $@; }
-
-function wpg { webkit-patch garden-o-matic $*; }
-
-function wppb { webkit-patch print-baselines $*; }
-
-function wppe { webkit-patch print-expectations $*; }
-
 
 #
 # OS-SPECIFIC and SITE-SPECIFIC CUSTOMIZATION

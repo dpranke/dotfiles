@@ -7,21 +7,15 @@ ulimit -n 1000 -s 16384
 
 export src=/src
 
-ap /opt/local/bin
+ip /usr/local/git/current/bin
 
-if [ -d /usr/local/git/current/bin ]
-then
-  export PATH=/usr/local/git/current/bin:$PATH
-fi
-
-ap /usr/local/go/bin
-
-ap $HOME/mbin
-ap $HOME/homebrew/bin
+export dt=$src/depot_tools
+ip depot_tools
 
 ap /usr/texbin
 ap /src/gcutil
 ap /src/gsutil
+
 
 export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
 export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
@@ -36,20 +30,10 @@ function addappengpath() {
 
 export EMAIL_ADDRESS=dpranke@chromium.org
 
-if [ -d /src/dotfiles ]
-then
-  export dotfiles=/src/dotfiles
-fi
-
-if [ -d "$src/depot_tools" ]
-then
-  export PATH=${src}/depot_tools:${PATH}
-fi
-
 if which mvim > /dev/null
 then
-  alias e='mvim -v'
-  alias v='mvim -vR'
+  alias e='/Applications/MacVim.app/Contents/MacOS/Vim'
+  alias v='/Applications/MacVim.app/Contents/MacOS/Vim -R'
 fi
 
 function ge() {
