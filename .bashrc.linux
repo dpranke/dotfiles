@@ -2,6 +2,9 @@
 # .bashrc for Linux Google-specific stuff
 #
 
+export EMAIL_ADDRESS=dpranke@chromium.org
+export PYTHONPATH=
+
 # For some reason terminals launched under Chromoting may not
 # have this set.
 if [ -z "$LANG" ]
@@ -14,52 +17,25 @@ fi
 unset GTK_MODULES
 export GTK_OVERLAY_SCROLLING=0
 
-export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
 
-# export LD_LIBRARY_PATH=/usr/X11R6/lib
+unset GOMA
+if [ -d $HOME/goma ]
+then
+  export GOMA=$HOME/goma
+fi
+
+# export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
 
 export src=/src
 export dt=$src/depot_tools
 export bdir=out
 
-export google3=/google/src/cloud/dpranke/lego-perf-internal/google3
-
-
-if [ -d $src/google-cloud-sdk ]
-then
-  source $src/google-cloud-sdk/path.bash.inc
-  source $src/google-cloud-sdk/completion.bash.inc
-fi
-
 ip /usr/local/buildtools/java/jdk/bin
 ip $src/depot_tools
+ip $HOME/bin
+
 ap /src/buck/bin
 
-function addappengpath() {
-  gae=$src/google-cloud-sdk/platform/google_appengine
-  PYTHONPATH=$PYTHONPATH:$gae/lib
-  PYTHONPATH=$PYTHONPATH:$gae/lib/django
-  PYTHONPATH=$PYTHONPATH:$gae/lib/webob
-  PYTHONPATH=$PYTHONPATH:$gae/lib/yaml
-}
-
-
-ap $HOME/bin
-
-export PYTHONPATH=
-
-unset GOMA
-if [ -d /src/goma ]
-then
-  export GOMA=/src/goma
-fi
-
-if [ -d /src/dotfiles ]
-then
-  export dotfiles=/src/dotfiles
-fi
-
-export EMAIL_ADDRESS=dpranke@chromium.org
 
 if [ -n "$DISPLAY" ]
 then
@@ -72,20 +48,9 @@ then
   setxkbmap -option "ctrl:nocaps"
 fi
 
-function clobber() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-  else
-    echodo rm -fr $csrc/$bdir/*
-  fi
-}
-
-
 function defdis() {
   export DISPLAY=$DEFAULT_DISPLAY
 }
-
 
 function edis() {
   echo $DISPLAY
@@ -99,7 +64,6 @@ function ge() {
       e $*
     fi
 }
-
 
 function nulldis() {
   if [ $(ps auxww | grep Xvfb | grep -v  grep | wc -l) = 0 ]
@@ -126,5 +90,3 @@ function gomastop() {
   fi
   $GOMA/goma_ctl.sh stop
 }
-
-
