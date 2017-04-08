@@ -19,6 +19,4 @@ elseif has("gui_macvim")
   set lines=66
 endif
 
-echom "guifont=" &guifont
-
 " vim:tw=78:sw=4:ts=4:ft=vim:norl:
