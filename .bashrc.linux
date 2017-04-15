@@ -2,6 +2,9 @@
 # .bashrc for Linux Google-specific stuff
 #
 
+export EMAIL_ADDRESS=dpranke@chromium.org
+export PYTHONPATH=
+
 # For some reason terminals launched under Chromoting may not
 # have this set.
 if [ -z "$LANG" ]
@@ -9,36 +12,30 @@ then
   export LANG="en_US.UTF-8"
 fi
 
-export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
+# Turn off GTK's stupid overlay scrollbars, so that the scrollbars
+# are on all the time.
+unset GTK_MODULES
+export GTK_OVERLAY_SCROLLING=0
 
-# export LD_LIBRARY_PATH=/usr/X11R6/lib
-
-export src=/src
-export bdir=out
-
-export google3=/google/src/cloud/dpranke/lego-perf-internal/google3
-
-if [ -d $src/depot_tools ]
-then
-    export PATH=${src}/depot_tools:$PATH
-fi
-
-ap ~/.local/bin
-
-export PYTHONPATH=
 
 unset GOMA
-if [ -d /src/goma ]
+if [ -d $HOME/goma ]
 then
-  export GOMA=/src/goma
+  export GOMA=$HOME/goma
 fi
 
-if [ -d /src/dotfiles ]
-then
-  export dotfiles=/src/dotfiles
-fi
+# export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
 
-export EMAIL_ADDRESS=dpranke@chromium.org
+export src=/src
+export dt=$src/depot_tools
+export bdir=out
+
+ip /usr/local/buildtools/java/jdk/bin
+ip $src/depot_tools
+ip $HOME/bin
+
+ap /src/buck/bin
+
 
 if [ -n "$DISPLAY" ]
 then
@@ -51,20 +48,9 @@ then
   setxkbmap -option "ctrl:nocaps"
 fi
 
-function clobber() {
-  if [ -z "$csrc" ]
-  then
-    echo "not in a view"
-  else
-    echodo rm -fr $csrc/$bdir/*
-  fi
-}
-
-
 function defdis() {
   export DISPLAY=$DEFAULT_DISPLAY
 }
-
 
 function edis() {
   echo $DISPLAY
@@ -78,7 +64,6 @@ function ge() {
       e $*
     fi
 }
-
 
 function nulldis() {
   if [ $(ps auxww | grep Xvfb | grep -v  grep | wc -l) = 0 ]

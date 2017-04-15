@@ -7,19 +7,11 @@ ulimit -n 1000 -s 16384
 
 export src=/src
 
-ap /opt/local/bin
+ip /usr/local/git/current/bin
 
-if [ -d /Developer/usr/bin ]
-then
-  export PATH=${PATH/:\/usr\/bin:\/usr\/local\/bin/:\/Developer\/usr\/bin:\/usr\/bin:\/usr\/local\/bin}
-fi
+export dt=$src/depot_tools
+ip $dt
 
-if [ -d /usr/local/git/current/bin ]
-then
-  export PATH=/usr/local/git/current/bin:$PATH
-fi
-
-ap /usr/local/go/bin
 ap /usr/texbin
 ap /src/google-cloud-sdk/bin
 
@@ -31,16 +23,6 @@ export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
 export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
 
 export EMAIL_ADDRESS=dpranke@chromium.org
-
-if [ -d /src/dotfiles ]
-then
-  export dotfiles=/src/dotfiles
-fi
-
-if [ -d "$src/depot_tools" ]
-then
-  export PATH=${src}/depot_tools:${PATH}
-fi
 
 if which mvim > /dev/null
 then

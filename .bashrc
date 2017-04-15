@@ -5,12 +5,16 @@ export PATH=$PATH:/usr/X11R6/bin:/sbin:/usr/sbin:/usr/local/sbin
 export HISTSIZE=500
 export NO_BREAKPAD=1
 
+alias df='df -h'
+alias du='du -h'
+alias gi='grep -i'
+alias ggi='git grep -i'
+alias h='history'
+alias l=less
+alias la='ls -Fa'
 alias ll='ls -Fl'
 alias lh='ls -Fhl'
-alias du='du -h'
 alias ls='ls -F'
-alias df='df -h'
-alias la='ls -Fa'
 
 if which vim > /dev/null
 then
@@ -21,14 +25,12 @@ else
   alias v='view'
 fi
 
-alias l=less
-alias h='history'
-
 export EDITOR=vim
+export PAGER=less
 
 export NINJA_JOBS=''
 
-# ap - add path component if it's not already there and it exists
+# ap - append component to the var if it's not already there and it exists
 #   usage: ap [var] value
 function ap() {
   if [ $# -eq 2 ]
@@ -47,57 +49,12 @@ function ap() {
   fi
 }
 
-function bld() {
-    time ninja -C $csrc/out/Release $NINJA_JOBS blink_tests $@
-}
-
-function bldd() {
-    time ninja -C $csrc/out/Debug $NINJA_JOBS blink_tests $@
-}
-
-export dt=$src/depot_tools
 function dt() {
     cd $dt/$*
 }
 
-function gomaenv() {
-    if [ "$1" = "-d" ]
-    then
-        rp /src/goma
-        unset CC
-        unset CXX
-        rp $csrc/third_party/llvm-build
-        export NINJA_JOBS=""
-    else
-        if [ ! -d /src/goma ]
-        then
-          echo "goma not installed"
-          return 1
-        fi
-        if [ "$OSNAME" == "mac" ]
-        then
-          export PATH=$csrc/third_party/llvm-build/Release+Asserts/bin:$PATH
-          export CC=clang
-          export CXX=clang++
-        fi
-        export PATH=/src/goma:$PATH
-        export NINJA_JOBS="-j 250"
-    fi
-}
-
 function gb() {
-    if [ -e "$HOME/bin/git-lsb" ]
-    then
-        git-lsb $@
-    else
-        if [ "$1" == "-a" ]
-        then
-            git branch
-        else
-            git branch | \
-            awk '$0 !~ /\.old|-old|-landed|-wf/ || $0 ~ /^\*/ { print }'
-        fi
-    fi
+    git map-branches "$@"
 }
 
 # csrc - cd to $csrc/$*
@@ -109,15 +66,6 @@ function csrc() {
     echo "not in a view"
   fi
 }
-
-function coverase() {
-  coverage erase ; find . -name '*.py,cover' | xargs rm
-}
-
-function chrup () { gclient sync && ninja -C $csrc/out/Release DumpRenderTree; }
-
-# em - edit w/ emacs (in terminal window)
-function em () { emacs -nw $* ; }
 
 # ep - echo PATH (or other variable)
 function ep() {
@@ -131,45 +79,49 @@ function ep() {
   echo ${!var}
 }
 
+function gdn() {
+  git diff ${u} --name-only "$@"
+}
+
+function gdu() {
+  git diff ${u} "$@"
+}
+
 function gitbranch() {
   # _git_ps1 "%s", but buggier and much faster
   b=$(git symbolic-ref HEAD 2>/dev/null)
   echo ${b##refs/heads/}
 }
 
- 
 function gng() {
-  git grep $* -- \*.gn \*.gni
+  git grep "$@" -- \*.gn \*.gni
 }
-
 
 function gpy() {
-  git grep $* -- "*.py"
+  git grep "$@" -- "*.py"
 }
 
-function gypg() {
-  git grep $* -- \*.gyp \*.gypi
-}
-
-function ltc() {
-  if [ -z "$ltc" ]
+# ip - insert component at the front of the var if it's not already 
+#      there and it exists
+#   usage: ip [var] value
+function ip() {
+  if [ $# -eq 2 ]
   then
-    echo "not in a view"
+    var="$1"
+    shift
   else
-    cd $ltc/$* ;
+    var=PATH
+  fi
+  if ( echo "${!var}" | grep "$1:" > /dev/null )
+  then
+    return
+  elif [ -d "$1" ]
+  then
+    export ${var}="$1:${!var}"
   fi
 }
 
-function ltml() {
-  if [ -z "$ltml" ]
-  then
-    echo "not in a view"
-  else
-    cd $ltml/$* ;
-  fi
-}
-
-# cd to WebKit/LayoutTests/$*
+# cd to //third_party/WebKit/LayoutTests/$*
 function ltw() {
   if [ -z "$ltw" ]
   then
@@ -179,44 +131,24 @@ function ltw() {
   fi
 }
 
-
-# cd to webkit/tools/layout_tests/$*
-function lts() {
-  if [ -z "$lts" ]
-  then
-    echo "not in a view"
-  else
-    cd $lts/$*
-  fi
+function mb() {
+  $csrc/tools/mb/mb.py "$@"
 }
 
-function ng() {
-    ninja -C $csrc/out/Release_gn $@
+function md() {
+  $csrc/tools/md_browser/md_browser.py "$@"
 }
 
-function ngd() {
-    ninja -C $csrc/out/Debug_gn $@
+function nr() {
+   ninja -C $csrc/out/Release "$@"
 }
 
-function ngn() {
-    ninja -C $csrc/out/Release_gn gn_all
-}
-
-function ngyp() {
-    $csrc/build/gyp_chromium && ninja -C $csrc/out/Release gn_all
+function nd() {
+  ninja -C $csrc/out/Debug "$@"
 }
 
 function pset() {
-    set | pset_aux $*
-}
-
-function pwv() {
-    if [ -n "$view" ]
-    then
-        echo "$view"
-    else
-        echo "[not in a view]"
-    fi
+  set | pset_aux $*
 }
 
 # redot - re-read dot files
@@ -237,7 +169,7 @@ function repeat() {
 
   while [ $count -ne 0 ]
   do
-    $@
+    "$@"
     if [ $? -gt 128 ]
     then
       return
@@ -245,22 +177,6 @@ function repeat() {
     count=$((count - 1))
   done
 }
-
-
-# revno - print out latest Chromium version number
-function revno() {
-    if [ "$1" = "--lkgr" ]
-    then
-        curl -s http://chromium-status.appspot.com/lkgr
-        echo
-    elif [ "$1" = "--latest" -o "$1" = "--head" ]
-    then
-        svn info http://src.chromium.org/svn/trunk/src | awk '$1 == "Revision:" {print $2}'
-    else
-        svn info . | awk '$1 == "Revision:" { print $2 }'
-    fi
-}
-
 
 # rp - remove path component
 #   usage: rp [-a] [var] comp_regex
@@ -295,7 +211,7 @@ function rwt() {
 
 # run layout tests w/ common command line flags
 function rwtd() {
-  rwt --clobber-old-results --no-new-test-results $@
+  rwt --clobber-old-results $@
 }
 
 function setprompt() {
@@ -323,31 +239,7 @@ function setprompt() {
   fi
 }
 
-
-# setup shortcuts
-function shortcuts() {
-  if [ -z "$csrc" ]
-  then
-    unset ltc
-    unset lts
-    unset ltw
-    unset wks
-    unset wkt
-    unset wkp
-    unset gom
-  else
-    export gom=$wk/Tools/BuildSlaveSupport/build.webkit.org-config/public_html/TestFailures
-    export lts=$csrc/webkit/tools/layout_tests
-    export ltw=$wk/LayoutTests
-    export wks=$wk/Tools/Scripts
-    export wkp=$wks/webkitpy
-    export wkt=$wkp/layout_tests
-  fi
-}
-
-
 function src() { cd $src/$* ; }
-
 
 function sv() {
   arg=$1
@@ -392,7 +284,20 @@ function sv() {
   then
     echo "current view: $view (csrc = $csrc)"
   fi
-  shortcuts
+
+  if [ -z "$csrc" ]
+  then
+    unset ltw
+    unset wks
+    unset wkt
+    unset wkp
+  else
+    export ltw=$wk/LayoutTests
+    export wks=$wk/Tools/Scripts
+    export wkp=$wks/webkitpy
+    export wkt=$wkp/layout_tests
+  fi
+
   setprompt
 
   if [ -z "$1" -a ! -z "$csrc" ]
@@ -403,10 +308,7 @@ function sv() {
   shift
   if [ -n "$wk" ]
   then
-    rp Tools
-    rp PYTHONPATH Tools
     ap ${wks}
-    ap PYTHONPATH ${wks}
   fi
 
   unset arg
@@ -433,19 +335,6 @@ function _sv_comp() {
 
 complete -F _sv_comp sv
 
-
-# svnd - diff file against latest checked-in version
-function svnd() { svn diff --diff-cmd diff -x --normal $*; }
-
-
-# svnr - revert files to latest checked-in version
-function svnr() {
-  if [ "$(svn st $*)" != "" ]
-  then
-    svn st $* | awk '{gsub(/\\/, "/"); print $NF}' | xargs svn revert
-  fi
-}
-
 function train() {
   $csrc/scripts/slave/unittests/recipe_simulation_test.py train
 }
@@ -459,7 +348,6 @@ function window_size() {
     echo "${COLUMNS}x${LINES}"
 }
 
-
 function wk() {
   if [ -z "$wk" ]
   then
@@ -469,7 +357,6 @@ function wk() {
   fi
 }
 
-
 function wkp() {
   if [ -z "$wkp" ]
   then
@@ -478,7 +365,6 @@ function wkp() {
     cd $wkp/$*
   fi
 }
-
 
 function wkt() {
   if [ -z "$wkt" ]
@@ -498,15 +384,6 @@ function wks() {
     cd $wks/$*
   fi
 }
-
-function wp { webkit-patch $@; }
-
-function wpg { webkit-patch garden-o-matic $*; }
-
-function wppb { webkit-patch print-baselines $*; }
-
-function wppe { webkit-patch print-expectations $*; }
-
 
 #
 # OS-SPECIFIC and SITE-SPECIFIC CUSTOMIZATION
