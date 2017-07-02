@@ -13,19 +13,11 @@ export dt=$src/depot_tools
 ip $dt
 
 ap /usr/texbin
-ap /src/gcutil
-ap /src/gsutil
+ap /src/google-cloud-sdk/bin
 
 export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
 export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
-
 export PYTHONPATH=
-function addappengpath() {
-  PYTHONPATH=$PYTHONPATH:/usr/local/google_appengine/
-  PYTHONPATH=$PYTHONPATH:/usr/local/google_appengine/lib/django
-  PYTHONPATH=$PYTHONPATH:/usr/local/google_appengine/lib/webob
-  PYTHONPATH=$PYTHONPATH:/usr/local/google_appengine/lib/yaml
-}
 
 export EMAIL_ADDRESS=dpranke@chromium.org
 
