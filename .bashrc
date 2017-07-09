@@ -79,12 +79,16 @@ function ep() {
   echo ${!var}
 }
 
-function gdn() {
-  git diff ${u} --name-only "$@"
+function gdun() {
+  git diff @{u} --name-only "$@"
 }
 
 function gdu() {
-  git diff ${u} "$@"
+  git diff @{u} "$@"
+}
+
+function geu() {
+  ge $(git diff --name-only @{u} "$@")
 }
 
 function gitbranch() {
@@ -101,7 +105,7 @@ function gpy() {
   git grep "$@" -- "*.py"
 }
 
-# ip - insert component at the front of the var if it's not already 
+# ip - insert component at the front of the var if it's not already
 #      there and it exists
 #   usage: ip [var] value
 function ip() {
