@@ -1,0 +1,43 @@
+function defdis() {
+  export DISPLAY=$DEFAULT_DISPLAY
+}
+
+function e() {
+  if which vim > /dev/null
+  then
+    vim "$@"
+  else
+    vi "$@"
+  fi
+}
+  
+function edis() {
+  echo $DISPLAY
+}
+
+function ge() {
+    if which gvim > /dev/null
+    then
+      gvim $*
+    else
+      e $*
+    fi
+}
+
+function nulldis() {
+  if [ $(ps auxww | grep Xvfb | grep -v  grep | wc -l) = 0 ]
+  then
+    Xvfb :4 -screen 0 1024x768x24 -ac -nolisten tcp > /dev/null 2> /dev/null &
+  fi
+  export DISPLAY=:4
+}
+
+function v() {
+  if which vim > /dev/null
+  then
+    vim -R "$@"
+  else
+    view "$@"
+  fi
+}
+

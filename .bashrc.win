@@ -2,6 +2,7 @@
 # .bashrc for cygwin or msys on windows
 #
 
+. $HOME/.bashrc.funcs.win
 
 if [ "$TERM" = "dumb" ]
 then
@@ -15,18 +16,17 @@ else
   export cyg=""
 fi
 
-if [ -d "$cyg/e/src" ]
+if [ -d "/e/src" ]
 then
   export srcdrive=e
-elif [ -d "$cyg/d/src" ]
+elif [ -d "/d/src" ]
 then
   export srcdrive=d
 else
   export srcdrive=c
 fi
 
-export src=$cyg/$srcdrive/src
-export winsrc=$srcdrive:\\src
+export src=/$srcdrive/src
 
 export dt=$src/depot_tools
 ip $dt/python276_bin
@@ -48,12 +48,3 @@ ap "${PFX86}/Vim/vim74"
 ap "${PFX86}/PuTTY"
 
 export PATH
-
-function ge () {
-  if which gvim > /dev/null
-  then
-    gvim $@ &
-  else
-    vim $@
-  fi
-}

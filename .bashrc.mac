@@ -2,39 +2,42 @@
 # .bashrc for Mac-specific stuff
 #
 
+. $HOME/.bashrc.funcs.mac
+
 # bump up the default # of files and the default stack size per process.
 ulimit -n 1000 -s 16384
 
 export src=/src
-
-ip /usr/local/git/current/bin
-
 export dt=$src/depot_tools
-ip $dt
+export GOPATH=/src/go
 
+PATH=/usr/bin:/bin
+ip /usr/local/bin
+ip /usr/local/git/current/bin
+ip $dt
+ip $HOME/bin
+ip $HOME/mbin
+
+ap /usr/local/sbin
+ap /usr/sbin
+ap /sbin
+ap /usr/bin
 ap /usr/texbin
 ap /src/google-cloud-sdk/bin
-
 ap /usr/local/go/bin
-export GOPATH=/src/go
 ap $GOPATH/bin
 
-export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
-export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
-
-export EMAIL_ADDRESS=dpranke@chromium.org
-
-if which mvim > /dev/null
+if which vim > /dev/null
 then
-  alias e='/Applications/MacVim.app/Contents/MacOS/Vim'
-  alias v='/Applications/MacVim.app/Contents/MacOS/Vim -R'
+  export EDITOR=vim
+else
+  export EDITOR=vi
 fi
 
-function ge() {
-    if which mvim > /dev/null
-    then
-      mvim $@
-    else
-      e $@
-    fi
-}
+export EMAIL_ADDRESS=dpranke@chromium.org
+export HISTSIZE=500
+export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
+export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
+export NINJA_JOBS=''
+export NO_BREAKPAD=1
+export PAGER=less

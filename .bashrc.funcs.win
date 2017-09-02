@@ -1,0 +1,28 @@
+function e() {
+  if which vim > /dev/null
+  then
+    vim "$@"
+  else
+    vi "$@"
+  fi
+}
+  
+function ge () {
+  if which gvim > /dev/null
+  then
+    gvim $@ &
+  else
+    vim $@
+  fi
+}
+
+function v() {
+  if which vim > /dev/null
+  then
+    vim -R "$@"
+  else
+    view "$@"
+  fi
+}
+
+
