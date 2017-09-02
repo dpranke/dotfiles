@@ -59,6 +59,10 @@ function gdun() {
   git diff @{u} --name-only "$@"
 }
 
+function geu() {
+  ge $(git diff --name-only @{u} "$@")
+}
+
 function gitbranch() {
   # _git_ps1 "%s", but buggier and much faster
   b=$(git symbolic-ref HEAD 2>/dev/null)

@@ -1,7 +1,3 @@
-umask 022
-
-. $HOME/.bashrc.funcs
-
 #
 # OS-SPECIFIC and SITE-SPECIFIC CUSTOMIZATION
 #
