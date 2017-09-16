@@ -1,0 +1,370 @@
+# ap - append component to the var if it's not already there and it exists
+#   usage: ap [var] value
+function ap() {
+  if [ $# -eq 2 ]
+  then
+    var="$1"
+    shift
+  else
+    var=PATH
+  fi
+  if ( echo "${!var}" | grep "$1:" > /dev/null )
+  then
+    return
+  elif [ -d "$1" ]
+  then
+    export ${var}="${!var}:$1"
+  fi
+}
+
+alias df='df -h'
+
+function dt() {
+    cd $dt/"$@"
+}
+
+alias du='du -h'
+
+# csrc - cd to $csrc/$*
+function csrc() {
+  if [ ! -z "$csrc" ]
+  then
+    cd ${csrc}/$*
+  else
+    echo "not in a view"
+  fi
+}
+
+# ep - echo PATH (or other variable)
+function ep() {
+  if [ $# -eq 1 ]
+  then
+    var=$1
+    shift
+  else
+    var=PATH
+  fi
+  echo ${!var}
+}
+
+function gb() {
+    git map-branches "$@"
+}
+
+function gdu() {
+  git diff @{u} "$@"
+}
+
+function gdun() {
+  git diff @{u} --name-only "$@"
+}
+
+function geu() {
+  ge $(git diff --name-only @{u} "$@")
+}
+
+function gitbranch() {
+  # _git_ps1 "%s", but buggier and much faster
+  b=$(git symbolic-ref HEAD 2>/dev/null)
+  echo ${b##refs/heads/}
+}
+
+function gng() {
+  git grep "$@" -- \*.gn \*.gni
+}
+
+function gpy() {
+  git grep "$@" -- "*.py"
+}
+
+function h() {
+  history "$@"
+}
+
+# ip - insert component at the front of the var if it's not already 
+#      there and it exists
+#   usage: ip [var] value
+function ip() {
+  if [ $# -eq 2 ]
+  then
+    var="$1"
+    shift
+  else
+    var=PATH
+  fi
+  if ( echo "${!var}" | grep "$1:" > /dev/null )
+  then
+    return
+  elif [ -d "$1" ]
+  then
+    export ${var}="$1:${!var}"
+  fi
+}
+
+alias ls='ls -F'
+
+# cd to //third_party/WebKit/LayoutTests/$*
+function ltw() {
+  if [ -z "$ltw" ]
+  then
+    echo "not in a view"
+  else
+    cd $ltw/$* ;
+  fi
+}
+
+function mb() {
+  $csrc/tools/mb/mb.py "$@"
+}
+
+function md() {
+  $csrc/tools/md_browser/md_browser.py "$@"
+}
+
+function nr() {
+   ninja -C $csrc/out/Release "$@"
+}
+
+function nd() {
+  ninja -C $csrc/out/Debug "$@"
+}
+
+function pset() {
+  set | pset_aux "$@"
+}
+
+# redot - re-read dot files
+function redot() {
+  local old_view
+  old_view=$view
+  . ~/.bashrc
+  if [ -n "$old_view" ]
+  then
+    sv $old_view
+    cd -
+  fi
+}
+
+function repeat() {
+  count=$1
+  shift
+
+  while [ $count -ne 0 ]
+  do
+    "$@"
+    if [ $? -gt 128 ]
+    then
+      return
+    fi
+    count=$((count - 1))
+  done
+}
+
+# rp - remove path component
+#   usage: rp [-a] [var] comp_regex
+function rp() {
+  if [ "$1" = "-a" ]
+  then
+    opt_g="g"
+    shift
+  else
+    opt_g=""
+  fi
+  if [ $# -eq 2 ]
+  then
+    var=$1
+    shift
+  else
+    var=PATH
+  fi
+  comp_regex=$1
+  export ${var}="$(echo ${!var} | sed "s#[^:]*${comp_regex}[^:]*##${opt_g}" | \
+                      sed "s/::*/:/g" | sed "s/^://" | sed "s/:$//")"
+  unset comp_regex
+  unset var
+  unset opt_g
+}
+
+
+# run layout tests w/o any command line flags
+function rwt() {
+  time (echodo $wks/run-webkit-tests $@ )
+}
+
+# run layout tests w/ common command line flags
+function rwtd() {
+  rwt --clobber-old-results $@
+}
+
+function setprompt() {
+  if [ "$TERM" = "xterm" -o "$TERM" = "xterm-color" -o \
+       "$TERM" = "xterm-256color" -o "$TERM" = "msys" -o "$TERM" = "cygwin" ]
+  then
+    if [ ! -z "$view" ]
+    then
+      if [ "$GIT_PRESENT" = "1" -a "$OSNAME" != "cygwin" ]
+      then
+        PS1='\[\e]0;\u@\h ($view|$(gitbranch)):\w\a\]\W $ '
+      else
+        PS1='\[\e]0;\u@\h ($view):\w\a\]\W $ '
+      fi
+    else
+      PS1='\[\e]0;\u@\h:\w\a\]\W $ '
+    fi
+  else
+    if [ ! -z "$view" ]
+    then
+      PS1="($view) \W $ "
+    else
+      PS1="\W $ "
+    fi
+  fi
+}
+
+function src() { cd $src/$* ; }
+
+function sv() {
+  arg=$1
+
+  # set the $src and $wk dirs accordingly.
+  if [ -d "$src/$arg" ]
+  then
+    new_dir=$arg
+  else
+    echo "no such view '$new_view' under $src"
+    unset new_view
+    unset new_dir
+    return
+  fi
+
+  new_name=$arg
+  if [ -d "$src/$new_dir/src" ]
+  then
+    new_src=$src/$new_dir/src
+  elif [ -d "$src/$new_dir/build" ]
+  then
+    new_src=$src/$new_dir/build
+  else
+    new_src=$src/$new_dir
+  fi
+
+  export view=$new_name
+  blview=0
+  if [ -d "$new_src/third_party/WebKit" ]
+  then
+    export wk=$new_src/third_party/WebKit
+    export csrc=$new_src
+  else
+    if [ -d "$new_src/LayoutTests" ]
+    then
+      export wk=$new_src
+    fi
+    csrc=$new_src
+  fi
+
+  if echo "$-" | grep 'i' > /dev/null
+  then
+    echo "current view: $view (csrc = $csrc)"
+  fi
+
+  if [ -z "$csrc" ]
+  then
+    unset ltw
+    unset wks
+    unset wkt
+    unset wkp
+  else
+    export ltw=$wk/LayoutTests
+    export wks=$wk/Tools/Scripts
+    export wkp=$wks/webkitpy
+    export wkt=$wkp/layout_tests
+  fi
+
+  setprompt
+
+  if [ -z "$1" -a ! -z "$csrc" ]
+  then
+    return
+  fi
+
+  shift
+  if [ -n "$wk" ]
+  then
+    ap ${wks}
+  fi
+
+  unset arg
+  unset new_name
+  unset new_dir
+  unset new_view
+  unset new_src
+  csrc
+}
+
+
+# Bash completion for sv()
+# return any directories matching $src/c\.*
+function _sv_comp() {
+  local cur prev opts
+  COMPREPLY=()
+  cur="${COMP_WORDS[COMP_CWORD]}"
+  prev="${COMP_WORDS[COMP_CWORD-1]}"
+  opts=$(cd $src ; \ls -1 | grep '^c\.' | sed 's/c\.//g' | tr "\n" " ")
+
+  COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+  return 0
+}
+
+complete -F _sv_comp sv
+
+function train() {
+  $csrc/scripts/slave/unittests/recipe_simulation_test.py train
+}
+
+function tw() {
+    test-webkitpy -q $*
+}
+
+# echo current window size
+function window_size() {
+    echo "${COLUMNS}x${LINES}"
+}
+
+function wk() {
+  if [ -z "$wk" ]
+  then
+    echo "not in a view"
+  else
+    cd $wk/$*
+  fi
+}
+
+function wkp() {
+  if [ -z "$wkp" ]
+  then
+    echo "not in a view"
+  else
+    cd $wkp/$*
+  fi
+}
+
+function wkt() {
+  if [ -z "$wkt" ]
+  then
+    echo "not in a view"
+  else
+    cd $wkt/$*
+  fi
+}
+
+
+function wks() {
+  if [ -z "$wks" ]
+  then
+    echo "not in a view"
+  else
+    cd $wks/$*
+  fi
+}
+
+

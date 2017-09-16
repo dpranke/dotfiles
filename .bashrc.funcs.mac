@@ -1,0 +1,32 @@
+function e() {
+  if which mvim > /dev/null
+  then
+    /Applications/MacVim.app/Contents/MacOS/Vim "$@"
+  elif which vim > /dev/null
+  then
+    vim "$@"
+  else
+    vi "$@"
+  fi
+}
+
+function ge() {
+  if which mvim > /dev/null
+  then
+    mvim $@
+  else
+    e $@
+  fi
+}
+
+function v() {
+  if which mvim > /dev/null
+  then
+    /Applications/MacVim.app/Contents/MacOS/Vim -R "$@"
+  elif which vim > /dev/null
+  then
+    vim -R "$@"
+  else
+    view "$@"
+  fi
+}

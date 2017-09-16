@@ -2,6 +2,9 @@
 # .bashrc for Linux Google-specific stuff
 #
 
+. $HOME/.bashrc.funcs.linux
+
+
 export EMAIL_ADDRESS=dpranke@chromium.org
 export PYTHONPATH=
 
@@ -24,8 +27,6 @@ then
   export GOMA=$HOME/goma
 fi
 
-# export CHROME_DEVEL_SANDBOX=/usr/local/sbin/chrome-devel-sandbox
-
 export src=/src
 export dt=$src/depot_tools
 export bdir=out
@@ -35,7 +36,6 @@ ip $src/depot_tools
 ip $HOME/bin
 
 ap /src/buck/bin
-
 
 if [ -n "$DISPLAY" ]
 then
@@ -47,46 +47,3 @@ then
   # Turn caps lock into an additional ctrl key
   setxkbmap -option "ctrl:nocaps"
 fi
-
-function defdis() {
-  export DISPLAY=$DEFAULT_DISPLAY
-}
-
-function edis() {
-  echo $DISPLAY
-}
-
-function ge() {
-    if which gvim > /dev/null
-    then
-      gvim $*
-    else
-      e $*
-    fi
-}
-
-function nulldis() {
-  if [ $(ps auxww | grep Xvfb | grep -v  grep | wc -l) = 0 ]
-  then
-    Xvfb :4 -screen 0 1024x768x24 -ac -nolisten tcp > /dev/null 2> /dev/null &
-  fi
-  export DISPLAY=:4
-}
-
-function gomastart() {
-  if [ -z "$GOMA" ]
-  then
-    echo "goma is not installed."
-    return
-  fi
-  $GOMA/goma_ctl.sh start
-}
-
-function gomastop() {
-  if [ -z "$GOMA" ]
-  then
-    echo "goma is not installed."
-    return
-  fi
-  $GOMA/goma_ctl.sh stop
-}
