@@ -12,21 +12,22 @@ export src=/src
 export dt=$src/depot_tools
 export GOPATH=/src/go
 
-PATH=/usr/bin:/bin
+PATH=/usr/bin:/sbin:/bin
+ip /usr/sbin
+ip /usr/local/sbin
 ip /usr/local/bin
+ip /usr/texbin
 ip /usr/local/git/current/bin
+ip /src/google-cloud-sdk/bin
+ip /usr/local/go/bin
+ip $GOPATH/bin
+ip /Library/Frameworks/Python.framework/Versions/3.6/bin
+ip $HOME/Library/Python/3.6/bin
+ip $HOME/Library/Python/2.7/bin
 ip $dt
 ip $HOME/bin
 ip $HOME/mbin
 
-ap /usr/local/sbin
-ap /usr/sbin
-ap /sbin
-ap /usr/bin
-ap /usr/texbin
-ap /src/google-cloud-sdk/bin
-ap /usr/local/go/bin
-ap $GOPATH/bin
 
 export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
 export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
