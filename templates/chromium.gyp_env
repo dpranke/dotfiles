@@ -1,3 +1,0 @@
-{
-  'GYP_DEFINES': 'use_aura=1 use_ash=0 component=shared_library target_arch=x64',
-}
