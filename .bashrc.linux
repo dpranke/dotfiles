@@ -2,6 +2,7 @@
 # .bashrc for Linux Google-specific stuff
 #
 
+. $HOME/.bashrc.funcs
 . $HOME/.bashrc.funcs.linux
 
 
