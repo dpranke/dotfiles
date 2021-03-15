@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+"""dub - du but better."""
+
+import argparse
+import csv
+import os
+import re
+import sys
+
+
+def main(argv):
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-a', '--abspath', action='store_true')
+    parser.add_argument('-p', '--prune', action='append', default=[])
+    parser.add_argument('-d', '--depth', action='store', type=int)
+    parser.add_argument('-s', '--scale', action='store', default='GB')
+    parser.add_argument('-k', '--kb', '--kilobytes', action='store_const',
+                        dest='scale', const='k')
+    parser.add_argument('--ki', action='store_const', dest='scale', const='ki')
+    parser.add_argument('-m', '--mb', '--megabytes', action='store_const',
+                        dest='scale', const='m')
+    parser.add_argument('--mi', action='store_const', dest='scale', const='mi')
+    parser.add_argument('-g', '--gb', '--gigabytes', action='store_const',
+                        dest='scale', const='g')
+    parser.add_argument('--gi', action='store_const', dest='scale', const='gi')
+    parser.add_argument('-b', '--bytes', action='store_const',
+                        dest='scale', const='1')
+    parser.add_argument('-t', '--threshold', action='store')
+    parser.add_argument('dir', nargs='*', default=['.'])
+
+    args = parser.parse_args(argv[1:])
+
+    scale, sfx = convert(args.scale)
+    if args.threshold:
+        threshold, _ = convert(args.threshold)
+    else:
+        threshold = scale
+
+    stats = {}
+    for d in args.dir:
+        for p in prefixes(os.path.normpath(d)):
+            stats[p] = 0
+        scan(args, stats, os.path.normpath(d))
+
+    w = csv.writer(sys.stdout)
+    w.writerow(['directory', 'size_%s' % sfx])
+    for d in sorted(stats):
+        if args.abspath:
+            dname = os.path.abspath(d)
+        else:
+            dname = d
+
+        if stats[d] < threshold and d not in args.dir:
+            continue
+        if any(dname.startswith(os.path.normpath(p)) for p in args.prune):
+            continue
+        if args.depth and dname.count(os.sep) > args.depth:
+            continue
+
+        try:
+            w.writerow([dname, stats[d] // scale])
+        except:
+            return 0
+
+    return 0
+
+
+def convert(s):
+    scales = {
+        '': 1,
+        'k': 1000,
+        'ki': 1024,
+        'm': 1000 * 1000,
+        'mi': 1024 * 1024,
+        'g': 1000 * 1000 * 1000,
+        'gi': 1024 * 1024 * 1024,
+    }
+
+    m = re.match('([kKmMgGB]i?)?[bB]?', s)
+    if m:
+        sfx = m.group(1).lower()
+        return scales.get(sfx, 1), sfx + 'b'
+    return 1, 'b'
+
+
+def prefixes(dirname):
+    comps = dirname.split(os.sep)
+    return [os.sep.join(comps[:i + 1]) for
+            i in range(len(comps))]
+
+
+def scan(args, stats, d):
+    stats[d] = 0
+    for ent in sorted(os.scandir(d), key=lambda x: x.name):
+        if ent.is_dir() and not ent.is_symlink():
+            scan(args, stats, os.path.join(d, ent.name))
+        elif ent.is_file():
+            st = ent.stat()
+            for pfx in prefixes(d):
+                stats[pfx] += st.st_size
+
+
+if __name__ == '__main__':
+    sys.exit(main(sys.argv))
