@@ -8,32 +8,16 @@
 # bump up the default # of files and the default stack size per process.
 ulimit -n 1000 -s 16384
 
-export src=/src
+export src=$HOME/src
 export dt=$src/depot_tools
-export GOPATH=/src/go
 
 PATH=/usr/bin:/sbin:/bin
 ip /usr/sbin
 ip /usr/local/sbin
 ip /usr/local/bin
-ip /usr/texbin
-ip /usr/local/git/current/bin
-ip /src/google-cloud-sdk/bin
-ip /usr/local/go/bin
-ip $GOPATH/bin
-ip /Library/Frameworks/Python.framework/Versions/3.6/bin
-ip $HOME/Library/Python/3.6/bin
-ip $HOME/Library/Python/2.7/bin
 ip $dt
 ip $HOME/bin
 ip $HOME/mbin
-
-
-export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
-export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
-export PYTHONPATH=
-
-export EMAIL_ADDRESS=dpranke@chromium.org
 
 if which mvim > /dev/null
 then
@@ -47,5 +31,5 @@ export HISTSIZE=500
 export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
 export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
 export NINJA_JOBS=''
-export NO_BREAKPAD=1
 export PAGER=less
+export BASH_SILENCE_DEPRECATION_WARNING=1
