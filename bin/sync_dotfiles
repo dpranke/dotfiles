@@ -50,9 +50,16 @@ then
     exit 1
 fi
 
-echo "HOMEDIR=$HOMEDIR"
-echo "REPODIR=$REPODIR"
-echo $REPODIR > $HOMEDIR/.dotfiles_repo_dir
+if [ $opt_v -eq 1 ]
+then
+  echo "HOMEDIR=$HOMEDIR"
+  echo "REPODIR=$REPODIR"
+  echo echo $REPODIR ">" $HOMEDIR/.dotfiles_repo_dir
+fi
+if [ $opt_n -eq 0 ]
+then
+  echo $REPODIR > $HOMEDIR/.dotfiles_repo_dir
+fi
 
 function maybe_mkdir() {
     dir="$1"
@@ -79,10 +86,7 @@ function copynewer() {
   if [ \( $opt_r -eq 1 \) -o \
           \( \( $opt_u -eq 0 \) -a  "$REPODIR/$f" -nt "$HOMEDIR/$f" \) ]
   then
-    if [ $opt_n -eq 1 -o $opt_v -eq 1 ]
-    then
-      echo "repo -> home   : $f"
-    fi
+    echo cp -p "$REPODIR/$f" "$HOMEDIR/$f"
     if [ $opt_n -eq 0 ]
     then
       cp -p "$REPODIR/$f" "$HOMEDIR/$f"
@@ -94,10 +98,7 @@ function copynewer() {
     fi
   elif [ \( $opt_u -eq 1 \) -o \( "$HOMEDIR/$f" -nt "$REPODIR/$f" \) ]
   then
-    if [ $opt_n -eq 1 -o $opt_v -eq 1 ]
-    then
-     echo "home    -> repo: $f"
-    fi
+    echo cp -p "$HOMEDIR/$f" "$REPODIR/$f"
     if [ $opt_n -eq 0 ]
     then
       cp -p "$HOMEDIR/$f" "$REPODIR/$f"
@@ -121,6 +122,6 @@ do
       copynewer "$f"
     elif [ $opt_v -eq 1 ]
     then
-      echo "$f is up-to-date"
+      echo "# $f is up-to-date"
     fi
 done
