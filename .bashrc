@@ -22,12 +22,12 @@ then
   . ~/.bashrc_local
 fi
 
-if [ -f ~/.git-completion.sh ]
-then
- . ~/.git-completion.sh
- GIT_PRESENT=1
- # GIT_PS1_SHOWDIRTYSTATE=1
-fi
+#if [ -f ~/.git-completion.sh ]
+#then
+# . ~/.git-completion.sh
+# GIT_PRESENT=1
+# # GIT_PS1_SHOWDIRTYSTATE=1
+#fi
 
 if [ -f ~/.bashrc_cloud ]
 then
