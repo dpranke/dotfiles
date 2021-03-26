@@ -112,8 +112,7 @@ function copynewer() {
 }
 
 cd "$REPODIR"
-for f in $(find . -name .git -prune -o -type f -a \! -name '*.swp' -print |
-           sed -e 's/^..//')
+for f in $(git ls-files | grep -v '^.gitignore')
 do
     d=$(dirname "$f")
     maybe_mkdir "$HOMEDIR/$d"
