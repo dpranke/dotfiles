@@ -23,9 +23,9 @@ elif [ -d /opt/homebrew ]
 then
   HOMEBREW=/opt/homebrew
   ip $HOMEBREW/bin
-elif [ -d $HOME/Homebrew ]
+elif [ -d $HOME/homebrew ]
 then
-  HOMEBREW=$HOME/Homebrew
+  HOMEBREW=$HOME/homebrew
   ip $HOMEBREW/bin
 fi
 
