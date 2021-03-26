@@ -15,7 +15,9 @@ HOMEDIR=$HOME
 if [ -f $HOME/.dotfiles_repo_dir ]
 then
   REPODIR=$(cat $HOME/.dotfiles_repo_dir)
-elif [ -d $BASEDIR/../.git -a grep -q 'url = https://github.com/dpranke/dotfiles' $BASEDIR/../.git/config ]
+elif [ -d "$BASEDIR/../.git" ] && \
+    grep -q 'url = https://github.com/dpranke/dotfiles' \
+    "$BASEDIR/../.git/config"
   REPODIR=$BASEDIR/..
 then
   REPODIR=$src/dotfiles
