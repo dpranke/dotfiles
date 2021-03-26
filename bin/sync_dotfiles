@@ -10,13 +10,17 @@ function usage() {
   exit 1
 }
 
+BASEDIR=$(dirname "$0")/..
 HOMEDIR=$HOME
-if [ "$src" != "" ]
+if [ -f $HOME/.dotfiles_repo_dir ]
+then
+  REPODIR=$(cat $HOME/.dotfiles_repo_dir)
+elif [ -d $BASEDIR/../.git -a grep -q 'url = https://github.com/dpranke/dotfiles' $BASEDIR/../.git/config ]
+  REPODIR=$BASEDIR/..
 then
   REPODIR=$src/dotfiles
-else
-  REPODIR=/src/dotfiles
 fi
+
 opt_n=0
 opt_r=0
 opt_u=0
@@ -37,7 +41,7 @@ done
 
 if [ ! -d $REPODIR ]
 then
-    echo "Couldn't find your repo dir at $REPODIR."
+    echo "Couldn't find your repo dir."
     exit 1
 fi
 if [ ! -d $HOMEDIR ]
@@ -48,6 +52,7 @@ fi
 
 echo "HOMEDIR=$HOMEDIR"
 echo "REPODIR=$REPODIR"
+echo $REPODIR > $HOMEDIR/.dotfiles_repo_dir
 
 function maybe_mkdir() {
     dir="$1"
@@ -71,7 +76,8 @@ function maybe_mkdir() {
 
 function copynewer() {
   f="$1"
-  if [ \( $opt_r -eq 1 \) -o \( \( $opt_u -eq 0 \) -a  "$REPODIR/$f" -nt "$HOMEDIR/$f" \) ]
+  if [ \( $opt_r -eq 1 \) -o \
+          \( \( $opt_u -eq 0 \) -a  "$REPODIR/$f" -nt "$HOMEDIR/$f" \) ]
   then
     if [ $opt_n -eq 1 -o $opt_v -eq 1 ]
     then
@@ -105,7 +111,8 @@ function copynewer() {
 }
 
 cd "$REPODIR"
-for f in $(find . -name .git -prune -o -type f -a \! -name '*.swp' -print | sed -e 's/^..//')
+for f in $(find . -name .git -prune -o -type f -a \! -name '*.swp' -print |
+           sed -e 's/^..//')
 do
     d=$(dirname "$f")
     maybe_mkdir "$HOMEDIR/$d"
