@@ -1,5 +1,5 @@
 if [ -f /etc/profile ]; then
-    . /etc/profile
+  . /etc/profile
 fi
 
 if [ -f ~/.bashrc ]; then
