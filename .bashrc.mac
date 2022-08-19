@@ -19,9 +19,9 @@ ip /usr/local/bin
 if [ -d /usr/local/Homebrew ]
 then
   HOMEBREW=/usr/local
-elif [ -d /opt/local/Homebrew ]
+elif [ -d /opt/homebrew ]
 then
-  HOMEBREW=/opt/local/Homebrew
+  HOMEBREW=/opt/homebrew
   ip $HOMEBREW/bin
 elif [ -d $HOME/Homebrew ]
 then
