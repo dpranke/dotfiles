@@ -29,7 +29,7 @@ alias du='du -h'
 function csrc() {
   if [ ! -z "$csrc" ]
   then
-    cd ${csrc}/$*
+    cd ${csrc}/"$@"
   else
     echo "not in a view"
   fi
@@ -63,25 +63,15 @@ function geu() {
   ge $(git diff --name-only @{u} "$@")
 }
 
-function gitbranch() {
-  # _git_ps1 "%s", but buggier and much faster
-  b=$(git symbolic-ref HEAD 2>/dev/null)
-  echo ${b##refs/heads/}
-}
-
 function gng() {
   git grep "$@" -- \*.gn \*.gni
-}
-
-function gpy() {
-  git grep "$@" -- "*.py"
 }
 
 function h() {
   history "$@"
 }
 
-# ip - insert component at the front of the var if it's not already 
+# ip - insert component at the front of the var if it's not already
 #      there and it exists
 #   usage: ip [var] value
 function ip() {
@@ -103,30 +93,8 @@ function ip() {
 
 alias ls='ls -F'
 
-# cd to //third_party/WebKit/LayoutTests/$*
-function ltw() {
-  if [ -z "$ltw" ]
-  then
-    echo "not in a view"
-  else
-    cd $ltw/$* ;
-  fi
-}
-
 function mb() {
   $csrc/tools/mb/mb.py "$@"
-}
-
-function md() {
-  $csrc/tools/md_browser/md_browser.py "$@"
-}
-
-function nr() {
-   ninja -C $csrc/out/Release "$@"
-}
-
-function nd() {
-  ninja -C $csrc/out/Debug "$@"
 }
 
 function pset() {
@@ -186,16 +154,6 @@ function rp() {
 }
 
 
-# run layout tests w/o any command line flags
-function rwt() {
-  time (echodo $wks/run-webkit-tests $@ )
-}
-
-# run layout tests w/ common command line flags
-function rwtd() {
-  rwt --clobber-old-results $@
-}
-
 function setprompt() {
   if [ "$TERM" = "xterm" -o "$TERM" = "xterm-color" -o \
        "$TERM" = "xterm-256color" -o "$TERM" = "msys" -o "$TERM" = "cygwin" ]
@@ -224,81 +182,18 @@ function setprompt() {
 function src() { cd $src/$* ; }
 
 function sv() {
-  arg=$1
+  local new_view=$1
 
-  # set the $src and $wk dirs accordingly.
-  if [ -d "$src/$arg" ]
+  if [ ! -d "$src/$new_view" ]
   then
-    new_dir=$arg
-  else
     echo "no such view '$new_view' under $src"
-    unset new_view
-    unset new_dir
     return
   fi
 
-  new_name=$arg
-  if [ -d "$src/$new_dir/src" ]
-  then
-    new_src=$src/$new_dir/src
-  elif [ -d "$src/$new_dir/build" ]
-  then
-    new_src=$src/$new_dir/build
-  else
-    new_src=$src/$new_dir
-  fi
-
-  export view=$new_name
-  blview=0
-  if [ -d "$new_src/third_party/WebKit" ]
-  then
-    export wk=$new_src/third_party/WebKit
-    export csrc=$new_src
-  else
-    if [ -d "$new_src/LayoutTests" ]
-    then
-      export wk=$new_src
-    fi
-    csrc=$new_src
-  fi
-
-  if echo "$-" | grep 'i' > /dev/null
-  then
-    echo "current view: $view (csrc = $csrc)"
-  fi
-
-  if [ -z "$csrc" ]
-  then
-    unset ltw
-    unset wks
-    unset wkt
-    unset wkp
-  else
-    export ltw=$wk/LayoutTests
-    export wks=$wk/Tools/Scripts
-    export wkp=$wks/webkitpy
-    export wkt=$wkp/layout_tests
-  fi
-
+  export view=$new_view
+  export csrc=$src/$new_view
   setprompt
-
-  if [ -z "$1" -a ! -z "$csrc" ]
-  then
-    return
-  fi
-
-  shift
-  if [ -n "$wk" ]
-  then
-    ap ${wks}
-  fi
-
-  unset arg
-  unset new_name
-  unset new_dir
-  unset new_view
-  unset new_src
-  csrc
+  cd $csrc
 }
 
 
@@ -317,54 +212,7 @@ function _sv_comp() {
 
 complete -F _sv_comp sv
 
-function train() {
-  $csrc/scripts/slave/unittests/recipe_simulation_test.py train
-}
-
-function tw() {
-    test-webkitpy -q $*
-}
-
 # echo current window size
-function window_size() {
+function ws() {
     echo "${COLUMNS}x${LINES}"
 }
-
-function wk() {
-  if [ -z "$wk" ]
-  then
-    echo "not in a view"
-  else
-    cd $wk/$*
-  fi
-}
-
-function wkp() {
-  if [ -z "$wkp" ]
-  then
-    echo "not in a view"
-  else
-    cd $wkp/$*
-  fi
-}
-
-function wkt() {
-  if [ -z "$wkt" ]
-  then
-    echo "not in a view"
-  else
-    cd $wkt/$*
-  fi
-}
-
-
-function wks() {
-  if [ -z "$wks" ]
-  then
-    echo "not in a view"
-  else
-    cd $wks/$*
-  fi
-}
-
-
