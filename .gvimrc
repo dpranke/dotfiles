@@ -1,22 +1,9 @@
 set guioptions=egmrLt
 set ruler
 
-if has("gui_win32")
-  set guifont=Consolas:h11
-  set bg=dark
-  colorscheme peaksea
-  hi ColorColumn guibg=#101010
-  set lines=66
-elseif has("gui_gtk2") || has("gui_gnome")
-  set guifont=Inconsolata\ Medium\ 12
-  set bg=dark
-  colorscheme peaksea
-  hi ColorColumn guibg=#101010
-  set lines=66
-elseif has("gui_macvim")
-  set guifont=SourceCodePro-Regular:h13
-  hi ColorColumn guibg=#f0f0f0
-  set lines=66
-endif
+set guifont=Inconsolata-Regular:h16
+set bg=light
+hi ColorColumn guibg=#d0d0d0
+set lines=66
 
 " vim:tw=78:sw=4:ts=4:ft=vim:norl:

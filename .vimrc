@@ -12,6 +12,7 @@ set shiftround
 set textwidth=0
 set mouse=a
 set paste
+set number
 
 set ruler
 set laststatus=2
@@ -21,11 +22,6 @@ set shortmess+=I
 
 " display a column at 80 characters to indicate long lines
 set colorcolumn=80
-if &background == "dark"
-  hi ColorColumn guibg=darkgrey ctermbg=darkgrey
-else
-  hi ColorColumn guibg=lightgrey ctermbg=lightgrey
-endif
 
 " Debugging syntax highlighting
 autocmd FuncUndefined * exe 'runtime autoload/' . expand('<afile>').'.vim'

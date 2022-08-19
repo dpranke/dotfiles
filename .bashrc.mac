@@ -8,7 +8,7 @@
 # bump up the default # of files and the default stack size per process.
 ulimit -n 1000 -s 16384
 
-export src=$HOME/src
+export src=$HOME/Documents/src
 export dt=$src/depot_tools
 
 PATH=/usr/bin:/sbin:/bin
@@ -29,7 +29,10 @@ then
   ip $HOMEBREW/bin
 fi
 
-ip $HOMEBREW/opt/python@3.9
+if [ -d $HOME/Library/Python/3.10/bin ]
+then
+  ip $HOME/Library/Python/3.10/bin
+fi
 
 ip $dt
 ip $HOME/bin
@@ -42,7 +45,7 @@ else
   export EDITOR=vi
 fi
 
-export EMAIL_ADDRESS=dpranke@chromium.org
+export EMAIL_ADDRESS=dpranke@gmail.com
 export HISTSIZE=500
 export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
 export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man

@@ -34,4 +34,7 @@ then
   . ~/.bashrc_cloud
 fi
 
+# Set files to be 775/664 by default
+umask 002
+
 setprompt

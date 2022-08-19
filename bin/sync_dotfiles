@@ -99,11 +99,11 @@ function copy() {
 
 function copynewer() {
   f="$1"
-  if [ \( $opt_r -eq 1 \) -o \
+  if [ \( $opt_u -eq 1 \) -o \
           \( \( $opt_u -eq 0 \) -a  "$REPODIR/$f" -nt "$HOMEDIR/$f" \) ]
   then
     copy "$REPODIR/$f" "$HOMEDIR/$f"
-  elif [ \( $opt_u -eq 1 \) -o \( "$HOMEDIR/$f" -nt "$REPODIR/$f" \) ]
+  elif [ \( $opt_r -eq 1 \) -o \( "$HOMEDIR/$f" -nt "$REPODIR/$f" \) ]
   then
     copy "$HOMEDIR/$f" "$REPODIR/$f"
   fi
