@@ -48,7 +48,7 @@ function ep() {
 }
 
 function gb() {
-    git map-branches "$@"
+  git map-branches "$@"
 }
 
 function gdu() {
@@ -65,6 +65,10 @@ function geu() {
 
 function gng() {
   git grep "$@" -- \*.gn \*.gni
+}
+
+function gps() {
+  git pull && gclient sync -D
 }
 
 function h() {
