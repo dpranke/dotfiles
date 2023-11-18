@@ -3,6 +3,7 @@ set ruler
 
 if has("macunix")
   set guifont=Inconsolata-Regular:h16
+  set linespace=2
 elseif has("unix")
   set guifont=Inconsolata\ 13
 endif
