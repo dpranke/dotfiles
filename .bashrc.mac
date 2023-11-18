@@ -6,15 +6,22 @@
 . $HOME/.bashrc.funcs.mac
 
 # bump up the default # of files and the default stack size per process.
-ulimit -n 1000 -s 16384
+ulimit -n unlimited -s 16384
 
-export src=$HOME/Documents/src
+if [ -d $HOME/Documents/src ]
+then
+  export src=$HOME/Documents/src
+else
+  export src=$HOME/src
+fi
+
 export dt=$src/depot_tools
 
 PATH=/usr/bin:/sbin:/bin
 ip /usr/sbin
 ip /usr/local/sbin
 ip /usr/local/bin
+ip /usr/local/git/current/bin
 
 if [ -d /usr/local/Homebrew ]
 then
@@ -29,11 +36,7 @@ then
   ip $HOMEBREW/bin
 fi
 
-if [ -d $HOME/Library/Python/3.10/bin ]
-then
-  ip $HOME/Library/Python/3.10/bin
-fi
-
+ip $src/google-cloud-sdk/bin
 ip $dt
 ip $HOME/bin
 ip $HOME/mbin
@@ -52,3 +55,9 @@ export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
 export NINJA_JOBS=''
 export PAGER=less
 export BASH_SILENCE_DEPRECATION_WARNING=1
+
+# Enable shell completion for gcloud.
+if [ -f "$src/google-cloud-sdk/completion.bash.inc" ]
+then
+  . "$src/google-cloud-sdk/completion.bash.inc"
+fi

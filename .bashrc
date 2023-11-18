@@ -22,18 +22,6 @@ then
   . ~/.bashrc_local
 fi
 
-#if [ -f ~/.git-completion.sh ]
-#then
-# . ~/.git-completion.sh
-# GIT_PRESENT=1
-# # GIT_PS1_SHOWDIRTYSTATE=1
-#fi
-
-if [ -f ~/.bashrc_cloud ]
-then
-  . ~/.bashrc_cloud
-fi
-
 # Set files to be 775/664 by default
 umask 002
 

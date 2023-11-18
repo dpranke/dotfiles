@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+import os
+import sys
+
+if len(sys.argv) > 1:
+    d = os.path.abspath(sys.argv[1])
+else:
+    d = os.getcwd()
+
+gclient_path = os.path.join(d, '.gclient')
+if os.path.exists(gclient_path):
+    with open(gclient_path) as f:
+        s = f.read()
+        vs = {}
+        exec(s, vs)
+        solutions = vs.get('solutions', [])
+        if len(solutions) > 0 and 'name' in solutions[0]:
+            d = os.path.join(d, solutions[0]['name'])
+
+print(d, end='')
+

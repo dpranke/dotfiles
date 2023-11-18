@@ -195,7 +195,7 @@ function sv() {
   fi
 
   export view=$new_view
-  export csrc=$src/$new_view
+  export csrc=$(gcsrc $src/$new_view)
   setprompt
   cd $csrc
 }
