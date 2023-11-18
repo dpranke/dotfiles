@@ -5,9 +5,11 @@
 . $HOME/.bashrc.funcs
 . $HOME/.bashrc.funcs.linux
 
-
-export EMAIL_ADDRESS=dpranke@chromium.org
+export EMAIL_ADDRESS=dpranke@google.com
 export PYTHONPATH=
+
+# Get depot_tools to shut up about stacked changes
+export DOGFOOD_STACKED_CHANGES=1
 
 # For some reason terminals launched under Chromoting may not
 # have this set.
@@ -21,22 +23,13 @@ fi
 unset GTK_MODULES
 export GTK_OVERLAY_SCROLLING=0
 
-
-unset GOMA
-if [ -d $HOME/goma ]
-then
-  export GOMA=$HOME/goma
-fi
-
-export src=/src
+export src=$HOME/src
 export dt=$src/depot_tools
-export bdir=out
 
 ip /usr/local/buildtools/java/jdk/bin
-ip $src/depot_tools
+ip $src/google-cloud-sdk/bin
+ip $dt
 ip $HOME/bin
-
-ap /src/buck/bin
 
 if [ -n "$DISPLAY" ]
 then
@@ -47,4 +40,10 @@ then
 
   # Turn caps lock into an additional ctrl key
   setxkbmap -option "ctrl:nocaps"
+fi
+
+# Enable shell completion for gcloud.
+if [ -f "$src/google-cloud-sdk/completion.bash.inc" ]
+then
+  . "$src/google-cloud-sdk/completion.bash.inc"
 fi

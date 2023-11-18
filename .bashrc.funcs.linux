@@ -10,18 +10,18 @@ function e() {
     vi "$@"
   fi
 }
-  
+
 function edis() {
   echo $DISPLAY
 }
 
 function ge() {
-    if which gvim > /dev/null
-    then
-      gvim $*
-    else
-      e $*
-    fi
+  if which gvim > /dev/null
+  then
+    gvim "$@"
+  else
+    e "$@"
+  fi
 }
 
 function nulldis() {
