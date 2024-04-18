@@ -21,6 +21,7 @@ PATH=/usr/bin:/sbin:/bin
 ip /usr/sbin
 ip /usr/local/sbin
 ip /usr/local/bin
+ip /usr/local/git/git-google/bin
 ip /usr/local/git/current/bin
 
 if [ -d /usr/local/Homebrew ]
