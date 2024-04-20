@@ -63,7 +63,6 @@ declare -a dotfiles=(
   .bashrc.linux
   .bashrc.mac
   .bashrc.win
-  .gitignore
   .gitignore_global
   .gvimrc
   .hushlogin
@@ -82,6 +81,7 @@ declare -a dotfiles=(
   wbin/git
   wbin/gvim
   wbin/python3
+  wbin/vim
 )
 
 declare -a batdirs=(
@@ -89,6 +89,8 @@ declare -a batdirs=(
 )
 
 declare -a batfiles=(
+  _gvimrc
+  _vimrc
   bat/csrc.bat
   bat/home.bat
   bat/ptime.bat
@@ -174,11 +176,11 @@ done
 cpif $src/_vimrc $dst/_vimrc
 cpif $src/_gvimrc $dst/_gvimrc
 
-if cmp $dst/_vimrc $dst/.vimrc
+if ! cmp $dst/_vimrc $dst/.vimrc
 then
   echo "Warning: _vimrc and .vimrc are different"
 fi
-if cmp $dst/_gvimrc $dst/_gvimrc
+if ! cmp $dst/_gvimrc $dst/_gvimrc
 then
   echo "Warning: _gvimrc and .gvimrc are different"
 fi
