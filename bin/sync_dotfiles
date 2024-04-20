@@ -171,11 +171,14 @@ do
   cpif $src/$i $dst/$i
 done
 
-if [ $opt_u -eq 1 ]
+cpif $src/_vimrc $dst/_vimrc
+cpif $src/_gvimrc $dst/_gvimrc
+
+if cmp $dst/_vimrc $dst/.vimrc
 then
-  echodo cp -p $src/.vimrc $dst/_vimrc
-  echodo cp -p $src/.gvimrc $dst/_gvimrc
-else
-  echodo cp -p $src/_vimrc $dst/.vimrc
-  echodo cp -p $src/_gvimrc $dst/.gvimrc
+  echo "Warning: _vimrc and .vimrc are different"
+fi
+if cmp $dst/_gvimrc $dst/_gvimrc
+then
+  echo "Warning: _gvimrc and .gvimrc are different"
 fi
