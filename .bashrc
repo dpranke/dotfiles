@@ -6,20 +6,23 @@ os=$(uname -s)
 if [ "$os" = "Darwin" -a -f ~/.bashrc.mac ]
 then
    export OSNAME=mac
+   hostname=$(hostname -s)
   . ~/.bashrc.mac
 elif [ "$os" = "Linux" -a -f ~/.bashrc.linux ]
 then
     export OSNAME=linux
+   hostname=$(hostname -s)
   . ~/.bashrc.linux
 elif [ -f ~/.bashrc.win ]
 then
-    export OSNAME=cygwin
+  export OSNAME=cygwin
+  hostname=$(hostname) 
   . ~/.bashrc.win
 fi
 
-if [ -f ~/.bashrc_local ]
+if [ -f ~/.bashrc.local.$hostname ]
 then
-  . ~/.bashrc_local
+  . ~/.bashrc.local.$hostname
 fi
 
 # Set files to be 775/664 by default

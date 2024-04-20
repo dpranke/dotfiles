@@ -1,0 +1,2 @@
+#!/usr/bin/bash
+$0.bat "$@"

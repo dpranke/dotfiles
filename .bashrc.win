@@ -5,47 +5,40 @@
 . $HOME/.bashrc.funcs
 . $HOME/.bashrc.funcs.win
 
-if [ "$TERM" = "dumb" ]
-then
-  export TERM=msys
-fi
-
-if [ -d "/cygdrive" ]
-then
-  export cyg="/cygdrive"
-else
-  export cyg=""
-fi
-
-if [ -d "/e/src" ]
-then
-  export srcdrive=e
-elif [ -d "/d/src" ]
-then
-  export srcdrive=d
-else
-  export srcdrive=c
-fi
-
-export src=/$srcdrive/src
-
+export src=/c/src
 export dt=$src/depot_tools
-ip $dt/python276_bin
-ip $dt
+export whome="/c/Users/$USER"
 
+function whome() {
+  cd "${whome}/$@"
+}
 
-PF="$cyg/c/Program Files"
-PFX86="$cyg/c/Program Files (x86)"
-ap "${PF}/Windows Resource Kits/Tools"
-ap $cyg/c/Windows/System32
-ap $cyg/c/Windows
-ap $cyg/c/Windows/System32/Wbem
-ap $cyg/c/Windows/system32/WindowsPowerShell/v1.0
-ap "${PF}/Windows Imaging"
-ap "${PF}/Support Tools"
-ap "${PFX86}/Microsoft Visual Studio 8/Common7/IDE"
+PF="/c/Program Files"
+PFX86="/c/Program Files (x86)"
+WIN="/c/Windows"
+WIN32="/c/Windows/System32"
 
-ap "${PFX86}/Vim/vim74"
-ap "${PFX86}/PuTTY"
+# default Msys / ucrt64 path
+# -----
+# /ucrt64/bin:/usr/local/bin:/usr/bin:/bin:/c/Windows/System32:
+# /c/Windows:/c/Windows/System32/Wbem:
+# /c/Windows/System32/WindowsPowerShell/v1.0/:
+# /usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl 
 
-export PATH
+# Set PATH explicitly instead of using `ip` and `ap` (a) since
+# we're starting from scratch and (b) it's faster.
+export PATH="$HOME/wbin"
+export PATH="${PATH}:$HOME/bin"
+export PATH="${PATH}:$dt"
+export PATH="${PATH}:/ucrt64/bin"
+export PATH="${PATH}:/usr/local/bin"
+export PATH="${PATH}:/usr/bin"
+export PATH="${PATH}:/bin"
+export PATH="${PATH}:$WIN32"
+export PATH="${PATH}:$WIN32/Wbem"
+export PATH="${PATH}:$WIN32/WindowsP0werShell/v1.0"
+export PATH="${PATH}:/usr/bin/site_perl"
+export PATH="${PATH}:/usr/bin/vendor_perl"
+export PATH="${PATH}:/usr/bin/core_perl"
+
+export EDITOR=vim

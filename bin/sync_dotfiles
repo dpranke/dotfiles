@@ -10,19 +10,8 @@ function usage() {
   exit 1
 }
 
-BASEDIR=$(dirname "$0")/..
 HOMEDIR=$HOME
-if [ -f $HOME/.dotfiles_repo_dir ]
-then
-  REPODIR=$(cat $HOME/.dotfiles_repo_dir)
-elif [ -d "$BASEDIR/../.git" ] && \
-    grep -q 'url = https://github.com/dpranke/dotfiles' \
-    "$BASEDIR/../.git/config"
-then
-  REPODIR=$BASEDIR/..
-else
-  REPODIR=$src/dotfiles
-fi
+REPODIR=$src/dotfiles
 
 opt_n=0
 opt_r=0
@@ -44,7 +33,7 @@ done
 
 if [ ! -d $REPODIR ]
 then
-    echo "Couldn't find your repo dir."
+    echo "Couldn't find your repo dir at $REPODIR."
     exit 1
 fi
 if [ ! -d $HOMEDIR ]
@@ -53,80 +42,140 @@ then
     exit 1
 fi
 
-if [ $opt_v -eq 1 ]
+if [ $opt_r -eq 0 -a $opt_u -eq 0 ]
 then
-  echo "HOMEDIR=$HOMEDIR"
-  echo "REPODIR=$REPODIR"
-  echo echo $REPODIR ">" $HOMEDIR/.dotfiles_repo_dir
-fi
-if [ $opt_n -eq 0 ]
-then
-  echo $REPODIR > $HOMEDIR/.dotfiles_repo_dir
+  echo "Must specify either -r or -u"
+  exit 1
 fi
 
-function maybe_mkdir() {
-  dir="$1"
-  if [ \( ! -d "$dir" \) -a \( ! -f "$dir" \) ]
+declare -a dotdirs=(
+  bin
+  mbin
+  wbin
+)
+
+declare -a dotfiles=(
+  .bash_profile
+  .bashrc
+  .bashrc.funcs.linux
+  .bashrc.funcs.mac
+  .bashrc.funcs.win
+  .bashrc.linux
+  .bashrc.mac
+  .bashrc.win
+  .gitignore
+  .gitignore_global
+  .gvimrc
+  .hushlogin
+  .vimrc
+  bin/csync
+  bin/deps
+  bin/dub
+  bin/echodo
+  bin/fl
+  bin/gcsrc
+  bin/pset_aux
+  bin/st
+  bin/sync_dotfiles
+  mbin/mvim
+  wbin/gclient
+  wbin/git
+  wbin/gvim
+  wbin/python3
+)
+
+declare -a batdirs=(
+  bat
+)
+
+declare -a batfiles=(
+  bat/csrc.bat
+  bat/home.bat
+  bat/ptime.bat
+  bat/ptime.py
+  bat/redot.bat
+  bat/setdirs.bat
+  bat/src.bat
+  bat/sv.bat
+  bat/whome.bat
+)
+
+function echodo() {
+  if [ $opt_n -o $opt_v ]
   then
-    if [ $opt_n -eq 1 -o $opt_v -eq 1 ]
-    then
-        echo mkdir -p "$dir"
-    fi
-    if [ $opt_n -eq 0 ]
-    then
-      mkdir -p "$dir"
-      if [ ! $? ]
-      then
-        echo "mkdir -p \"$dir\" failed: $?"
-        exit $?
-      fi
-    fi
+    echo "$@"
   fi
-}
-
-function copy() {
-  echo cp -pR "$1" "$2"
   if [ $opt_n -eq 0 ]
   then
-    cp -pR "$1" "$2"
-    if [ ! $? ]
-    then
-      echo "  failed: $?"
-      exit $?
-    fi
+    $@
   fi
 }
 
-function copynewer() {
-  f="$1"
-  if [ \( $opt_u -eq 1 \) -o \
-          \( \( $opt_u -eq 0 \) -a  "$REPODIR/$f" -nt "$HOMEDIR/$f" \) ]
+function mkdirif() {
+  if [ ! -d $1 ]
   then
-    copy "$REPODIR/$f" "$HOMEDIR/$f"
-  elif [ \( $opt_r -eq 1 \) -o \( "$HOMEDIR/$f" -nt "$REPODIR/$f" \) ]
-  then
-    copy "$HOMEDIR/$f" "$REPODIR/$f"
+    echodo mkdir $1
   fi
 }
 
-cd "$REPODIR"
-for f in $(git ls-files | grep -v '^.gitignore')
+function cpif() {
+  if [ ! -f $1 ]
+  then
+    echodo cp -p $1 $2
+  elif ! cmp --quiet $1 $2
+  then
+    echodo cp -p $1 $2
+  fi
+}
+
+if [ $opt_u -eq 1 ]
+then
+  src=$REPODIR
+  dst=$HOMEDIR
+else
+  src=$HOMEDIR
+  dst=$REPODIR
+fi
+
+for i in "${dotdirs[@]}"
 do
-  d=$(dirname "$f")
-  maybe_mkdir "$HOMEDIR/$d"
-  if [ -h "$REPODIR/$f" ]
-  then
-    # TODO: This doesn't handle the two links pointing to two different
-    # destinations.
-    if [ ! -h "$HOMEDIR/$f" ]
-    then
-      copynewer "$REPODIR/$f" "$HOMEDIR/$f"
-    fi
-  elif ! diff -q $HOMEDIR/$f $REPODIR/$f > /dev/null 2> /dev/null
-  then
-    copynewer "$f"
-  elif [ $opt_v -eq 1 ]
-  then
-    echo "# $f is up-to-date"
-  fi
+  mkdirif $dst/$i
 done
+
+for i in "${dotfiles[@]}"
+do
+  cpif $src/$i $dst/$i
+done
+
+if [ -z "$USERPROFILE" -o -z "$USER" ]
+then
+  exit 0
+fi
+
+if [ $opt_u -eq 1 ]
+then
+  src=$REPODIR
+  dst=/c/Users/$USER
+else
+  src=/c/Users/$USER
+  dst=$REPODIR
+fi
+
+for i in "${batdirs[@]}"
+do
+  mkdirif $dst/$i
+done
+
+for i in "${batfiles[@]}"
+do
+  cpif $src/$i $dst/$i
+done
+
+if [ $opt_u -eq 1 ]
+then
+  echodo cp -p $src/.vimrc $dst/_vimrc
+  echodo cp -p $src/.gvimrc $dst/_gvimrc
+else
+  echodo cp -p $src/_vimrc $dst/.vimrc
+  echodo cp -p $src/_gvimrc $dst/.gvimrc
+fi

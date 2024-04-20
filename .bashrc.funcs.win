@@ -1,28 +1,13 @@
 function e() {
-  if which vim > /dev/null
-  then
-    vim "$@"
-  else
-    vi "$@"
-  fi
+  vim.bat "$@"
 }
   
 function ge () {
-  if which gvim > /dev/null
-  then
-    gvim $@ &
-  else
-    vim $@
-  fi
+  gvim.bat "$@"
 }
 
 function v() {
-  if which vim > /dev/null
-  then
-    vim -R "$@"
-  else
-    view "$@"
-  fi
+  vim.bat -R "$@"
 }
 
 
