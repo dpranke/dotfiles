@@ -51,8 +51,8 @@ fi
 
 export EMAIL_ADDRESS=dpranke@gmail.com
 export HISTSIZE=500
-export INFOPATH=${INFOPATH}:/usr/local/info:/opt/local/info
-export MANPATH=${MANPATH}:/usr/local/man:/opt/local/man
+export INFOPATH=/usr/local/info:/opt/local/info
+export MANPATH=/usr/local/man:/opt/local/man
 export NINJA_JOBS=''
 export PAGER=less
 export BASH_SILENCE_DEPRECATION_WARNING=1
