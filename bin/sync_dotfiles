@@ -57,6 +57,7 @@ declare -a dotdirs=(
 declare -a dotfiles=(
   .bash_profile
   .bashrc
+  .bashrc.funcs
   .bashrc.funcs.linux
   .bashrc.funcs.mac
   .bashrc.funcs.win
