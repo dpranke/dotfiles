@@ -23,9 +23,6 @@ set shortmess+=I
 " display a column at 80 characters to indicate long lines
 set colorcolumn=80
 
-" Debugging syntax highlighting
-autocmd FuncUndefined * exe 'runtime autoload/' . expand('<afile>').'.vim'
-
 syntax on
 
 " don't expand tabs in makefiles
