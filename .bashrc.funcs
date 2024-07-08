@@ -17,6 +17,14 @@ function ap() {
   fi
 }
 
+function adc() {
+  autoninja -C $csrc/out/dbg chrome "$@"
+}
+
+function arc() {
+  autoninja -C $csrc/out/rel chrome "$@"
+}
+
 alias df='df -h'
 
 function dt() {
@@ -37,10 +45,19 @@ function csrc() {
 
 # ep - echo PATH (or other variable)
 function ep() {
-  if [ $# -eq 1 ]
+  if [ "$1" = "-v" ]
+  then
+    if [ $# -eq 2 ]
+    then
+      var=$2
+    else
+      var=PATH
+    fi
+    echo ${!var} | sed -e 's/:/\n/g'
+    return
+  elif [ $# -eq 1 ]
   then
     var=$1
-    shift
   else
     var=PATH
   fi
