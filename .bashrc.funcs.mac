@@ -1,3 +1,30 @@
+function odc() {
+  if $(grep -q "is_chrome_branded = true" $csrc/out/dbg/args.gn)
+  then
+    "$csrc/out/dbg/Google Chrome.app/Contents/MacOS/Google Chrome" \
+        --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
+        --enable-logging=stderr --log-level=0 "$@"
+  else
+    "$csrc/out/dbg/Chromium.app/Contents/MacOS/Chromium" \
+        --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
+        --enable-logging=stderr --log-level=0 "$@"
+  fi
+}
+
+function orc() {
+  if $(grep -q "is_chrome_branded = true" $csrc/out/rel/args.gn)
+  then
+    "$csrc/out/rel/Google Chrome.app/Contents/MacOS/Google Chrome" \
+        --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
+        --enable-logging=stderr --log-level=0 "$@"
+  else
+    "$csrc/out/rel/Chromium.app/Contents/MacOS/Chromium" \
+        --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
+        --enable-logging=stderr --log-level=0 "$@"
+  fi
+}
+
+
 function e() {
   if which mvim > /dev/null
   then
