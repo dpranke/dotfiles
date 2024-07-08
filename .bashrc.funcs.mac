@@ -1,10 +1,16 @@
 function odc() {
   if $(grep -q "is_chrome_branded = true" $csrc/out/dbg/args.gn)
   then
+    echo "$csrc/out/dbg/Google Chrome.app/Contents/MacOS/Google Chrome" \
+        --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
+        --enable-logging=stderr --log-level=0 "$@"
     "$csrc/out/dbg/Google Chrome.app/Contents/MacOS/Google Chrome" \
         --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
         --enable-logging=stderr --log-level=0 "$@"
   else
+    echo "$csrc/out/dbg/Chromium.app/Contents/MacOS/Chromium" \
+        --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
+        --enable-logging=stderr --log-level=0 "$@"
     "$csrc/out/dbg/Chromium.app/Contents/MacOS/Chromium" \
         --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
         --enable-logging=stderr --log-level=0 "$@"
@@ -14,10 +20,16 @@ function odc() {
 function orc() {
   if $(grep -q "is_chrome_branded = true" $csrc/out/rel/args.gn)
   then
+    echo "$csrc/out/rel/Google Chrome.app/Contents/MacOS/Google Chrome" \
+        --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
+        --enable-logging=stderr --log-level=0 "$@"
     "$csrc/out/rel/Google Chrome.app/Contents/MacOS/Google Chrome" \
         --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
         --enable-logging=stderr --log-level=0 "$@"
   else
+    echo "$csrc/out/rel/Chromium.app/Contents/MacOS/Chromium" \
+        --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
+        --enable-logging=stderr --log-level=0 "$@"
     "$csrc/out/rel/Chromium.app/Contents/MacOS/Chromium" \
         --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
         --enable-logging=stderr --log-level=0 "$@"
