@@ -64,6 +64,7 @@ declare -a dotfiles=(
   .bashrc.linux
   .bashrc.mac
   .bashrc.win
+  .git_completion.bash
   .gitignore_global
   .gvimrc
   .hushlogin

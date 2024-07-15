@@ -4,6 +4,7 @@
 
 . $HOME/.bashrc.funcs
 . $HOME/.bashrc.funcs.mac
+. $HOME/.git_completion.bash
 
 # bump up the default # of files and the default stack size per process.
 ulimit -n unlimited -s 16384

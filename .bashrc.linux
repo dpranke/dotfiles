@@ -4,6 +4,7 @@
 
 . $HOME/.bashrc.funcs
 . $HOME/.bashrc.funcs.linux
+. $HOME/.git_completion.bash
 
 export EMAIL_ADDRESS=dpranke@google.com
 export PYTHONPATH=
