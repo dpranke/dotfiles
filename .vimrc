@@ -63,3 +63,17 @@ au BufEnter /private/tmp/crontab.* setl backupcopy=yes
 
 " Ensure that we get the correct indentation for python from our plugins
 filetype plugin indent on
+
+nmap <leader>d <plug>(YCMHover)
+nmap <leader>f :YcmCompleter Format<CR>
+nmap <leader>g :YcmCompleter GoTo<CR>
+let g:ycm_auto_hover = ''
+let g:ycm_clangd_uses_ycmd_caching = 0
+
+" Figure out where clangd is
+if has("macunix")
+  let g:ycm_clangd_binary_path = "/Users/dpranke/Documents/src/c/src/third_party/llvm-build/Release+Asserts/bin/clangd"
+endif
+if filereadable(expand("~/.vimrc.local"))
+  source ~/.vimrc.local
+endif
