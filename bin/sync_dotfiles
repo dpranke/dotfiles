@@ -78,6 +78,8 @@ declare -a dotfiles=(
   bin/pset_aux
   bin/st
   bin/sync_dotfiles
+  mbin/backup_mbp
+  mbin/backup_mini
   mbin/mvim
   wbin/gclient
   wbin/git
