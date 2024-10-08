@@ -51,6 +51,11 @@ function orc() {
       --log-level=0 "$@"
 }
 
+function or2c() {
+  $csrc/out/rel2/chrome --user-data-dir=$src/udd.rel2 --enable-logging=stderr \
+      --log-level=0 "$@"
+}
+
 function v() {
   if which vim > /dev/null
   then

@@ -25,6 +25,10 @@ function arc() {
   autoninja -C $csrc/out/rel chrome "$@"
 }
 
+function ar2c() {
+  autoninja -C $csrc/out/rel2 chrome "$@"
+}
+
 alias df='df -h'
 
 function dt() {

@@ -48,3 +48,8 @@ if [ -f "$src/google-cloud-sdk/completion.bash.inc" ]
 then
   . "$src/google-cloud-sdk/completion.bash.inc"
 fi
+
+# enable programmable completion features
+if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
+    . /etc/bash_completion
+fi
