@@ -75,6 +75,7 @@ declare -a dotfiles=(
   bin/echodo
   bin/fl
   bin/gcsrc
+  bin/git-update-branch
   bin/pset_aux
   bin/st
   bin/sync_dotfiles

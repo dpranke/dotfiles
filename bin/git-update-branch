@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+#
+# git-update-branch - update your branch to the latest version of your CL
+#
+# This CL downloads the latest patchset on your CL and applies it as a
+# single commit to your current branch, so that you can easily see the
+# difference between what you had before and the latest version.
+
+set -x
+
+git revert -n $(git log --pretty=%H @{u}..HEAD)
+git commit -m 'Revert local changes'
+
+issue=$(git cl issue | awk '{print $3}')
+git cl patch $issue
+git reset --soft HEAD~2
+
+branch=$(git branch | awk '$1 == "*" { print $2 })'
+
+patchset=$(git config --get branch.$branch.gerritpatchset)
+git commit -m "Upgrade to patchset $patchset"
