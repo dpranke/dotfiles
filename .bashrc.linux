@@ -2,6 +2,8 @@
 # .bashrc for Linux Google-specific stuff
 #
 
+# testing, ignore
+
 . $HOME/.bashrc.funcs
 . $HOME/.bashrc.funcs.linux
 . $HOME/.git_completion.bash
