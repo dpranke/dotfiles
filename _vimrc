@@ -122,4 +122,3 @@ au VimLeave * :call MakeSession()
 " to the specified file. This is useful if you're getting messages on exit
 " that you don't have time to read.
 " au VimLeave :redir! > $HOME/vim_messages.txt
->>>>>>> local_changes
