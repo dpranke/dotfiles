@@ -77,6 +77,7 @@ declare -a dotfiles=(
   bin/gcsrc
   bin/git-update-branch
   bin/pset_aux
+  bin/sel
   bin/st
   bin/sync_dotfiles
   mbin/backup_mbp
@@ -101,6 +102,7 @@ declare -a batfiles=(
   bat/ptime.bat
   bat/ptime.py
   bat/redot.bat
+  bat/sel.bat
   bat/setdirs.bat
   bat/src.bat
   bat/sv.bat
