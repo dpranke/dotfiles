@@ -1,0 +1,59 @@
+#!/bin/bash
+#
+# sel - select whitespace-delimited fields from a file
+#
+# The sed command works as follows:
+# 1. Split comma-separated numbers into numbers on individual lines.
+# 2. Convert each positive number X into "$X".
+# 3. Convert each "-$X" into "$(NF+1$X)".
+# 4. Rejoin as a comma-separated list of strings on one line.
+#
+
+function usage() {
+  echo "sel [-h|--help] [-F|--field-separator fs] <number>(,<number>)*"
+  exit 2
+}
+
+FS="[[:space:]]"
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -h|--help)
+      usage
+      ;;
+    -F|--field-separator)
+      FS="$2"
+      shift
+      shift
+      ;;
+    -F*)
+      FS="${1:2}"
+      shift
+      ;;
+    --field-separator)
+      FS="$2"
+      shift
+      shift
+      ;;
+    --field-separator=*)
+      FS="${1:18}"
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [ "$*" = "" ]
+then
+  usage
+fi
+
+args=$(
+  echo "$@" | \
+    sed -e 's/,/\n/g' \
+        -e 's/\([0-9][0-9]*\)/$\1/g' \
+        -e 's/-\$\([0-9][0-9]*\)/$(NF+1-\1)/g' \
+        -e 's/\n/, /g'
+)
+awk -F"$FS" "{ print $args }"
