@@ -1,7 +1,3 @@
-
-set pythonthreedll=c:\Users\dpranke\AppData\Local\Programs\Python\Python312\python312.dll
-set pythonthreehome=c:\Users\dpranke\AppData\Local\Programs\Python\Python312
-
 " do case-insensitive searching
 set ignorecase
 
