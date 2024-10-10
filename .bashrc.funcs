@@ -207,8 +207,14 @@ function setprompt() {
 function src() { cd $src/$* ; }
 
 function sv() {
-  local new_view=$1
+  if [ "$1" = "-d" ]
+  then
+    unset view csrc
+    setprompt
+    return
+  fi
 
+  local new_view=$1
   if [ ! -d "$src/$new_view" ]
   then
     echo "no such view '$new_view' under $src"
@@ -220,7 +226,6 @@ function sv() {
   setprompt
   cd $csrc
 }
-
 
 # Bash completion for sv()
 # return any directories matching $src/c\.*
