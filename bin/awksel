@@ -1,0 +1,59 @@
+#!/bin/bash
+#
+# awksel - select whitespace-delimited fields from a file
+#
+
+function usage() {
+  echo "awksel [-h|--help] [-F fs] [-O ofs] <int>(,<int>)* [file...]"
+}
+
+fs_flag=""
+ofs_clause=""
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    -F)
+      fs_flag="-F$2"
+      shift
+      shift
+      ;;
+    -F*)
+      fs_flag="-F${1#-F}"
+      shift
+      ;;
+    -O)
+      ofs_clause="BEGIN { OFS=\"$2\" } "
+      shift
+      shift
+      ;;
+    -O*)
+      ofs_clause="BEGIN { OFS=\"${1#-O}\" } "
+      shift
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+if [ $# -eq 0 ]
+then
+  usage
+  exit 2
+fi
+
+fields=$1
+shift
+
+files="$@"
+
+args=$(
+  echo "$fields" | \
+    sed -e 's/\([0-9][0-9]*\)/$\1/g' \
+        -e 's/-\$\([0-9][0-9]*\)/$(NF+1-\1)/g' \
+        -e 's/,/, /'
+)
+awk $fs_flag "$ofs_clause { print $args }" $files

@@ -1,5 +1,2 @@
 @echo off
-SET var=%cd%
-cd "%~dp0"
-bash --norc -c "../bin/sel %*"
-cd "%var%"
+python3 "%~dp0\..\bin\sel" %*

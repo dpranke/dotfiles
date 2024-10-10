@@ -1,59 +1,132 @@
-#!/bin/bash
-#
-# sel - select whitespace-delimited fields from a file
-#
+#!/usr/bin/env python3
 
-function usage() {
-  echo "sel [-h|--help] [-F fs] [-O ofs] <int>(,<int>)* [file...]"
-}
+"""usage:
 
-fs_flag=""
-ofs_clause=""
-while [[ $# -gt 0 ]]; do
-  case "$1" in
-    -h|--help)
-      usage
-      exit 0
-      ;;
-    -F)
-      fs_flag="-F$2"
-      shift
-      shift
-      ;;
-    -F*)
-      fs_flag="-F${1#-F}"
-      shift
-      ;;
-    -O)
-      ofs_clause="BEGIN { OFS=\"$2\" } "
-      shift
-      shift
-      ;;
-    -O*)
-      ofs_clause="BEGIN { OFS=\"${1#-O}\" } "
-      shift
-      ;;
-    *)
-      break
-      ;;
-  esac
-done
+options:
+  -h, --help  show this message and exit
+  -F FS
+  -O OFS
+"""
 
-if [ $# -eq 0 ]
-then
-  usage
-  exit 2
-fi
+import argparse
+import csv
+import re
+import fileinput
+import json
+import sys
 
-fields=$1
-shift
+def _parse_args(parser):
+    missing_fields_err = 'the following arguments are required: fields'
+    orig_error = parser.error
+    def error(msg):
+        if msg == missing_fields_err:
+            return
+        orig_error(msg)
+    parser.error = error
+    args, remaining = parser.parse_known_args()
+    if not remaining:
+      orig_error(missing_fields_err)
+    args.fields = remaining[0]
+    args.file = remaining[1:]
+    return args
 
-files="$@"
-
-args=$(
-  echo "$fields" | \
-    sed -e 's/\([0-9][0-9]*\)/$\1/g' \
-        -e 's/-\$\([0-9][0-9]*\)/$(NF+1-\1)/g' \
-        -e 's/,/, /'
+parser = argparse.ArgumentParser(
+  usage='sel2 [-h] [options] <int>(,<int>)* [file...]',
+  exit_on_error=False
 )
-awk $fs_flag "$ofs_clause { print $args }" $files
+parser.add_argument(
+    '-F', dest='fs', metavar='fs',
+    action='store', default=r'\s+',
+    help="input field separator regexp (default=r'%(default)s')")
+parser.add_argument(
+    '-O', dest='ofs', metavar='ofs', action='store', default=' ',
+    help="output field separator string (default='%(default)s')")
+parser.add_argument('-o', '--output', metavar='<file>',
+                    action='store', default='-',
+    help="output to <file> (default is stdout)")
+parser.add_argument('--csv', action='store_true',
+    help='output as csv file')
+parser.add_argument('-j', action='store_true',
+    help='equivalent to --json --one-level')
+parser.add_argument(
+    '--json', action='store_true',
+    help='output as JSON')
+parser.add_argument(
+    '--jsonl', '--json-lines', action='store_true',
+    help='output as JSON Lines')
+parser.add_argument('--indent', action='store',
+    help="amount to indent (default=2)")
+parser.add_argument('--one-level', action='store_true',
+    help="only indent JSON one level")
+
+args = _parse_args(parser)
+
+if args.j:
+    args.json = True
+    args.one_level = True
+
+if ((args.csv and args.json) or
+    (args.csv and args.jsonl) or
+    (args.json and args.jsonl)):
+    print('Only one of --csv, -j, --json, or --json-lines can be specified',
+          file=sys.stderr)
+    sys.exit(1)
+
+try:
+    indices = [int(x) for x in args.fields.split(',')]
+except ValueError as e:
+    print(f'Bad field spec "{args.fields}"', file=sys.stderr)
+    sys.exit(1)
+
+def lookup(l, i):
+    if i >= 0 and i < len(l):
+        return l[i]
+    if i < 0 and -i < len(l):
+        return l[i]
+    return ''
+
+if args.output == '-':
+    file = sys.stdout
+else:
+    file = open(args.output, 'w')
+
+indices = [x-1 if x > 0 else x for x in indices]
+pat = re.compile(args.fs)
+d = []
+if args.csv:
+    csv_writer = csv.writer(file)
+for line in fileinput.input(files=args.file, encoding='utf8'):
+    line = line.strip()
+    fields = pat.split(line)
+    values = [lookup(fields, i) for i in indices]
+    if args.csv:
+        csv_writer.writerow(values)
+    elif args.jsonl:
+        print(json.dumps(values), file=file)
+    elif args.json:
+        d.append(values)
+    else:
+        print(args.ofs.join(values), file=file)
+
+if args.json:
+    if not d:
+        print('[]', file=file)
+    elif args.one_level:
+        print('[', file=file)
+        d_len = len(d) - 1
+        for i, l in enumerate(d):
+            print(f'  {json.dumps(l)}', end='', file=file)
+            if i < d_len:
+                print(',', file=file)
+            else:
+                print(file=file)
+        print(']', file=file)
+    else:
+        if args.indent == 'None':
+            args.indent = None
+        if args.indent:
+            try:
+                args.indent=int(args.indent)
+            except ValueError:
+                pass
+        print(json.dumps(d, indent=args.indent), file=file)
