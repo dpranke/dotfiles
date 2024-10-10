@@ -134,6 +134,7 @@ declare -a batfiles=(
   bat/setdirs.bat
   bat/src.bat
   bat/sv.bat
+  bat/sync_dotfiles.bat
   bat/whome.bat
 )
 
@@ -183,20 +184,6 @@ for i in "${dotfiles[@]}"
 do
   cpif $src/$i $dst/$i
 done
-
-if [ -z "$USERPROFILE" -o -z "$USER" ]
-then
-  exit 0
-fi
-
-if [ $opt_u -eq 1 ]
-then
-  src=$REPODIR
-  dst=/c/Users/$USER
-else
-  src=/c/Users/$USER
-  dst=$REPODIR
-fi
 
 for i in "${batdirs[@]}"
 do
