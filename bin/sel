@@ -2,40 +2,25 @@
 #
 # sel - select whitespace-delimited fields from a file
 #
-# The sed command works as follows:
-# 1. Split comma-separated numbers into numbers on individual lines.
-# 2. Convert each positive number X into "$X".
-# 3. Convert each "-$X" into "$(NF+1$X)".
-# 4. Rejoin as a comma-separated list of strings on one line.
-#
 
 function usage() {
-  echo "sel [-h|--help] [-F|--field-separator fs] <number>(,<number>)*"
-  exit 2
+  echo "sel [-h|--help] [-F fs] <int>(,<int>)* [file...]"
 }
 
-FS="[[:space:]]"
+fs_flag=""
 while [[ $# -gt 0 ]]; do
-  case $1 in
+  case "$1" in
     -h|--help)
       usage
+      exit 0
       ;;
-    -F|--field-separator)
-      FS="$2"
+    -F)
+      fs_flag="-F$2"
       shift
       shift
       ;;
     -F*)
-      FS="${1:2}"
-      shift
-      ;;
-    --field-separator)
-      FS="$2"
-      shift
-      shift
-      ;;
-    --field-separator=*)
-      FS="${1:18}"
+      fs_flag="-F${1#-F}"
       shift
       ;;
     *)
@@ -44,16 +29,21 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-if [ "$*" = "" ]
+if [ $# -eq 0 ]
 then
   usage
+  exit 2
 fi
 
+fields=$1
+shift
+
+files="$@"
+
 args=$(
-  echo "$@" | \
-    sed -e 's/,/\n/g' \
-        -e 's/\([0-9][0-9]*\)/$\1/g' \
+  echo "$fields" | \
+    sed -e 's/\([0-9][0-9]*\)/$\1/g' \
         -e 's/-\$\([0-9][0-9]*\)/$(NF+1-\1)/g' \
-        -e 's/\n/, /g'
+        -e 's/,/, /'
 )
-awk -F"$FS" "{ print $args }"
+awk $fs_flag "{ print $args }" $files
