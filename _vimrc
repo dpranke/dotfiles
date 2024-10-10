@@ -1,5 +1,9 @@
-set pythonthreedll=c:\Users\dpranke\AppData\Local\Programs\Python\Python312\python312.dll
-set pythonthreehome=c:\Users\dpranke\AppData\Local\Programs\Python\Python312
+if has("gui_win32") then
+  if filereadable("c:\Users\dpranke\AppData\Local\Programs\Python\Python312\python312.dll")
+    set pythonthreedll=c:\Users\dpranke\AppData\Local\Programs\Python\Python312\python312.dll
+    set pythonthreehome=c:\Users\dpranke\AppData\Local\Programs\Python\Python312
+  endif
+fi
 
 " do case-insensitive searching
 set ignorecase
