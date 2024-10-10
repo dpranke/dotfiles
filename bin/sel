@@ -55,26 +55,19 @@ parser.add_argument(
     default="-",
     help="output to <file> (default is stdout)",
 )
-parser.add_argument("--csv", action="store_true", help="output as csv file")
 parser.add_argument(
-    "-j", action="store_true", help="equivalent to --json --one-level"
+    "-c", "--csv", action="store_true", help="output as csv file"
 )
-parser.add_argument("--json", action="store_true", help="output as JSON")
+parser.add_argument("-j", "--json", action="store_true", help="output as JSON")
 parser.add_argument(
-    "--jsonl", "--json-lines", action="store_true", help="output as JSON Lines"
-)
-parser.add_argument(
-    "--indent", action="store", help="amount to indent (default=2)"
-)
-parser.add_argument(
-    "--one-level", action="store_true", help="only indent JSON one level"
+    "-l",
+    "--jsonl",
+    "--json-lines",
+    action="store_true",
+    help="output as JSON Lines"
 )
 
 args = _parse_args(parser)
-
-if args.j:
-    args.json = True
-    args.one_level = True
 
 if (
     (args.csv and args.json)
@@ -82,7 +75,7 @@ if (
     or (args.json and args.jsonl)
 ):
     print(
-        "Only one of --csv, -j, --json, or --json-lines can be specified",
+        "Only one of -c/--csv, -j/--json, or -l/--json-lines can be specified",
         file=sys.stderr,
     )
     sys.exit(1)
@@ -112,7 +105,10 @@ pat = re.compile(args.fs)
 d = []
 if args.csv:
     csv_writer = csv.writer(file)
-for line in fileinput.input(files=args.file, encoding="utf8"):
+
+for lineno, line in enumerate(
+    fileinput.input(files=args.file, encoding="utf8"), start=1
+):
     line = line.strip()
     fields = pat.split(line)
     values = [lookup(fields, i) for i in indices]
@@ -121,29 +117,15 @@ for line in fileinput.input(files=args.file, encoding="utf8"):
     elif args.jsonl:
         print(json.dumps(values), file=file)
     elif args.json:
-        d.append(values)
+        if lineno == 1:
+            print('[', file=file)
+        else:
+            print(',\n', end='', file=file)
+        print(f"  {json.dumps(values)}", end='', file=file)
     else:
         print(args.ofs.join(values), file=file)
 
 if args.json:
-    if not d:
+    if not lineno:
         print("[]", file=file)
-    elif args.one_level:
-        print("[", file=file)
-        d_len = len(d) - 1
-        for i, l in enumerate(d):
-            print(f"  {json.dumps(l)}", end="", file=file)
-            if i < d_len:
-                print(",", file=file)
-            else:
-                print(file=file)
-        print("]", file=file)
-    else:
-        if args.indent == "None":
-            args.indent = None
-        if args.indent:
-            try:
-                args.indent = int(args.indent)
-            except ValueError:
-                pass
-        print(json.dumps(d, indent=args.indent), file=file)
+    print("\n]", file=file)
