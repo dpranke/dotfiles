@@ -69,11 +69,8 @@ declare -a dotfiles=(
   .gvimrc
   .hushlogin
   .vimrc
-  bin/csync
-  bin/deps
   bin/dub
   bin/echodo
-  bin/fl
   bin/gcsrc
   bin/git-update-branch
   bin/pset_aux

@@ -53,7 +53,7 @@ fi
 export EMAIL_ADDRESS=dpranke@gmail.com
 export HISTSIZE=500
 export INFOPATH=/usr/local/info:/opt/local/info
-export MANPATH=/usr/local/man:/opt/local/man:/usr/share/man
+export MANPATH=/usr/local/share/man:/opt/local/man:/usr/share/man
 export NINJA_JOBS=''
 export PAGER=less
 export BASH_SILENCE_DEPRECATION_WARNING=1

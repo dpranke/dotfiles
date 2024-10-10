@@ -52,9 +52,9 @@ function e() {
 function ge() {
   if which mvim > /dev/null
   then
-    mvim $@
+    mvim "$@"
   else
-    e $@
+    e "$@"
   fi
 }
 
