@@ -72,6 +72,7 @@ declare -a dotfiles=(
   bin/awksel
   bin/dub
   bin/echodo
+  bin/esco
   bin/fl
   bin/gcsrc
   bin/git-update-branch
@@ -98,6 +99,7 @@ declare -a batfiles=(
   _vimrc
   bat/csrc.bat
   bat/home.bat
+  bat/esco.bat
   bat/ptime.bat
   bat/ptime.py
   bat/redot.bat
