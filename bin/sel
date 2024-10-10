@@ -4,10 +4,11 @@
 #
 
 function usage() {
-  echo "sel [-h|--help] [-F fs] <int>(,<int>)* [file...]"
+  echo "sel [-h|--help] [-F fs] [-O ofs] <int>(,<int>)* [file...]"
 }
 
 fs_flag=""
+ofs_clause=""
 while [[ $# -gt 0 ]]; do
   case "$1" in
     -h|--help)
@@ -21,6 +22,15 @@ while [[ $# -gt 0 ]]; do
       ;;
     -F*)
       fs_flag="-F${1#-F}"
+      shift
+      ;;
+    -O)
+      ofs_clause="BEGIN { OFS=\"$2\" } "
+      shift
+      shift
+      ;;
+    -O*)
+      ofs_clause="BEGIN { OFS=\"${1#-O}\" } "
       shift
       ;;
     *)
@@ -46,4 +56,4 @@ args=$(
         -e 's/-\$\([0-9][0-9]*\)/$(NF+1-\1)/g' \
         -e 's/,/, /'
 )
-awk $fs_flag "{ print $args }" $files
+awk $fs_flag "$ofs_clause { print $args }" $files
