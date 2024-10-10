@@ -47,27 +47,6 @@ function csrc() {
   fi
 }
 
-# ep - echo PATH (or other variable)
-function ep() {
-  if [ "$1" = "-v" ]
-  then
-    if [ $# -eq 2 ]
-    then
-      var=$2
-    else
-      var=PATH
-    fi
-    echo ${!var} | sed -e 's/:/\n/g'
-    return
-  elif [ $# -eq 1 ]
-  then
-    var=$1
-  else
-    var=PATH
-  fi
-  echo ${!var}
-}
-
 function gb() {
   git map-branches "$@"
 }
@@ -215,6 +194,7 @@ function sv() {
   fi
 
   local new_view=$1
+
   if [ ! -d "$src/$new_view" ]
   then
     echo "no such view '$new_view' under $src"

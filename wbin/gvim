@@ -1,2 +1,2 @@
 #!/usr/bin/bash
-gvim.bat "$@"
+/c/Windows/gvim.bat "$@"

@@ -1,32 +1,56 @@
 #!/bin/bash
+if [ "$src" = "" ]
+then
+  if [ -d "/mnt/c/src" ]
+  then
+    src=/mnt/c/src
+  elif [ -d "$HOME/Documents/src" ]
+  then
+    src="$HOME/Documents/src"
+  elif [ -d "$HOME/src" ]
+  then
+    src="$HOME/src"
+  fi
+fi
+
+if [ "$WHOME" = "" ]
+then
+  if [ -d "/mnt/c/Users/$USER" ]
+  then
+    WHOME=/mnt/c/Users/$USER
+  fi
+fi
+
+REPODIR=$src/dotfiles
+USERDIR=$HOME
 
 function usage() {
-  echo "usage: sync_dotfiles [-hnruv] [ -R repo-dir ] [ -H home-dir ] "
+  echo "usage: sync_dotfiles [-hnruv] [ -R repo-dir ] [ -U user-dir ] "
   echo "  -h -> show-usage"
   echo "  -n -> no-execute"
-  echo "  -r -> refresh repo from home"
-  echo "  -u -> refresh user from repo"
+  echo "  -r -> refresh repo ($REPODIR) from user ($USERDIR)"
+  echo "  -u -> refresh user ($USERDIR) from repo ($REPODIR)"
+  echo "  -w -> use \$WHOME ($WHOME) instead of \$HOME"
   echo "  -v -> verbose"
   exit 1
 }
 
-HOMEDIR=$HOME
-REPODIR=$src/dotfiles
 
 opt_n=0
 opt_r=0
 opt_u=0
 opt_v=0
-while getopts hH:nrR:uU:v arg
+while getopts hnrR:uU:vw arg
 do
   case "$arg" in
-    R) REPODIR=$OPTARG ;;
     h) usage   ;;
-    H) HOMEDIR=$OPTARG ;;
     n) opt_n=1 ;;
     r) opt_r=1 ;;
+    R) REPODIR=$OPTARG ;;
     u) opt_u=1 ;;
+    U) USERDIR=$OPTARG ;;
     v) opt_v=1 ;;
+    w) USERDIR="$WHOME" ;;
     *) usage ;;
   esac
 done
@@ -36,9 +60,9 @@ then
     echo "Couldn't find your repo dir at $REPODIR."
     exit 1
 fi
-if [ ! -d $HOMEDIR ]
+if [ ! -d $USERDIR ]
 then
-    echo "Couldn't find your home dir at $HOMEDIR."
+    echo "Couldn't find your home dir at $USERDIR."
     exit 1
 fi
 
@@ -72,6 +96,7 @@ declare -a dotfiles=(
   bin/awksel
   bin/dub
   bin/echodo
+  bin/ep
   bin/esco
   bin/fl
   bin/gcsrc
@@ -86,8 +111,9 @@ declare -a dotfiles=(
   wbin/gclient
   wbin/git
   wbin/gvim
-  wbin/python3
   wbin/vim
+  wbin/wpython
+  wbin/wpython3
 )
 
 declare -a batdirs=(
@@ -98,8 +124,9 @@ declare -a batfiles=(
   _gvimrc
   _vimrc
   bat/csrc.bat
-  bat/home.bat
+  bat/ep.bat
   bat/esco.bat
+  bat/home.bat
   bat/ptime.bat
   bat/ptime.py
   bat/redot.bat
@@ -141,9 +168,9 @@ function cpif() {
 if [ $opt_u -eq 1 ]
 then
   src=$REPODIR
-  dst=$HOMEDIR
+  dst=$USERDIR
 else
-  src=$HOMEDIR
+  src=$USERDIR
   dst=$REPODIR
 fi
 

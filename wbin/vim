@@ -1,2 +1,2 @@
 #!/usr/bin/bash
-vim.bat "$@"
+/c/Windows/vim.bat "$@"

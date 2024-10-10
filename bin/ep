@@ -1,0 +1,14 @@
+#!/usr/bin/env python3
+import argparse
+import os
+import sys
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', action='store_true')
+parser.add_argument('var', nargs='?', action='store', default='PATH')
+args = parser.parse_args()
+
+if args.verbose:
+    print('\n'.join(os.environ[args.var].split(os.pathsep)))
+else:
+    print(os.environ[args.var])

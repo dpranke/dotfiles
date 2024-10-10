@@ -8,13 +8,11 @@
 export src=/c/src
 export dt=$src/depot_tools
 export whome="/c/Users/$USER"
-
-function whome() {
-  cd "${whome}/$@"
-}
+export WHOME="$whome"
 
 PF="/c/Program Files"
 PFX86="/c/Program Files (x86)"
+
 WIN="/c/Windows"
 WIN32="/c/Windows/System32"
 
@@ -23,7 +21,7 @@ WIN32="/c/Windows/System32"
 # /ucrt64/bin:/usr/local/bin:/usr/bin:/bin:/c/Windows/System32:
 # /c/Windows:/c/Windows/System32/Wbem:
 # /c/Windows/System32/WindowsPowerShell/v1.0/:
-# /usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl 
+# /usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
 
 # Set PATH explicitly instead of using `ip` and `ap` (a) since
 # we're starting from scratch and (b) it's faster.

@@ -1,13 +1,15 @@
 function e() {
-  vim.bat "$@"
+  vim "$@"
 }
-  
+
 function ge () {
-  gvim.bat "$@"
+  gvim "$@"
 }
 
 function v() {
-  vim.bat -R "$@"
+  vim -R "$@"
 }
 
-
+function whome() {
+  cd "$WHOME/$@"
+}
