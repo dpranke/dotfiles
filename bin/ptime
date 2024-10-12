@@ -1,0 +1,21 @@
+#!/usr/bin/env python3
+import argparse
+import os
+import subprocess
+import sys
+import time
+
+parser = argparse.ArgumentParser()
+parser.add_argument('-v', '--verbose', action='store_true')
+parser.add_argument('command', nargs='+', action='extend')
+args = parser.parse_args()
+command = ' '.join(args.command)
+
+if args.verbose:
+then
+  print(command)
+fi
+start = time.time()
+subprocess.call(command, shell=True)
+stop = time.time()
+print("Took %.1f seconds" % (stop - start))

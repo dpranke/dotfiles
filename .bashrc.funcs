@@ -1,6 +1,14 @@
-# ap - append component to the var if it's not already there and it exists
+# ap - append directory to the var if it's not already there and it exists
+#      `ap -x` requires it to be nonempty as well.
 #   usage: ap [var] value
 function ap() {
+  local nonempty=0
+  if [ "$1" = "-x" ]
+  then
+    nonempty=1
+    shift
+  fi
+
   if [ $# -eq 2 ]
   then
     var="$1"
@@ -8,11 +16,18 @@ function ap() {
   else
     var=PATH
   fi
-  if ( echo "${!var}" | grep "$1:" > /dev/null )
+  if [[ "$var" =~ "$1:" ]]
   then
     return
   elif [ -d "$1" ]
   then
+    if [[ $nonempty -eq 1 ]]
+    then
+      if [[ $(echo -n "$1/*") = "$1/*" ]]
+      then
+        return
+      fi
+    fi
     export ${var}="${!var}:$1"
   fi
 }
@@ -75,10 +90,17 @@ function h() {
   history "$@"
 }
 
-# ip - insert component at the front of the var if it's not already
-#      there and it exists
+# ip - insert directory at the front of the var if it's not already
+#      there and it exists. `ip -x` requires it to be nonempty as well.
 #   usage: ip [var] value
 function ip() {
+  local nonempty=0
+  if [ "$1" = "-x" ]
+  then
+    nonempty=1
+    shift
+  fi
+
   if [ $# -eq 2 ]
   then
     var="$1"
@@ -91,6 +113,13 @@ function ip() {
     return
   elif [ -d "$1" ]
   then
+    if [[ $nonempty -eq 1 ]]
+    then
+      if [[ $(echo -n "$1/*") = "$1/*" ]]
+      then
+        return
+      fi
+    fi
     export ${var}="$1:${!var}"
   fi
 }

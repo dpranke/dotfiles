@@ -5,38 +5,36 @@
 . $HOME/.bashrc.funcs
 . $HOME/.bashrc.funcs.win
 
-export src=/c/src
-export dt=$src/depot_tools
-export whome="/c/Users/$USER"
-export WHOME="$whome"
+if [ -d "/c/src" ]
+then
+  export src=/c/src
+elif [ -d "/cygdrive/c/src" ]
+then
+  export src=/cygdrive/c/src
+fi
+export WHOME="/c/Users/$USER"
+export whome="$WHOME"
+export dt="$src/depot_tools"
 
 PF="/c/Program Files"
 PFX86="/c/Program Files (x86)"
-
 WIN="/c/Windows"
 WIN32="/c/Windows/System32"
 
-# default Msys / ucrt64 path
-# -----
-# /ucrt64/bin:/usr/local/bin:/usr/bin:/bin:/c/Windows/System32:
-# /c/Windows:/c/Windows/System32/Wbem:
-# /c/Windows/System32/WindowsPowerShell/v1.0/:
-# /usr/bin/site_perl:/usr/bin/vendor_perl:/usr/bin/core_perl
+PATH="$HOME/bin"
+ap "/usr/bin"
+ap "/bin"
+ap "$dt"
+ap "$WHOME/scoop/shims"
+ap "$WIN32"
+ap "$WIN32/Wbem"
+ap "$PF/PowerShell/7"
+ap "$WIN32/WindowsPowershell/v1.0"
+ap -x "/usr/bin/site_perl"
+ap -x "/usr/bin/vendor_perl"
+ap -x "/usr/bin/core_perl"
 
-# Set PATH explicitly instead of using `ip` and `ap` (a) since
-# we're starting from scratch and (b) it's faster.
-export PATH="$HOME/wbin"
-export PATH="${PATH}:$HOME/bin"
-export PATH="${PATH}:$dt"
-export PATH="${PATH}:/ucrt64/bin"
-export PATH="${PATH}:/usr/local/bin"
-export PATH="${PATH}:/usr/bin"
-export PATH="${PATH}:/bin"
-export PATH="${PATH}:$WIN32"
-export PATH="${PATH}:$WIN32/Wbem"
-export PATH="${PATH}:$WIN32/WindowsP0werShell/v1.0"
-export PATH="${PATH}:/usr/bin/site_perl"
-export PATH="${PATH}:/usr/bin/vendor_perl"
-export PATH="${PATH}:/usr/bin/core_perl"
-
-export EDITOR=vim
+if which vim > /dev/null
+then
+  export EDITOR=vim
+fi

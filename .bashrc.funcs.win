@@ -11,5 +11,5 @@ function v() {
 }
 
 function whome() {
-  cd "$WHOME/$@"
+  cd "$whome/$@"
 }

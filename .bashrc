@@ -2,17 +2,17 @@
 # OS-SPECIFIC and SITE-SPECIFIC CUSTOMIZATION
 #
 
-os=$(uname -s)
+os=$(/usr/bin/uname -s)
 if [ "$os" = "Darwin" ]
 then
-  hostname=$(hostname -s)
+  hostname=$(/usr/bin/hostname -s)
   . ~/.bashrc.mac
 elif [ "$os" = "Linux" ]
 then
-  hostname=$(hostname -s)
+  hostname=$(/usr/bin/hostname -s)
   . ~/.bashrc.linux
 else
-  hostname=$(hostname)
+  hostname=$(/usr/bin/hostname)
   . ~/.bashrc.win
 fi
 

@@ -1,23 +1,29 @@
 #!/bin/bash
 if [ "$src" = "" ]
 then
-  if [ -d "/mnt/c/src" ]
+  if [ -d "$HOME/src" ]
   then
-    src=/mnt/c/src
+    src="$HOME/src"
   elif [ -d "$HOME/Documents/src" ]
   then
     src="$HOME/Documents/src"
-  elif [ -d "$HOME/src" ]
+  elif [ -d "/c/src" ]
   then
-    src="$HOME/src"
+    src=/c/src
+  elif [ -d "/cygdrive/c/src" ]
+  then
+    src=/cygdrive/c/src
   fi
 fi
 
 if [ "$WHOME" = "" ]
 then
-  if [ -d "/mnt/c/Users/$USER" ]
+  if [ -d "/c/Users/$USER" ]
   then
-    WHOME=/mnt/c/Users/$USER
+    WHOME="/c/Users/$USER"
+  elif [ -d "/c/cygdrive/Users/$USER" ]
+  then
+    WHOME="/c/cygdrive/Users/$USER"
   fi
 fi
 
@@ -102,18 +108,13 @@ declare -a dotfiles=(
   bin/gcsrc
   bin/git-update-branch
   bin/pset_aux
+  bin/ptime
   bin/sel
   bin/st
   bin/sync_dotfiles
   mbin/backup_mbp
   mbin/backup_mini
   mbin/mvim
-  wbin/gclient
-  wbin/git
-  wbin/gvim
-  wbin/vim
-  wbin/wpython
-  wbin/wpython3
 )
 
 declare -a batdirs=(
@@ -128,7 +129,6 @@ declare -a batfiles=(
   bat/esco.bat
   bat/home.bat
   bat/ptime.bat
-  bat/ptime.py
   bat/redot.bat
   bat/sel.bat
   bat/setdirs.bat
