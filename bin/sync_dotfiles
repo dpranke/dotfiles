@@ -103,8 +103,10 @@ declare -a dotfiles=(
   _vimrc
   bat/check_init_script.bat
   bat/csrc.bat
+  bat/e.bat
   bat/ep.bat
   bat/esco.bat
+  bat/ge.bat
   bat/home.bat
   bat/init.cmd
   bat/install_init_script.bat
@@ -116,6 +118,7 @@ declare -a dotfiles=(
   bat/sv.bat
   bat/sync_dotfiles.bat
   bat/uninstall_init_script.bat
+  bat/v.bat
   bat/whome.bat
   bin/awksel
   bin/dub
