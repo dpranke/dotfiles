@@ -79,9 +79,9 @@ then
 fi
 
 declare -a dotdirs=(
+  bat
   bin
   mbin
-  wbin
 )
 
 declare -a dotfiles=(
@@ -99,6 +99,24 @@ declare -a dotfiles=(
   .gvimrc
   .hushlogin
   .vimrc
+  _gvimrc
+  _vimrc
+  bat/check_init_script.bat
+  bat/csrc.bat
+  bat/ep.bat
+  bat/esco.bat
+  bat/home.bat
+  bat/init.cmd
+  bat/install_init_script.bat
+  bat/ptime.bat
+  bat/redot.bat
+  bat/sel.bat
+  bat/setdirs.bat
+  bat/src.bat
+  bat/sv.bat
+  bat/sync_dotfiles.bat
+  bat/uninstall_init_script.bat
+  bat/whome.bat
   bin/awksel
   bin/dub
   bin/echodo
@@ -115,27 +133,6 @@ declare -a dotfiles=(
   mbin/backup_mbp
   mbin/backup_mini
   mbin/mvim
-)
-
-declare -a batdirs=(
-  bat
-)
-
-declare -a batfiles=(
-  _gvimrc
-  _vimrc
-  bat/csrc.bat
-  bat/ep.bat
-  bat/esco.bat
-  bat/home.bat
-  bat/ptime.bat
-  bat/redot.bat
-  bat/sel.bat
-  bat/setdirs.bat
-  bat/src.bat
-  bat/sv.bat
-  bat/sync_dotfiles.bat
-  bat/whome.bat
 )
 
 function echodo() {
@@ -184,19 +181,6 @@ for i in "${dotfiles[@]}"
 do
   cpif $src/$i $dst/$i
 done
-
-for i in "${batdirs[@]}"
-do
-  mkdirif $dst/$i
-done
-
-for i in "${batfiles[@]}"
-do
-  cpif $src/$i $dst/$i
-done
-
-cpif $src/_vimrc $dst/_vimrc
-cpif $src/_gvimrc $dst/_gvimrc
 
 if ! cmp $dst/_vimrc $dst/.vimrc
 then
