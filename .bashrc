@@ -5,7 +5,7 @@
 os=$(/usr/bin/uname -s)
 if [ "$os" = "Darwin" ]
 then
-  hostname=$(/usr/bin/hostname -s)
+  hostname=$(/bin/hostname -s)
   . ~/.bashrc.mac
 elif [ "$os" = "Linux" ]
 then
