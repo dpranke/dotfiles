@@ -23,7 +23,6 @@ WIN32="/c/Windows/System32"
 
 PATH="$HOME/bin"
 ap "/usr/bin"
-ap "/bin"
 ap "$dt"
 ap "$WHOME/scoop/shims"
 ap "$WIN32"

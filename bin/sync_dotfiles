@@ -101,6 +101,7 @@ declare -a dotfiles=(
   .vimrc
   _gvimrc
   _vimrc
+  bat/ap.bat
   bat/check_init_script.bat
   bat/csrc.bat
   bat/e.bat
@@ -109,6 +110,7 @@ declare -a dotfiles=(
   bat/ge.bat
   bat/home.bat
   bat/init.cmd
+  bat/ip.bat
   bat/install_init_script.bat
   bat/ptime.bat
   bat/redot.bat

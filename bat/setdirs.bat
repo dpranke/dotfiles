@@ -1,59 +1,55 @@
 @echo off
 set SRC=C:\src
-if "%ORIGPATH%" == "" goto l1
-set ORIGPATH=%PATH%
+set WHOME=%USERPROFILE%
+set checkpath=0
+if "%OPATH%" neq "" goto l1
+set OPATH=%PATH%
 set checkpath=1
 
 :l1
 rem We want to have full control over the path, so set the whole thing
 rem explicitly.
-rem TODO: For some reason it seems like I can only put one SET PATH inside
-rem an if block.
 set PATH=%USERPROFILE%\bat
-if not exist "%USERPROFILE%\scoop" goto l2
-set PATH=%PATH%;%USERPROFILE%\scoop\apps\python312\current\Scripts
-set PATH=%PATH%;%USERPROFILE%\scoop\apps\python312\current
-set PATH=%PATH%;%USERPROFILE%\scoop\shims
+call "%~dp0\ap" %USERPROFILE%\scoop\apps\python312\current\Scripts
+call "%~dp0\ap" %USERPROFILE%\scoop\apps\python312\current
+call "%~dp0\ap" %USERPROFILE%\scoop\shims
+call "%~dp0\ap" %SRC%\depot_tools
+call "%~dp0\ap" %SystemRoot%\System32
+call "%~dp0\ap" %SystemRoot%
+call "%~dp0\ap" %SystemRoot%\System32\Wbem
+call "%~dp0\ap" %ProgramFiles%\PowerShell\7
+call "%~dp0\ap" %SystemRoot%\System32\WindowsPowerShell\v1.0
+call "%~dp0\ap" %ProgramFiles%\Git Google Extras
+call "%~dp0\ap" %USERPROFILE%\AppData\Local\Microsoft\WindowsApps
+call "%~dp0\ap" C:\msys64\usr\bin
 
-:l2
-if not exist "%SRC%\depot_tools" goto l3
-set PATH=%PATH%;%SRC%\depot_tools
-
-:l3
-set PATH=%PATH%;%SystemRoot%\System32
-set PATH=%PATH%;%SystemRoot%
-set PATH=%PATH%;%SystemRoot%\Wbem
-
-if not exist %PATH%;%ProgramFiles%\PowerShell\7 goto l4
-set PATH=%PATH%;%ProgramFiles%\PowerShell\7
-
-:l4
-set PATH=%PATH%;%SystemRoot%\System32\WindowsPowerShell\v1.0
-if not exist "%ProgramFiles%\Git Google Extras" goto l5
-set PATH=%PATH%;%ProgramFiles%\Git Google Extras
-
-:l5
-if not exist "C:\msys64\usr\bin" goto l5
-set PATH=%PATH%;C:\msys64\usr\bin
-set PATH=%PATH%;C:\msys64\bin
-
-:l5
 rem TODO: Consider adding visual studio dirs and win sdk dirs.
 rem "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvarsall.bat" amd64
 
-rem Compare %ORIGPATH% to expected value and alert if something has changed.
+rem Compare OPATH to EPATH and alert if something has changed.
 if "%checkpath%" neq "1" exit /b
 
-set EXP=C:\Windows\system32
-set EXP=%EXP%;C:\Windows
-set EXP=%EXP%;C:\Windows\System32\Wbem
-set EXP=%EXP%;C:\Program Files\PowerShell\7\
-set EXP=%EXP%;C:\Windows\System32\WindowsPowerShell\v1.0\
-set EXP=%EXP%;C:\Windows\System32\OpenSSH\
-set EXP=%EXP%;C:\Program Files\Git\cmd
-set EXP=%EXP%;%USERPROFILE%\scoop\apps\python312\current\Scripts
-set EXP=%EXP%;%USERPROFILE%\scoop\apps\python312\current
-set EXP=%EXP%;%USERPROFILE%\scoop\shims
-set EXP=%EXP%;%USERPROFILE%\AppData\Local\Microsoft\WindowsApps
-if "%FOO%" neq "%EXP%" echo "Warning, path has changed"
+set EPATH=%SystemRoot%\System32
+call :ep %SystemRoot%
+call :ep %SystemRoot%\System32\Wbem
+call :ep %ProgramFiles%\PowerShell\7\
+call :ep %SystemRoot%\System32\WindowsPowerShell\v1.0\
+call :ep %SystemRoot%\System32\OpenSSH\
+call :ep %USERPROFILE%\AppData\Local\Microsoft\WindowsApps
+
+if "%OPATH%" == "%EPATH%;" goto done
+echo Warning, path has changed
+
+:done
 set checkpath=
+set EPATH=
+goto eof
+
+:ep
+@echo off
+echo %EPATH%; | find /i "%*;" 1>nul
+if not errorlevel 1 goto eof
+if not exist "%*" goto eof
+set EPATH=%EPATH%;%*
+
+:eof
