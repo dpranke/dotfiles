@@ -1,1 +1,1 @@
-@cd /d %USERPROFILE%
+@cd /d "%USERPROFILE%\%*"

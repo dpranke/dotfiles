@@ -1,6 +1,8 @@
 @echo off
 set SRC=C:\src
 set WHOME=%USERPROFILE%
+set UHOME=$SRC\msys64\home\%USERNAME%
+
 if "%OPATH%" neq "" goto l1
 set OPATH=%PATH%
 
@@ -23,8 +25,7 @@ if not exist "%USERPROFILE%\.setpath-%COMPUTERNAME%.bat" goto end
 call "%USERPROFILE%\.setpath-%COMPUTERNAME%.bat"
 
 :end
-call "%~dp0\ap" C:\msys64\ucrt64\bin
-call "%~dp0\ap" C:\msys64\usr\bin
+call "%~dp0\ap" C:\src\msys64\usr\bin
 
 rem TODO: Consider adding visual studio dirs and win sdk dirs.
 rem "C:\Program Files\Microsoft Visual Studio\2022\Professional\VC\Auxiliary\Build\vcvarsall.bat" amd64

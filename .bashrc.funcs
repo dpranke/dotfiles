@@ -255,3 +255,7 @@ complete -F _sv_comp sv
 function ws() {
     echo "${COLUMNS}x${LINES}"
 }
+
+function uhome() {
+  cd "$HOME/$@"
+}

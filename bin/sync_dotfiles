@@ -143,6 +143,7 @@ declare -a dotfiles=(
   bat/src.bat
   bat/sv.bat
   bat/sync_dotfiles.bat
+  bat/uhome.bat
   bat/uninstall_init_script.bat
   bat/update_opath.bat
   bat/v.bat
