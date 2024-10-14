@@ -212,7 +212,9 @@ function setprompt() {
   fi
 }
 
-function src() { cd "$src/$@" }
+function src() {
+  cd "$src/$@"
+}
 
 function sv() {
   if [ "$1" = "-d" ]
@@ -236,6 +238,15 @@ function sv() {
   cd $csrc
 }
 
+function uhome() {
+  cd "$HOME/$@"
+}
+
+# echo current window size
+function ws() {
+    echo "${COLUMNS}x${LINES}"
+}
+
 # Bash completion for sv()
 # return any directories matching $src/c\.*
 function _sv_comp() {
@@ -250,12 +261,3 @@ function _sv_comp() {
 }
 
 complete -F _sv_comp sv
-
-# echo current window size
-function ws() {
-    echo "${COLUMNS}x${LINES}"
-}
-
-function uhome() {
-  cd "$HOME/$@"
-}
