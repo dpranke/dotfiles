@@ -1,7 +1,6 @@
 #
 # OS-SPECIFIC and SITE-SPECIFIC CUSTOMIZATION
 #
-
 os=$(/usr/bin/uname -s)
 if [ "$os" = "Darwin" ]
 then

@@ -92,18 +92,21 @@ declare -a dotfiles=(
   .bashrc.funcs.mac
   .bashrc.funcs.win
   .bashrc.linux
+  .bashrc.local.$HOSTNAME
   .bashrc.mac
   .bashrc.win
   .git_completion.bash
   .gitignore_global
   .gvimrc
   .hushlogin
+  .set_path-$HOSTNAME.bat
   .vimrc
   _gvimrc
   _vimrc
   bat/ap.bat
   bat/check_init_script.bat
-  bat/check_path.bat
+  bat/check_opath.bat
+  bat/compare_opath.bat
   bat/csrc.bat
   bat/e.bat
   bat/ep.bat
@@ -116,11 +119,12 @@ declare -a dotfiles=(
   bat/ptime.bat
   bat/redot.bat
   bat/sel.bat
-  bat/setdirs.bat
+  bat/set_path.bat
   bat/src.bat
   bat/sv.bat
   bat/sync_dotfiles.bat
   bat/uninstall_init_script.bat
+  bat/update_opath.bat
   bat/v.bat
   bat/whome.bat
   bin/awksel

@@ -17,8 +17,13 @@ call "%~dp0\ap" %SystemRoot%
 call "%~dp0\ap" %SystemRoot%\System32\Wbem
 call "%~dp0\ap" %ProgramFiles%\PowerShell\7
 call "%~dp0\ap" %SystemRoot%\System32\WindowsPowerShell\v1.0
-call "%~dp0\ap" %ProgramFiles%\Git Google Extras
 call "%~dp0\ap" %USERPROFILE%\AppData\Local\Microsoft\WindowsApps
+
+if not exist "%USERPROFILE%\.setpath-%COMPUTERNAME%.bat" goto end
+call "%USERPROFILE%\.setpath-%COMPUTERNAME%.bat"
+
+:end
+call "%~dp0\ap" C:\msys64\ucrt64\bin
 call "%~dp0\ap" C:\msys64\usr\bin
 
 rem TODO: Consider adding visual studio dirs and win sdk dirs.
