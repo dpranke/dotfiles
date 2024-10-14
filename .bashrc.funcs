@@ -90,6 +90,10 @@ function h() {
   history "$@"
 }
 
+function home() {
+  cd "$HOME/$@"
+}
+
 # ip - insert directory at the front of the var if it's not already
 #      there and it exists. `ip -x` requires it to be nonempty as well.
 #   usage: ip [var] value
@@ -125,10 +129,6 @@ function ip() {
 }
 
 alias ls='ls -F'
-
-function mb() {
-  $csrc/tools/mb/mb.py "$@"
-}
 
 function pset() {
   set | pset_aux "$@"
@@ -212,7 +212,7 @@ function setprompt() {
   fi
 }
 
-function src() { cd $src/$* ; }
+function src() { cd "$src/$@" }
 
 function sv() {
   if [ "$1" = "-d" ]
