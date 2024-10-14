@@ -35,7 +35,7 @@ ap -x "/usr/bin/core_perl"
 
 # Remember that PATH might be updated in $HOME/.bashrc.local.$hostname.
 
-if which vim 2> /dev/null
+if which vim > /dev/null 2>&1
 then
   export EDITOR=vim
 fi

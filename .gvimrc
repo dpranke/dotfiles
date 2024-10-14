@@ -21,5 +21,3 @@ elseif has("gui_win32")
   colorscheme evening
   hi ColorColumn guibg=#404040
 endif
-
-" vim:tw=78:sw=4:ts=4:ft=vim:norl:

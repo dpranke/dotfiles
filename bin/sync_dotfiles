@@ -41,6 +41,8 @@ function usage() {
   exit 1
 }
 
+failed=0
+errfile=$(mktemp)
 
 opt_n=0
 opt_r=0
@@ -75,6 +77,12 @@ fi
 if [ $opt_r -eq 0 -a $opt_u -eq 0 ]
 then
   echo "Must specify either -r or -u"
+  exit 1
+fi
+
+if ! which cmp > /dev/null 2>&1
+then
+  echo "\`cmp\` not found; install \`diffutils\`"
   exit 1
 fi
 
@@ -166,6 +174,10 @@ function mkdirif() {
 function cpif() {
   if [ ! -f $1 ]
   then
+    echo "Error: tried to sync \`$1\` which doesn't exist" >> $errfile
+    failed=1
+  elif [ ! -f $2 ]
+  then
     echodo cp -p $1 $2
   elif ! cmp --quiet $1 $2
   then
@@ -192,11 +204,44 @@ do
   cpif $src/$i $dst/$i
 done
 
-if ! cmp $dst/_vimrc $dst/.vimrc
+if [[ $opt_n -eq 0 ]]
 then
-  echo "Warning: _vimrc and .vimrc are different"
+  for i in "${dotdirs[@]}"
+  do
+    srcfiles=$(mktemp)
+    ls -1 $src/$i > $srcfiles
+    dstfiles=$(mktemp)
+    ls -1 $dst/$i > $dstfiles
+    difffile=$(mktemp)
+    if ! (diff $srcfiles $dstfiles > $difffile)
+    then
+      echo "$src/$i and $dst/$i don't match:" >> $errfile
+      cat $difffile >> $errfile
+      failed=1
+    fi
+    rm $srcfiles $dstfiles $difffile
+  done
 fi
-if ! cmp $dst/_gvimrc $dst/_gvimrc
+
+difffile=$(mktemp)
+if ! diff $REPODIR/.vimrc $REPODIR/_vimrc > $difffile
 then
-  echo "Warning: _gvimrc and .gvimrc are different"
+  echo "Error: .vimrc and _vimrc are different" >> $errfile
+  cat $difffile >> $errfile
+  failed=1
 fi
+if ! diff $REPODIR/.gvimrc $REPODIR/_gvimrc > $difffile
+then
+  echo "Error: .gvimrc and _gvimrc are different" >> $errfile
+  cat $difffile >> $errfile
+  failed=1
+fi
+rm $difffile
+
+if [[ $failed -eq 1 ]]
+then
+  echo
+  cat $errfile
+fi
+rm $errfile
+exit $failed
