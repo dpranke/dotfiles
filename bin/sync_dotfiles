@@ -100,14 +100,12 @@ declare -a dotfiles=(
   .bashrc.funcs.mac
   .bashrc.funcs.win
   .bashrc.linux
-  .bashrc.local.$HOSTNAME
   .bashrc.mac
   .bashrc.win
   .git_completion.bash
   .gitignore_global
   .gvimrc
   .hushlogin
-  .set_path-$HOSTNAME.bat
   .vimrc
   _gvimrc
   _vimrc
