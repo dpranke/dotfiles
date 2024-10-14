@@ -111,19 +111,31 @@ declare -a dotfiles=(
   .vimrc
   _gvimrc
   _vimrc
+  bat/ad.bat
   bat/ap.bat
+  bat/ar.bat
+  bat/ar2c.bat
+  bat/arc.bat
   bat/check_init_script.bat
   bat/check_opath.bat
   bat/compare_opath.bat
   bat/csrc.bat
+  bat/dt.bat
+  bat/du.bat
+  bat/du.ps1
   bat/e.bat
   bat/ep.bat
   bat/esco.bat
+  bat/gdu.bat
+  bat/gdun.bat
   bat/ge.bat
   bat/home.bat
   bat/init.cmd
   bat/ip.bat
   bat/install_init_script.bat
+  bat/odc.bat
+  bat/or2c.bat
+  bat/orc.bat
   bat/ptime.bat
   bat/redot.bat
   bat/sel.bat
@@ -134,6 +146,7 @@ declare -a dotfiles=(
   bat/uninstall_init_script.bat
   bat/update_opath.bat
   bat/v.bat
+  bat/vspath.bat
   bat/whome.bat
   bin/awksel
   bin/dub
