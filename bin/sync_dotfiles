@@ -103,6 +103,7 @@ declare -a dotfiles=(
   _vimrc
   bat/ap.bat
   bat/check_init_script.bat
+  bat/check_path.bat
   bat/csrc.bat
   bat/e.bat
   bat/ep.bat
