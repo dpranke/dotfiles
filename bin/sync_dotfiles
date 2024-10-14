@@ -112,8 +112,10 @@ declare -a dotfiles=(
   _gvimrc
   _vimrc
   bat/ad.bat
+  bat/adc.bat
   bat/ap.bat
   bat/ar.bat
+  bat/ar2.bat
   bat/ar2c.bat
   bat/arc.bat
   bat/check_init_script.bat
