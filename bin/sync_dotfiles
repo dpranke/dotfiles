@@ -109,13 +109,13 @@ declare -a dotfiles=(
   .vimrc
   _gvimrc
   _vimrc
-  bat/ad.bat
-  bat/adc.bat
+  bat/and.bat
+  bat/andc.bat
+  bat/anr.bat
+  bat/anr2.bat
+  bat/anr2c.bat
+  bat/anrc.bat
   bat/ap.bat
-  bat/ar.bat
-  bat/ar2.bat
-  bat/ar2c.bat
-  bat/arc.bat
   bat/check_init_script.bat
   bat/check_opath.bat
   bat/compare_opath.bat

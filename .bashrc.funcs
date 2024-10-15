@@ -32,16 +32,28 @@ function ap() {
   fi
 }
 
-function adc() {
-  autoninja -C $csrc/out/dbg chrome "$@"
+function and() {
+  autoninja -C $csrc/out/dbg "$@"
 }
 
-function arc() {
-  autoninja -C $csrc/out/rel chrome "$@"
+function andc() {
+  and chrome "$@"
 }
 
-function ar2c() {
-  autoninja -C $csrc/out/rel2 chrome "$@"
+function anr() {
+  autoninja -C $csrc/out/rel "$@"
+}
+
+function anrc() {
+  anr chrome "$@"
+}
+
+function anr2() {
+  autoninja -C $csrc/out/rel2 "$@"
+}
+
+function anr2c() {
+  anr2 chrome "$@"
 }
 
 alias df='df -h'
