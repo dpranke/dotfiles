@@ -11,7 +11,7 @@ import sys
 
 
 def _parse_args(parser):
-    missing_fields_err = "sel: the following arguments are required: fields"
+    missing_fields_err = 'sel: the following arguments are required: fields'
     orig_error = parser.error
 
     def error(msg):
@@ -32,66 +32,51 @@ def _parse_args(parser):
 
 
 parser = argparse.ArgumentParser(
-    usage="sel [options] <int>(,<int>)* [file...]",
+    usage='sel [options] <int>(,<int>)* [file...]',
 )
+parser.add_argument('-a', '--all', action='store_true', help='select all the fields')
 parser.add_argument(
-    '-a',
-    '--all',
-    action='store_true',
-    help='select all the fields'
-)
-parser.add_argument(
-    "-F",
-    dest="fs",
-    metavar="fs",
-    action="store",
-    default=r"\s+",
+    '-F',
+    dest='fs',
+    metavar='fs',
+    action='store',
+    default=r'\s+',
     help="input field separator regexp (default=r'%(default)s')",
 )
 parser.add_argument(
-    "-O",
-    dest="ofs",
-    metavar="ofs",
-    action="store",
-    default=" ",
+    '-O',
+    dest='ofs',
+    metavar='ofs',
+    action='store',
+    default=' ',
     help="output field separator string (default='%(default)s')",
 )
 parser.add_argument(
-    "-o",
-    "--output",
-    metavar="<file>",
-    action="store",
-    default="-",
-    help="output to <file> (default is stdout)",
+    '-o',
+    '--output',
+    metavar='<file>',
+    action='store',
+    default='-',
+    help='output to <file> (default is stdout)',
 )
+parser.add_argument('-c', '--csv', action='store_true', help='output as csv file')
+parser.add_argument('-j', '--json', action='store_true', help='output as JSON')
 parser.add_argument(
-    "-c", "--csv", action="store_true", help="output as csv file"
-)
-parser.add_argument("-j", "--json", action="store_true", help="output as JSON")
-parser.add_argument(
-    "-l",
-    "--jsonl",
-    "--json-lines",
-    action="store_true",
-    help="output as JSON Lines"
+    '-l', '--jsonl', '--json-lines', action='store_true', help='output as JSON Lines'
 )
 
 args = _parse_args(parser)
 
-if (
-    (args.csv and args.json)
-    or (args.csv and args.jsonl)
-    or (args.json and args.jsonl)
-):
+if (args.csv and args.json) or (args.csv and args.jsonl) or (args.json and args.jsonl):
     print(
-        "Only one of -c/--csv, -j/--json, or -l/--json-lines can be specified",
+        'Only one of -c/--csv, -j/--json, or -l/--json-lines can be specified',
         file=sys.stderr,
     )
     sys.exit(1)
 
 try:
     if not args.all:
-         indices = [int(x) for x in args.fields.split(",")]
+        indices = [int(x) for x in args.fields.split(',')]
 except ValueError as e:
     print(f'Bad field spec "{args.fields}"', file=sys.stderr)
     sys.exit(1)
@@ -102,13 +87,13 @@ def lookup(l, i):
         return l[i]
     if i < 0 and -i < len(l):
         return l[i]
-    return ""
+    return ''
 
 
-if args.output == "-":
+if args.output == '-':
     file = sys.stdout
 else:
-    file = open(args.output, "w")
+    file = open(args.output, 'w')
 
 if not args.all:
     indices = [x - 1 if x > 0 else x for x in indices]
@@ -118,7 +103,7 @@ if args.csv:
     csv_writer = csv.writer(file)
 
 for lineno, line in enumerate(
-    fileinput.input(files=args.file, encoding="utf8"), start=1
+    fileinput.input(files=args.file, encoding='utf8'), start=1
 ):
     line = line.strip()
     fields = pat.split(line)
@@ -135,11 +120,11 @@ for lineno, line in enumerate(
             print('[', file=file)
         else:
             print(',\n', end='', file=file)
-        print(f"  {json.dumps(values)}", end='', file=file)
+        print(f'  {json.dumps(values)}', end='', file=file)
     else:
         print(args.ofs.join(values), file=file)
 
 if args.json:
     if not lineno:
-        print("[]", file=file)
-    print("\n]", file=file)
+        print('[]', file=file)
+    print('\n]', file=file)
