@@ -34,7 +34,9 @@ def _parse_args(parser):
 parser = argparse.ArgumentParser(
     usage='sel [options] <int>(,<int>)* [file...]',
 )
-parser.add_argument('-a', '--all', action='store_true', help='select all the fields')
+parser.add_argument(
+    '-a', '--all', action='store_true', help='select all the fields'
+)
 parser.add_argument(
     '-F',
     dest='fs',
@@ -59,15 +61,25 @@ parser.add_argument(
     default='-',
     help='output to <file> (default is stdout)',
 )
-parser.add_argument('-c', '--csv', action='store_true', help='output as csv file')
+parser.add_argument(
+    '-c', '--csv', action='store_true', help='output as csv file'
+)
 parser.add_argument('-j', '--json', action='store_true', help='output as JSON')
 parser.add_argument(
-    '-l', '--jsonl', '--json-lines', action='store_true', help='output as JSON Lines'
+    '-l',
+    '--jsonl',
+    '--json-lines',
+    action='store_true',
+    help='output as JSON Lines',
 )
 
 args = _parse_args(parser)
 
-if (args.csv and args.json) or (args.csv and args.jsonl) or (args.json and args.jsonl):
+if (
+    (args.csv and args.json)
+    or (args.csv and args.jsonl)
+    or (args.json and args.jsonl)
+):
     print(
         'Only one of -c/--csv, -j/--json, or -l/--json-lines can be specified',
         file=sys.stderr,
