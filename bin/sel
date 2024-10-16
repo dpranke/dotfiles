@@ -21,6 +21,9 @@ def _parse_args(parser):
 
     parser.error = error
     args, remaining = parser.parse_known_args()
+    if args.all:
+        args.file = remaining
+        return args
     if not remaining:
         orig_error(missing_fields_err)
     args.fields = remaining[0]
@@ -30,6 +33,12 @@ def _parse_args(parser):
 
 parser = argparse.ArgumentParser(
     usage="sel [options] <int>(,<int>)* [file...]",
+)
+parser.add_argument(
+    '-a',
+    '--all',
+    action='store_true',
+    help='select all the fields'
 )
 parser.add_argument(
     "-F",
@@ -81,7 +90,8 @@ if (
     sys.exit(1)
 
 try:
-    indices = [int(x) for x in args.fields.split(",")]
+    if not args.all:
+         indices = [int(x) for x in args.fields.split(",")]
 except ValueError as e:
     print(f'Bad field spec "{args.fields}"', file=sys.stderr)
     sys.exit(1)
@@ -100,7 +110,8 @@ if args.output == "-":
 else:
     file = open(args.output, "w")
 
-indices = [x - 1 if x > 0 else x for x in indices]
+if not args.all:
+    indices = [x - 1 if x > 0 else x for x in indices]
 pat = re.compile(args.fs)
 d = []
 if args.csv:
@@ -111,7 +122,10 @@ for lineno, line in enumerate(
 ):
     line = line.strip()
     fields = pat.split(line)
-    values = [lookup(fields, i) for i in indices]
+    if args.all:
+        values = fields
+    else:
+        values = [lookup(fields, i) for i in indices]
     if args.csv:
         csv_writer.writerow(values)
     elif args.jsonl:
