@@ -114,6 +114,7 @@ d = []
 if args.csv:
     csv_writer = csv.writer(file)
 
+lineno = 0
 for lineno, line in enumerate(
     fileinput.input(files=args.file, encoding='utf8'), start=1
 ):
@@ -139,4 +140,5 @@ for lineno, line in enumerate(
 if args.json:
     if not lineno:
         print('[]', file=file)
-    print('\n]', file=file)
+    else:
+        print('\n]', file=file)
