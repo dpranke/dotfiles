@@ -7,10 +7,273 @@ import csv
 import re
 import fileinput
 import json
+import os
 import sys
 
 
-def _parse_args(parser):
+def main(argv):
+    args = _parse_args()
+
+    try:
+        if not args.all:
+            indices = [int(x) for x in args.fields.split(',')]
+    except ValueError:
+        print(f'Bad field spec "{args.fields}"', file=sys.stderr)
+        sys.exit(1)
+
+    if args.output == '-':
+        file = sys.stdout
+    else:
+        file = open(args.output, 'w')
+
+    if not args.all:
+        indices = [x - 1 if x > 0 else x for x in indices]
+
+    if args.input_is_json:
+        reader = _JSONReader(args)
+    elif args.input_is_json_lines:
+        reader = _JSONLinesReader(args)
+    elif args.input_is_csv:
+        reader = _CSVReader(args)
+    else:
+        reader = _TextReader(args)
+
+    if args.json:
+        writer = _JSONWriter(args, file)
+    elif args.json_lines:
+        writer = _JSONLinesWriter(args, file)
+    elif args.csv:
+        writer = _CSVWriter(args, file)
+    else:
+        writer = _TextWriter(args, file)
+
+    for fields in reader:
+        fields = list(fields)
+        if args.all:
+            values = fields
+        else:
+            values = [_lookup(fields, i) for i in indices]
+        writer.write_row(values)
+
+    writer.write_end()
+
+
+class _BaseReader:
+    def __init__(self, args):
+        self.args = args
+        self.reader = fileinput.input(args.file, encoding='utf8')
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        return next(self.reader).strip()
+
+
+class _JSONReader:
+    def __init__(self, args):
+        self.args = args
+        if args.file:
+            self.files = args.file[:]
+        else:
+            self.files = ['-']
+        self.decoder = json.JSONDecoder()
+        self.fp = None
+        self.filename = None
+        self.txt = None
+        self.end = None
+        self.pos = None
+        self.ch = None
+        self.empty = True
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        if not self.fp:
+            self._next_file()
+        self._skip()
+        if self.txt[self.pos] == ']':
+            self.pos += 1
+            self._skip()
+            if self.pos != self.end or self.files != []:
+                raise json.JSONDecodeError(self.txt, self.pos)
+            raise StopIteration
+
+        obj, newpos = self.decoder.raw_decode(self.txt, self.pos)
+        self.pos = newpos
+        return obj
+
+    def _next_file(self):
+        if self.fp and self.filename != '-':
+            self.fp.close()
+        if not self.files:
+            raise StopIteration
+
+        self.filename = self.files.pop(0)
+        if self.filename == '-':
+            self.fp = sys.stdin
+        else:
+            self.fp = open(self.filename)
+            self.txt = self.fp.read()
+            self.end = len(self.txt)
+            self.pos = 0
+
+    def _skip(self):
+        found_ch = False
+        while True:
+            if self.pos == self.end:
+                self._next_file()
+                continue
+            c = self.txt[self.pos]
+            if c.isspace():
+                self.pos += 1
+                continue
+            if self.empty and c == '[' and not found_ch:
+                self.empty = False
+                found_ch = True
+                self.pos += 1
+                continue
+            if not self.empty and c == ',' and not found_ch:
+                found_ch = True
+                self.pos += 1
+                continue
+            break
+
+
+class _JSONLinesReader(_BaseReader):
+    def __next__(self):
+        line = next(self.reader).strip()
+        obj = json.loads(line)
+        return obj
+
+
+class _CSVReader(_BaseReader):
+    def __init__(self, args):
+        super().__init__(args)
+        self.csv_reader = csv.reader(self.reader)
+
+    def __next__(self):
+        return next(self.csv_reader)
+
+
+class _TextReader(_BaseReader):
+    def __init__(self, args):
+        super().__init__(args)
+        self.pat = re.compile(args.fs)
+
+    def __next__(self):
+        return self.pat.split(next(self.reader))
+
+
+
+class _BaseWriter():
+    def __init__(self, args, file):
+        self.args = args
+        self.file = file
+
+    def write_row(self):
+        raise NotImplementedError
+
+    def write_end(self):
+        pass
+
+
+class _JSONWriter(_BaseWriter):
+    def __init__(self, args, file):
+        super().__init__(args, file)
+        self.empty = True
+
+    def write_row(self, values):
+        if self.empty:
+            print('[\n  ', end='', file=self.file)
+        else:
+            print(',\n  ', end='', file=self.file)
+        json.dump(values, fp=self.file)
+        self.empty = False
+
+    def write_end(self):
+        if self.empty:
+            print('[]', file=self.file)
+        else:
+            print('\n]', file=self.file)
+
+
+class _JSONLinesWriter(_BaseWriter):
+    def write_row(self, values):
+        json.dump(values, fp=self.file)
+        print('', file=self.file)
+
+
+class _CSVWriter(_BaseWriter):
+    def __init__(self, args, file):
+        super().__init__(args, file)
+        self.csv_writer = csv.writer(file)
+
+    def write_row(self, values):
+        self.csv_writer.writerow(values)
+
+
+class _TextWriter(_BaseWriter):
+    def write_row(self, values):
+        print(self.args.ofs.join(values), file=self.file)
+
+
+def _parse_args():
+    parser = argparse.ArgumentParser(
+        usage='sel [options] [<int>(,<int>)*] [file...]',
+    )
+    parser.add_argument(
+        '-a', '--all', action='store_true', help='select all the fields'
+    )
+    parser.add_argument(
+        '-F',
+        dest='fs',
+        metavar='fs',
+        action='store',
+        default=r'\s+',
+        help="input field separator regexp (default=r'%(default)s')",
+    )
+    parser.add_argument(
+        '-O',
+        dest='ofs',
+        metavar='ofs',
+        action='store',
+        default=' ',
+        help="output field separator string (default='%(default)s')",
+    )
+    parser.add_argument(
+        '-o',
+        '--output',
+        metavar='<file>',
+        action='store',
+        default='-',
+        help='output to <file> (default is stdout)',
+    )
+    parser.add_argument( '-C','--input-is-csv',action='store_true')
+    parser.add_argument(
+        '-c', '--csv', action='store_true', help='output as CSV'
+    )
+    parser.add_argument('-J', '--input-is-json',action='store_true')
+    parser.add_argument(
+        '-j', '--json', action='store_true', help='output as JSON'
+    )
+    parser.add_argument(
+        '-L',
+        '--input-is-jsonl',
+        '--input-is-json-lines',
+        dest='input_is_json_lines',
+        action='store_true'
+    )
+    parser.add_argument(
+        '-l',
+        '--jsonl',
+        '--json-lines',
+        dest='json_lines',
+        action='store_true',
+        help='output as JSON Lines',
+    )
+
     missing_fields_err = 'sel: the following arguments are required: fields'
     orig_error = parser.error
 
@@ -28,117 +291,41 @@ def _parse_args(parser):
         orig_error(missing_fields_err)
     args.fields = remaining[0]
     args.file = remaining[1:]
+
+    if (
+        (args.input_is_csv and args.input_is_json)
+        or (args.input_is_csv and args.input_is_json_lines)
+        or (args.input_is_json and args.input_is_json_lines)
+    ):
+        print(
+            'Only one of -C/--input-is-csv, -J/--input-is-json, and '
+            '-L/--input-is-json-lines can be specified',
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    if (
+        (args.input_is_csv and args.json)
+        or (args.csv and args.json_lines)
+        or (args.json and args.json_lines)
+    ):
+        print(
+            'Only one of -c/--csv, -j/--json, or -l/--json-lines can be '
+            'specified',
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
     return args
 
 
-parser = argparse.ArgumentParser(
-    usage='sel [options] <int>(,<int>)* [file...]',
-)
-parser.add_argument(
-    '-a', '--all', action='store_true', help='select all the fields'
-)
-parser.add_argument(
-    '-F',
-    dest='fs',
-    metavar='fs',
-    action='store',
-    default=r'\s+',
-    help="input field separator regexp (default=r'%(default)s')",
-)
-parser.add_argument(
-    '-O',
-    dest='ofs',
-    metavar='ofs',
-    action='store',
-    default=' ',
-    help="output field separator string (default='%(default)s')",
-)
-parser.add_argument(
-    '-o',
-    '--output',
-    metavar='<file>',
-    action='store',
-    default='-',
-    help='output to <file> (default is stdout)',
-)
-parser.add_argument(
-    '-c', '--csv', action='store_true', help='output as csv file'
-)
-parser.add_argument('-j', '--json', action='store_true', help='output as JSON')
-parser.add_argument(
-    '-l',
-    '--jsonl',
-    '--json-lines',
-    action='store_true',
-    help='output as JSON Lines',
-)
-
-args = _parse_args(parser)
-
-if (
-    (args.csv and args.json)
-    or (args.csv and args.jsonl)
-    or (args.json and args.jsonl)
-):
-    print(
-        'Only one of -c/--csv, -j/--json, or -l/--json-lines can be specified',
-        file=sys.stderr,
-    )
-    sys.exit(1)
-
-try:
-    if not args.all:
-        indices = [int(x) for x in args.fields.split(',')]
-except ValueError as e:
-    print(f'Bad field spec "{args.fields}"', file=sys.stderr)
-    sys.exit(1)
-
-
-def lookup(l, i):
-    if i >= 0 and i < len(l):
-        return l[i]
-    if i < 0 and -i < len(l):
-        return l[i]
+def _lookup(fields, index):
+    if index >= 0 and index < len(fields):
+        return fields[index]
+    if index < 0 and -index < len(fields):
+        return fields[index]
     return ''
 
 
-if args.output == '-':
-    file = sys.stdout
-else:
-    file = open(args.output, 'w')
-
-if not args.all:
-    indices = [x - 1 if x > 0 else x for x in indices]
-pat = re.compile(args.fs)
-d = []
-if args.csv:
-    csv_writer = csv.writer(file)
-
-lineno = 0
-for lineno, line in enumerate(
-    fileinput.input(files=args.file, encoding='utf8'), start=1
-):
-    line = line.strip()
-    fields = pat.split(line)
-    if args.all:
-        values = fields
-    else:
-        values = [lookup(fields, i) for i in indices]
-    if args.csv:
-        csv_writer.writerow(values)
-    elif args.jsonl:
-        print(json.dumps(values), file=file)
-    elif args.json:
-        if lineno == 1:
-            print('[', file=file)
-        else:
-            print(',\n', end='', file=file)
-        print(f'  {json.dumps(values)}', end='', file=file)
-    else:
-        print(args.ofs.join(values), file=file)
-
-if args.json:
-    if not lineno:
-        print('[]', file=file)
-    else:
-        print('\n]', file=file)
+if __name__ == '__main__':
+    sys.exit(main(sys.argv[1:]))
