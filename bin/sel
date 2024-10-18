@@ -13,20 +13,10 @@ import sys
 def main(argv):
     args = _parse_args()
 
-    try:
-        if not args.all:
-            indices = [int(x) for x in args.fields.split(',')]
-    except ValueError:
-        print(f'Bad field spec "{args.fields}"', file=sys.stderr)
-        sys.exit(1)
-
     if args.output == '-':
         file = sys.stdout
     else:
         file = open(args.output, 'w')
-
-    if not args.all:
-        indices = [x - 1 if x > 0 else x for x in indices]
 
     if args.input_is_json:
         reader = _JSONReader(args)
@@ -47,14 +37,140 @@ def main(argv):
         writer = _TextWriter(args, file)
 
     for fields in reader:
-        fields = list(fields)
-        if args.all:
-            values = fields
-        else:
-            values = [_lookup(fields, i) for i in indices]
+        values = writer.values(fields)
         writer.write_row(values)
 
     writer.write_end()
+    return 0
+
+
+def _parse_args():
+    parser = argparse.ArgumentParser(
+        usage='sel [options] [<int>(,<int>)*] [file...]',
+    )
+    parser.add_argument(
+        '-a', '--all', action='store_true', help='select all the fields'
+    )
+    parser.add_argument('-C', '--input-is-csv', action='store_true')
+    parser.add_argument(
+        '-c', '--csv', action='store_true', help='output as CSV'
+    )
+    parser.add_argument(
+        '-F',
+        dest='fs',
+        metavar='fs',
+        action='store',
+        default=r'\s+',
+        help="input field separator regexp (default=r'%(default)s')",
+    )
+    parser.add_argument('-H', '--no-header-row', action='store_true')
+    parser.add_argument('-J', '--input-is-json', action='store_true')
+    parser.add_argument(
+        '-j', '--json', action='store_true', help='output as JSON'
+    )
+    parser.add_argument(
+        '-L',
+        '--input-is-jsonl',
+        '--input-is-json-lines',
+        dest='input_is_json_lines',
+        action='store_true',
+    )
+    parser.add_argument(
+        '-l',
+        '--jsonl',
+        '--json-lines',
+        dest='json_lines',
+        action='store_true',
+        help='output as JSON Lines',
+    )
+    parser.add_argument(
+        '-o',
+        '--output',
+        metavar='<file>',
+        action='store',
+        default='-',
+        help='output to <file> (default is stdout)',
+    )
+    parser.add_argument(
+        '-n',
+        '--names',
+        action='store',
+        help='comma-separated list of column names. Needed if there is '
+             '-H/--no-header-row and you want to refer to columns by '
+             'name instead of number.'
+    )
+    parser.add_argument(
+        '-O',
+        dest='ofs',
+        metavar='ofs',
+        action='store',
+        default=' ',
+        help="output field separator string (default='%(default)s')",
+    )
+    parser.add_argument(
+        '--objects',
+        action='store_true',
+        help='Write output as objects instead of arrays'
+    )
+
+    missing_fields_err = 'sel: the following arguments are required: fields'
+    orig_error = parser.error
+
+    def error(msg):
+        if msg == missing_fields_err:
+            return
+        orig_error(msg)
+
+    parser.error = error
+    args, remaining = parser.parse_known_args()
+    if args.all:
+        args.file = remaining
+        return args
+    if not remaining:
+        orig_error(missing_fields_err)
+    args.fields = remaining[0]
+    args.file = remaining[1:]
+
+    if (
+        (args.input_is_csv and args.input_is_json)
+        or (args.input_is_csv and args.input_is_json_lines)
+        or (args.input_is_json and args.input_is_json_lines)
+    ):
+        print(
+            'Only one of -C/--input-is-csv, -J/--input-is-json, and '
+            '-L/--input-is-json-lines can be specified',
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    if (
+        (args.input_is_csv and args.json)
+        or (args.csv and args.json_lines)
+        or (args.json and args.json_lines)
+    ):
+        print(
+            'Only one of -c/--csv, -j/--json, or -l/--json-lines can be '
+            'specified',
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    if not args.all:
+        if re.match(r'(-?\d+)(,-?\d+)*', args.fields):
+            args.fields_have_names = False
+            args.indices = [int(x) for x in args.fields.split(',')]
+        elif re.match(r'\w+(,\w+)*', args.fields):
+            args.fields_have_names = True
+            args.indices = args.fields.split(',')
+        else:
+            print(f'Bad field spec "{args.fields}"', file=sys.stderr)
+            sys.exit(1)
+
+    if args.objects and not args.json and not args.json_lines:
+        print('--objects only works when writing JSON or JSON Lines',
+              file=sys.stderr)
+        sys.exit(1)
+    return args
 
 
 class _BaseReader:
@@ -67,6 +183,7 @@ class _BaseReader:
 
     def __next__(self):
         return next(self.reader).strip()
+
 
 
 class _JSONReader:
@@ -169,6 +286,27 @@ class _BaseWriter:
     def __init__(self, args, file):
         self.args = args
         self.file = file
+        self.name_lookup = None
+        self.indices = None
+
+    def values(self, fields):
+        if not isinstance(fields, dict):
+            fields = list(fields)
+        if self.indices is None:
+            self._compute_indices(fields)
+
+        if self.args.objects:
+            if isinstance(fields, dict):
+                if self.args.all:
+                    return fields
+            field_indices = self.args.fields.split(',')
+            return {
+                name: self._lookup(fields, self.name_lookup[name])
+                for name in field_indices
+            }
+        if self.args.all:
+            return fields
+        return [self._lookup(fields, i) for i in self.indices]
 
     def write_row(self):
         raise NotImplementedError
@@ -176,6 +314,64 @@ class _BaseWriter:
     def write_end(self):
         pass
 
+    def _compute_indices(self, fields):
+        field_indices = self.args.fields.split(',')
+        if not self.args.fields_have_names:
+            field_indices = [int(f) for f in field_indices]
+            self.indices = [x-1 if x > 0 else x for x in field_indices]
+            return
+
+        if self.args.names:
+            names = self.args.names.split(',')
+            if self.args.objects:
+                if isinstance(fields, dict):
+                    self.name_lookup = {
+                        n.lower(): n for n in names
+                    }
+                    self.indices = [
+                        self.name_lookup[f.lower()] for f in field_indices
+                    ]
+                    return
+
+                self.name_lookup = {name:i for i, name in enumerate(names)}
+                self.indices = [i for i, name in enumerate(field_indices)]
+                return
+
+            self.name_lookup = {
+                n.lower(): i for i, n in enumerate(names, start=0)
+            }
+            self.indices = [self.name_lookup[name] for name in field_indices]
+            return
+
+        if isinstance(fields, dict):
+            if self.args.objects:
+                self.name_lookup = {f.lower(): f for f in fields.keys()}
+                self.indices = [
+                    self.name_lookup[f.lower()] for f in field_indices
+                ]
+                return
+            self.name_lookup = {
+                f.lower(): i for i, f in enumerate(fields.keys())
+            }
+            self.indices = [
+                self.name_lookup[f] for f in field_indices
+            ]
+            return
+
+        if not self.args.no_header_row:
+            self.name_lookup = {f.tolower(): i for i, f in enumerate(fields)}
+            self.indices = [self.name_lookup[f] for f in field_indices]
+            return
+
+        raise _NoColumnNames()
+
+    def _lookup(self, fields, index):
+        if self.args.fields_have_names:
+            return fields[index]
+        if index >= 0 and index < len(fields):
+            return fields[index]
+        if index < 0 and -index < len(fields):
+            return fields[index]
 
 class _JSONWriter(_BaseWriter):
     def __init__(self, args, file):
@@ -217,112 +413,9 @@ class _TextWriter(_BaseWriter):
         print(self.args.ofs.join(values), file=self.file)
 
 
-def _parse_args():
-    parser = argparse.ArgumentParser(
-        usage='sel [options] [<int>(,<int>)*] [file...]',
-    )
-    parser.add_argument(
-        '-a', '--all', action='store_true', help='select all the fields'
-    )
-    parser.add_argument(
-        '-F',
-        dest='fs',
-        metavar='fs',
-        action='store',
-        default=r'\s+',
-        help="input field separator regexp (default=r'%(default)s')",
-    )
-    parser.add_argument(
-        '-O',
-        dest='ofs',
-        metavar='ofs',
-        action='store',
-        default=' ',
-        help="output field separator string (default='%(default)s')",
-    )
-    parser.add_argument(
-        '-o',
-        '--output',
-        metavar='<file>',
-        action='store',
-        default='-',
-        help='output to <file> (default is stdout)',
-    )
-    parser.add_argument('-C', '--input-is-csv', action='store_true')
-    parser.add_argument(
-        '-c', '--csv', action='store_true', help='output as CSV'
-    )
-    parser.add_argument('-J', '--input-is-json', action='store_true')
-    parser.add_argument(
-        '-j', '--json', action='store_true', help='output as JSON'
-    )
-    parser.add_argument(
-        '-L',
-        '--input-is-jsonl',
-        '--input-is-json-lines',
-        dest='input_is_json_lines',
-        action='store_true',
-    )
-    parser.add_argument(
-        '-l',
-        '--jsonl',
-        '--json-lines',
-        dest='json_lines',
-        action='store_true',
-        help='output as JSON Lines',
-    )
-
-    missing_fields_err = 'sel: the following arguments are required: fields'
-    orig_error = parser.error
-
-    def error(msg):
-        if msg == missing_fields_err:
-            return
-        orig_error(msg)
-
-    parser.error = error
-    args, remaining = parser.parse_known_args()
-    if args.all:
-        args.file = remaining
-        return args
-    if not remaining:
-        orig_error(missing_fields_err)
-    args.fields = remaining[0]
-    args.file = remaining[1:]
-
-    if (
-        (args.input_is_csv and args.input_is_json)
-        or (args.input_is_csv and args.input_is_json_lines)
-        or (args.input_is_json and args.input_is_json_lines)
-    ):
-        print(
-            'Only one of -C/--input-is-csv, -J/--input-is-json, and '
-            '-L/--input-is-json-lines can be specified',
-            file=sys.stderr,
-        )
-        sys.exit(1)
-
-    if (
-        (args.input_is_csv and args.json)
-        or (args.csv and args.json_lines)
-        or (args.json and args.json_lines)
-    ):
-        print(
-            'Only one of -c/--csv, -j/--json, or -l/--json-lines can be '
-            'specified',
-            file=sys.stderr,
-        )
-        sys.exit(1)
-
-    return args
-
-
-def _lookup(fields, index):
-    if index >= 0 and index < len(fields):
-        return fields[index]
-    if index < 0 and -index < len(fields):
-        return fields[index]
-    return ''
+class _NoColumnNames(Exception):
+    """Raised when we don't know how to convert column names to indices."""
+    pass
 
 
 if __name__ == '__main__':
