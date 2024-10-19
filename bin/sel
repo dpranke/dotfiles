@@ -125,11 +125,12 @@ def _parse_args():
     args, remaining = parser.parse_known_args()
     if args.all:
         args.file = remaining
-        return args
-    if not remaining:
+        args.fields_have_names = False
+    elif not remaining:
         orig_error(missing_fields_err)
-    args.fields = remaining[0]
-    args.file = remaining[1:]
+    else:
+        args.fields = remaining[0]
+        args.file = remaining[1:]
 
     if (
         (args.input_is_csv and args.input_is_json)
@@ -156,10 +157,10 @@ def _parse_args():
         sys.exit(1)
 
     if not args.all:
-        if re.match(r'(-?\d+)(,-?\d+)*', args.fields):
+        if re.match(r'(-?\d+)(,-?\d+)*$', args.fields):
             args.fields_have_names = False
             args.indices = [int(x) for x in args.fields.split(',')]
-        elif re.match(r'\w+(,\w+)*', args.fields):
+        elif re.match(r'\w+(,\w+)*$', args.fields):
             args.fields_have_names = True
             args.indices = args.fields.split(',')
         else:
@@ -231,9 +232,9 @@ class _JSONReader:
             self.fp = sys.stdin
         else:
             self.fp = open(self.filename)
-            self.txt = self.fp.read()
-            self.end = len(self.txt)
-            self.pos = 0
+        self.txt = self.fp.read()
+        self.end = len(self.txt)
+        self.pos = 0
 
     def _skip(self):
         found_ch = False
@@ -287,6 +288,7 @@ class _BaseWriter:
         self.args = args
         self.file = file
         self.name_lookup = None
+        self.names = []
         self.indices = None
 
     def values(self, fields):
@@ -299,13 +301,10 @@ class _BaseWriter:
             if isinstance(fields, dict):
                 if self.args.all:
                     return fields
-            field_indices = self.args.fields.split(',')
             return {
                 name: self._lookup(fields, self.name_lookup[name])
-                for name in field_indices
+                for name in self.indices
             }
-        if self.args.all:
-            return fields
         return [self._lookup(fields, i) for i in self.indices]
 
     def write_row(self):
@@ -315,8 +314,13 @@ class _BaseWriter:
         pass
 
     def _compute_indices(self, fields):
-        field_indices = self.args.fields.split(',')
         if not self.args.fields_have_names:
+            if self.args.all:
+                if isinstance(fields, dict):
+                    self.indices = list(fields.keys())
+                else:
+                    self.indices = list(range(len(fields)))
+                return
             field_indices = [int(f) for f in field_indices]
             self.indices = [x-1 if x > 0 else x for x in field_indices]
             return
@@ -325,6 +329,10 @@ class _BaseWriter:
             names = self.args.names.split(',')
             if self.args.objects:
                 if isinstance(fields, dict):
+                    if self.args.all:
+                        field_indices = fields.keys()
+                    else:
+                        field_indices = self.args.fields.split(',')
                     self.name_lookup = {
                         n.lower(): n for n in names
                     }
@@ -344,34 +352,40 @@ class _BaseWriter:
             return
 
         if isinstance(fields, dict):
+            if self.args.all:
+                 field_indices = fields.keys()
+            else:
+                 field_indices = self.args.fields.split(',')
             if self.args.objects:
                 self.name_lookup = {f.lower(): f for f in fields.keys()}
                 self.indices = [
                     self.name_lookup[f.lower()] for f in field_indices
                 ]
                 return
-            self.name_lookup = {
-                f.lower(): i for i, f in enumerate(fields.keys())
-            }
+            self.name_lookup = {f.lower(): f for f in fields.keys()}
             self.indices = [
                 self.name_lookup[f] for f in field_indices
             ]
             return
 
         if not self.args.no_header_row:
-            self.name_lookup = {f.tolower(): i for i, f in enumerate(fields)}
-            self.indices = [self.name_lookup[f] for f in field_indices]
+            if self.args.all:
+                self.indices = [i for i in range(len(fields))]
+            else:
+                self.name_lookup = {f.tolower(): i for i, f in enumerate(fields)}
+                self.indices = [self.name_lookup[f] for f in field_indices]
             return
 
         raise _NoColumnNames()
 
     def _lookup(self, fields, index):
-        if self.args.fields_have_names:
+        if isinstance(index, str):
             return fields[index]
         if index >= 0 and index < len(fields):
             return fields[index]
         if index < 0 and -index < len(fields):
             return fields[index]
+
 
 class _JSONWriter(_BaseWriter):
     def __init__(self, args, file):
@@ -403,8 +417,12 @@ class _CSVWriter(_BaseWriter):
     def __init__(self, args, file):
         super().__init__(args, file)
         self.csv_writer = csv.writer(file)
+        self.empty = True
 
     def write_row(self, values):
+        if self.empty:
+            self.csv_writer.writerow(self.indices)
+            self.empty = False
         self.csv_writer.writerow(values)
 
 
