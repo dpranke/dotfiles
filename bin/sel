@@ -341,7 +341,7 @@ class _BaseWriter:
                 else:
                     self.indices = list(range(len(fields)))
                 return
-            field_indices = [int(f) for f in self.args.split(',')]
+            field_indices = [int(f) for f in self.args.fields.split(',')]
             self.indices = [x - 1 if x > 0 else x for x in field_indices]
             return
 
