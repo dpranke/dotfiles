@@ -36,9 +36,14 @@ def main(argv):
     else:
         writer = _TextWriter(args, file)
 
-    for fields in reader:
-        values = writer.values(fields)
-        writer.write_row(values)
+    try:
+        for fields in reader:
+            values = writer.values(fields)
+            writer.write_row(values)
+    except _NamesOnObjects:
+        print("Can't specify --names when the input is a list of objects.",
+              file=sys.stderr)
+        return 1
 
     writer.write_end()
     return 0
@@ -96,8 +101,8 @@ def _parse_args():
         '--names',
         action='store',
         help='comma-separated list of column names. Needed if there is '
-             '-H/--no-header-row and you want to refer to columns by '
-             'name instead of number.'
+             '-H/--no-header-row, your input data isn\'t a list of objects, '
+             'and you want to refer to columns by name instead of number.'
     )
     parser.add_argument(
         '-O',
@@ -108,9 +113,11 @@ def _parse_args():
         help="output field separator string (default='%(default)s')",
     )
     parser.add_argument(
+        '-K',
         '--objects',
         action='store_true',
-        help='Write output as objects instead of arrays'
+        help='Write output as objects instead of arrays (only works with '
+             '-j/--json and -L/--json-lines)'
     )
 
     missing_fields_err = 'sel: the following arguments are required: fields'
@@ -166,6 +173,11 @@ def _parse_args():
         else:
             print(f'Bad field spec "{args.fields}"', file=sys.stderr)
             sys.exit(1)
+
+    if args.names and ((not args.no_header_row) and not args.input_is_json and not args.input_is_json_lines):
+        print('Can\'t specify --names when there is a header row',
+              file=sys.stderr)
+        sys.exit(1)
 
     if args.objects and not args.json and not args.json_lines:
         print('--objects only works when writing JSON or JSON Lines',
@@ -325,6 +337,34 @@ class _BaseWriter:
             self.indices = [x-1 if x > 0 else x for x in field_indices]
             return
 
+        if isinstance(fields, dict):
+            if self.args.names:
+                raise _NamesOnObjects()
+
+            if self.args.all:
+                 field_indices = fields.keys()
+            else:
+                 field_indices = self.args.fields.split(',')
+            if self.args.objects:
+                self.name_lookup = {f.lower(): f for f in fields.keys()}
+                self.indices = [
+                    self.name_lookup[f.lower()] for f in field_indices
+                ]
+                return
+            self.name_lookup = {f.lower(): f for f in fields.keys()}
+            self.indices = [
+                self.name_lookup[f] for f in field_indices
+            ]
+            return
+
+        if not self.args.no_header_row:
+            if self.args.all:
+                self.indices = [i for i in range(len(fields))]
+            else:
+                self.name_lookup = {f.tolower(): i for i, f in enumerate(fields)}
+                self.indices = [self.name_lookup[f] for f in field_indices]
+            return
+
         if self.args.names:
             names = self.args.names.split(',')
             if self.args.objects:
@@ -349,31 +389,6 @@ class _BaseWriter:
                 n.lower(): i for i, n in enumerate(names, start=0)
             }
             self.indices = [self.name_lookup[name] for name in field_indices]
-            return
-
-        if isinstance(fields, dict):
-            if self.args.all:
-                 field_indices = fields.keys()
-            else:
-                 field_indices = self.args.fields.split(',')
-            if self.args.objects:
-                self.name_lookup = {f.lower(): f for f in fields.keys()}
-                self.indices = [
-                    self.name_lookup[f.lower()] for f in field_indices
-                ]
-                return
-            self.name_lookup = {f.lower(): f for f in fields.keys()}
-            self.indices = [
-                self.name_lookup[f] for f in field_indices
-            ]
-            return
-
-        if not self.args.no_header_row:
-            if self.args.all:
-                self.indices = [i for i in range(len(fields))]
-            else:
-                self.name_lookup = {f.tolower(): i for i, f in enumerate(fields)}
-                self.indices = [self.name_lookup[f] for f in field_indices]
             return
 
         raise _NoColumnNames()
@@ -433,6 +448,11 @@ class _TextWriter(_BaseWriter):
 
 class _NoColumnNames(Exception):
     """Raised when we don't know how to convert column names to indices."""
+    pass
+
+
+class _NamesOnObjects(Exception):
+    """Raised when the input is a list of objects and --names was passed."""
     pass
 
 
