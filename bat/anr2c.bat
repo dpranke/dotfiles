@@ -1,1 +1,1 @@
-@ar2.bat chrome %*
+@anr2.bat chrome %*
