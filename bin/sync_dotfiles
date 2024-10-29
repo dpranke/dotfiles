@@ -139,7 +139,7 @@ declare -a dotfiles=(
   bat/ptime.bat
   bat/redot.bat
   bat/sel.bat
-  bat/set_path.bat
+  bat/sp.bat
   bat/src.bat
   bat/sv.bat
   bat/sync_dotfiles.bat
