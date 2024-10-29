@@ -1,2 +1,2 @@
 @echo off
-python "%~dp0\..\bin\ptime" %*
+python3 "%~dp0\..\bin\ptime" %*
