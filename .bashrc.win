@@ -12,7 +12,16 @@ elif [ -d "/cygdrive/c/src" ]
 then
   export src=/cygdrive/c/src
 fi
-export WHOME="/c/Users/$USER"
+if [[ ! -z "$USER" ]]
+then
+  export WHOME="/c/Users/$USER"
+elif [[ ! -z "$USERNAME" ]]
+then
+  export WHOME="/c/Users/$USERNAME"
+else
+  export WHOME="/c/Users/dpranke"
+fi
+
 export whome="$WHOME"
 export dt="$src/depot_tools"
 
