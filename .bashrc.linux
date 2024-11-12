@@ -27,10 +27,16 @@ export GTK_OVERLAY_SCROLLING=0
 export src=$HOME/src
 export dt=$src/depot_tools
 
+export PATH=/usr/bin:/usr/sbin:/bin:/sbin
+ip /usr/local/sbin
+ip /usr/local/bin
 ip /usr/local/buildtools/java/jdk/bin
+ip /usr/lib/google-golang/bin
 ip $src/google-cloud-sdk/bin
 ip $dt
+ip $HOME/.local/bin
 ip $HOME/bin
+
 
 if [ -n "$DISPLAY" ]
 then
@@ -39,8 +45,11 @@ then
 
   export DEFAULT_DISPLAY=$DISPLAY
 
-  # Turn caps lock into an additional ctrl key
-  setxkbmap -option "ctrl:nocaps"
+  if $(which Xwayland) > /dev/null 2>&1
+  then
+    # Turn caps lock into an additional ctrl key
+    setxkbmap -option "ctrl:nocaps"
+  fi
 fi
 
 # Enable shell completion for gcloud.
