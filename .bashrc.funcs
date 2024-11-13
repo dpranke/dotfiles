@@ -56,13 +56,22 @@ function anr2c() {
   anr2 chrome "$@"
 }
 
-alias df='df -h'
+function df() {
+  command df -h "$@"
+}
 
 function dt() {
     cd $dt/"$@"
 }
 
-alias du='du -h'
+function du() {
+  command du -h "$@"
+}
+
+function dve() {
+  # deactivate current python venv; see also ve().
+  deactivate
+}
 
 # csrc - cd to $csrc/$*
 function csrc() {
@@ -252,6 +261,22 @@ function sv() {
 
 function uhome() {
   cd "$HOME/$@"
+}
+
+function ve() {
+  if [[ "${1}" == "" ]]; then
+    if [[ -e ./.venv/pyvenv.cfg ]]; then
+      source ".venv/bin/activate"
+    elif [[ -d "${csrc}/.venv/pyvenv.cfg" ]]; then
+      source "${csrc}/.venv/bin/activate"
+    else
+      echo "No venv found in current directory"
+    fi
+  elif [[ -e "${1}/pyvenv.cfg" ]]; then
+    source "${1}/bin/activate"
+  else
+    echo "No venv found in ${1}"
+  fi
 }
 
 # echo current window size
