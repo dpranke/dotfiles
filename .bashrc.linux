@@ -51,6 +51,12 @@ then
     # Turn caps lock into an additional ctrl key
     setxkbmap -option "ctrl:nocaps"
   fi
+
+  # Add this line to a ~.bashrc.local.$hostname on hosts w/ 4K monitors.
+  if [[ $(xdpyinfo 2>&1 | awk '$1 == "dimensions:" { print $2 }') = \
+        "3840x2160" ]] ; then
+    gsettings set org.gnome.desktop.interface text-scaling-factor 1.5
+  fi
 fi
 
 # Enable shell completion for gcloud.
@@ -63,5 +69,3 @@ fi
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
 fi
-
-gsettings set org.gnome.desktop.interface text-scaling-factor 1.5
