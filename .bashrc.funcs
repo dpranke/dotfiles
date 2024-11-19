@@ -16,8 +16,9 @@ function ap() {
   else
     var=PATH
   fi
-  if [[ "$var" =~ "$1:" ]]
+  if [[ ("${!var}" =~ ":$1:") || ("${!var}" =~ ^"$1:")]]
   then
+    # Already in the PATH/var.
     return
   elif [ -d "$1" ]
   then
@@ -133,8 +134,7 @@ function ip() {
   else
     var=PATH
   fi
-  if ( echo "${!var}" | grep "$1:" > /dev/null )
-  then
+  if [[ ("${!var}" =~ ":$1:") || ("${!var}" =~ ^"$1:") ]]; then
     return
   elif [ -d "$1" ]
   then
@@ -183,15 +183,10 @@ function repeat() {
 }
 
 # rp - remove path component
-#   usage: rp [-a] [var] comp_regex
+#   usage: rp [var] component
 function rp() {
-  if [ "$1" = "-a" ]
-  then
-    opt_g="g"
-    shift
-  else
-    opt_g=""
-  fi
+  # set -x
+  local comp var
   if [ $# -eq 2 ]
   then
     var=$1
@@ -199,12 +194,24 @@ function rp() {
   else
     var=PATH
   fi
-  comp_regex=$1
-  export ${var}="$(echo ${!var} | sed "s#[^:]*${comp_regex}[^:]*##${opt_g}" | \
-                      sed "s/::*/:/g" | sed "s/^://" | sed "s/:$//")"
-  unset comp_regex
-  unset var
-  unset opt_g
+  comp=$1
+  if [[ "${!var}" =~ ^"$1:" ]]
+  then
+    # front
+    export ${var}=${!var/#$comp:/}
+  elif [[ "${!var}" =~ ":$1:" ]]
+  then
+    # middle
+    export ${var}=${PATH/:$comp:/:}
+  elif [[ "${!var}" =~ ":$1"$ ]]
+  then
+    # end
+    export ${var}=${!var/%:$comp/}
+  else
+    # not found
+    :
+  fi
+  # set +x
 }
 
 
