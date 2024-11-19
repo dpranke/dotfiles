@@ -300,7 +300,7 @@ class _TextReader(_BaseReader):
         self.pat = re.compile(args.fs)
 
     def __next__(self):
-        return self.pat.split(next(self.reader))
+        return self.pat.split(next(self.reader).strip())
 
 
 class _BaseWriter:
