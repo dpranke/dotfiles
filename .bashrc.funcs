@@ -240,6 +240,22 @@ function setprompt() {
   fi
 }
 
+# Turn on shell tracing if necessary, execute a command, then turn off tracing
+# if we turned it on before. If tracing is already on, just execute the command.
+function shdbg() {
+  local x=0
+  if [[ !("$-" =~ "x") ]]; then
+    x=1
+    set -x
+  fi
+
+  "$@"
+
+  if [[ $x = 1 ]]; then
+    set +x
+  fi
+}
+
 function src() {
   cd "$src/$@"
 }
