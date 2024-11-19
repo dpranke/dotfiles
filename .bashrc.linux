@@ -1,12 +1,13 @@
 #
-# .bashrc for Linux Google-specific stuff
+# Linux-specific (but machine-independent) .bashrc code.
+#
+# Reminder: there may be machine-dependent code in .bashrc.local.$hostname.
 #
 
 . $HOME/.bashrc.funcs
 . $HOME/.bashrc.funcs.linux
-. $HOME/.git_completion.bash
 
-export EMAIL_ADDRESS=dpranke@google.com
+export EMAIL_ADDRESS=dpranke@chromium.org
 export PYTHONPATH=
 
 # Get depot_tools to shut up about stacked changes
@@ -32,8 +33,6 @@ ip /usr/sbin
 ip /usr/bin
 ip /usr/local/sbin
 ip /usr/local/bin
-ip /usr/local/buildtools/java/jdk/bin
-ip /usr/lib/google-golang/bin
 ip $src/google-cloud-sdk/bin
 ip $dt
 ip $HOME/.local/bin
@@ -59,13 +58,16 @@ then
   fi
 fi
 
-# Enable shell completion for gcloud.
-if [ -f "$src/google-cloud-sdk/completion.bash.inc" ]
-then
-  . "$src/google-cloud-sdk/completion.bash.inc"
-fi
+# TODO: Figure out which completion code is necessary and useful.
+. $HOME/.git_completion.bash
 
 # enable programmable completion features
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
     . /etc/bash_completion
+fi
+
+# Enable shell completion for gcloud.
+if [ -f "$src/google-cloud-sdk/completion.bash.inc" ]
+then
+  . "$src/google-cloud-sdk/completion.bash.inc"
 fi
