@@ -1,35 +1,91 @@
-# ap - append directory to the var if it's not already there and it exists
-#      `ap -x` requires it to be nonempty as well.
-#   usage: ap [var] value
+# ap - append `dir` to the var if it's not already there and it exists.
+#      `var` defaults to PATH if not given.
+#      `-n` requires `dir` to be nonempty
+#      `-v` be verbose about what happens
+#      If `after` is given, the dir is inserted after `after` in the `var`
+#      instead of at the end of var.
+#   usage: ap [-nv] [-p var] dir [after]
 function ap() {
-  local nonempty=0
-  if [ "$1" = "-x" ]
-  then
-    nonempty=1
-    shift
+  ap_usage() {
+    echo "usage: ap [-nv] [-p var] [ after ] dir"
+    echo ""
+    echo "  -n only add if the directory is not empty"
+    echo "  -v be verbose about what we do"
+  }
+
+  vecho() {
+    if [[ $verbose -eq 1 ]] ; then
+      echo "$@"
+    fi
+  }
+
+  local OPTARG OPTIND after= dir= nonempty=0 var=PATH verbose=0
+  while getopts "hnp:v" opt
+  do
+    case ${opt} in
+      n) nonempty=1 ;;
+      p) var=${OPTARG} ;;
+      v) verbose=1 ;;
+      h | ?)
+        ap_usage
+        return
+        ;;
+    esac
+  done
+
+  shift $(( $OPTIND - 1))
+  if [[ $# -eq 2 ]]; then
+    after=$1
+    dir=$2
+  elif [[ $# -eq 1 ]]; then
+    dir=$1
+  else
+    ap_usage
+    return
   fi
 
-  if [ $# -eq 2 ]
+  if [[ ("${!var}" =~ ":${dir}:") || ("${!var}" =~ ^"${dir}:") || \
+    ("${!var}" =~ ":${dir}"$) ]]
   then
-    var="$1"
-    shift
-  else
-    var=PATH
-  fi
-  if [[ ("${!var}" =~ ":$1:") || ("${!var}" =~ ^"$1:")]]
-  then
-    # Already in the PATH/var.
+    vecho "${dir} is already in the ${var}"
     return
-  elif [ -d "$1" ]
-  then
-    if [[ $nonempty -eq 1 ]]
-    then
-      if [[ $(echo -n "$1/*") = "$1/*" ]]
-      then
-        return
+  fi
+
+  if [[ ! -d "${dir}" ]]; then
+    vecho "${dir} doesn't exist"
+    return
+  fi
+
+  if [[ ${nonempty} -eq 1 ]]; then
+    local dotglob=0
+    if [[ "$(shopt dotglob)" =~ on ]]; then
+      dotglob=1
+    fi
+    shopt -s dotglob
+    if [[ $(echo -n "$dir/*") = "$dir/*" ]]; then
+      vecho "${dir} is empty, not adding to ${var}"
+      if [[ $dotglob = 0 ]]; then
+        shopt -u dotglob
+      fi
+      return
+    else
+      if [[ $dotglob = 0 ]]; then
+        shopt -u dotglob
       fi
     fi
-    export ${var}="${!var}:$1"
+  fi
+
+  if [[ "${after}" == "" ]]; then
+    export ${var}="${!var}:${dir}"
+    vecho "${dir} appended to ${var}"
+    return
+  fi
+
+  if [[ "${!var}" =~ "${after}" ]]; then
+    export ${var}="${!var/${after}/"${after}:${dir}"}"
+    vecho "${dir} added to ${var} after ${after}"
+  else
+    vecho "${after} isn't in the ${var}"
   fi
 }
 
