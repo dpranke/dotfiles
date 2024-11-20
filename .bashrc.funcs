@@ -110,30 +110,6 @@ function ap() {
   done
 }
 
-function and() {
-  autoninja -C $csrc/out/dbg "$@"
-}
-
-function andc() {
-  and chrome "$@"
-}
-
-function anr() {
-  autoninja -C $csrc/out/rel "$@"
-}
-
-function anrc() {
-  anr chrome "$@"
-}
-
-function anr2() {
-  autoninja -C $csrc/out/rel2 "$@"
-}
-
-function anr2c() {
-  anr2 chrome "$@"
-}
-
 function df() {
   command df -h "$@"
 }
@@ -179,10 +155,6 @@ function geu() {
 
 function gng() {
   git grep "$@" -- \*.gn \*.gni
-}
-
-function gps() {
-  git pull && gclient sync -D
 }
 
 function h() {
