@@ -61,13 +61,13 @@ function ap() {
       return
     fi
 
-    if [[ ( "${!var}" = "${after}" ) || ( "${!var}" =~ ^"${after}:" ) ]] then
+    if [[ ( "${!var}" = "${after}" ) || ( "${!var}" =~ ^"${after}:" ) ]] ; then
       export ${var}=${!var/${after}/"${after}:${dir}"}
       vecho "${dir} added to ${var} after ${after}"
-    elif [[ "${!var}" =~ ":${after}:" ]] then
+    elif [[ "${!var}" =~ ":${after}:" ]] ; then
       export ${var}=${!var/:${after}:/:"${after}:${dir}":}
       vecho "${dir} added to ${var} after ${after}"
-    elif [[ "${!var}" =~ ":${after}"$ ]] then 
+    elif [[ "${!var}" =~ ":${after}"$ ]] ; then
       export ${var}=${!var/:${after}/:"${after}:${dir}"}
       vecho "${dir} added to ${var} after ${after}"
     else

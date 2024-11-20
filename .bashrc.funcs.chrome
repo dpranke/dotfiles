@@ -32,13 +32,51 @@ function occ() {
 }
 
 function odc() {
-  $csrc/out/dbg/chrome --user-data-dir=$src/udd.dbg --enable-logging=stderr \
-      --log-level=0 "$@"
+  if [[ "${os}" = "Darwin" ]]; then
+    if $(grep -q "is_chrome_branded = true" $csrc/out/dbg/args.gn)
+    then
+      echo "$csrc/out/dbg/Google Chrome.app/Contents/MacOS/Google Chrome" \
+          --user-data-dir=$src/udd.dbg --disable-features="MediaRouter" \
+          --enable-logging=stderr --log-level=0 "$@"
+      "$csrc/out/dbg/Google Chrome.app/Contents/MacOS/Google Chrome" \
+          --user-data-dir=$src/udd.dbg --disable-features="MediaRouter" \
+          --enable-logging=stderr --log-level=0 "$@"
+    else
+      echo "$csrc/out/dbg/Chromium.app/Contents/MacOS/Chromium" \
+          --user-data-dir=$src/udd.dbg --disable-features="MediaRouter" \
+          --enable-logging=stderr --log-level=0 "$@"
+      "$csrc/out/dbg/Chromium.app/Contents/MacOS/Chromium" \
+          --user-data-dir=$src/udd.dbg --disable-features="MediaRouter" \
+          --enable-logging=stderr --log-level=0 "$@"
+    fi
+  else
+    $csrc/out/dbg/chrome --user-data-dir=$src/udd.dbg --enable-logging=stderr \
+        --log-level=0 "$@"
+  fi
 }
 
 function orc() {
-  $csrc/out/rel/chrome --user-data-dir=$src/udd.rel --enable-logging=stderr \
-      --log-level=0 "$@"
+  if [[ "${os}" = "Darwin" ]]; then
+    if $(grep -q "is_chrome_branded = true" $csrc/out/rel/args.gn)
+    then
+      echo "$csrc/out/rel/Google Chrome.app/Contents/MacOS/Google Chrome" \
+          --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
+          --enable-logging=stderr --log-level=0 "$@"
+      "$csrc/out/rel/Google Chrome.app/Contents/MacOS/Google Chrome" \
+          --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
+          --enable-logging=stderr --log-level=0 "$@"
+    else
+      echo "$csrc/out/rel/Chromium.app/Contents/MacOS/Chromium" \
+          --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
+          --enable-logging=stderr --log-level=0 "$@"
+      "$csrc/out/rel/Chromium.app/Contents/MacOS/Chromium" \
+          --user-data-dir=$src/udd.rel --disable-features="MediaRouter" \
+          --enable-logging=stderr --log-level=0 "$@"
+    fi
+  else
+    $csrc/out/rel/chrome --user-data-dir=$src/udd.rel --enable-logging=stderr \
+        --log-level=0 "$@"
+  fi
 }
 
 function or2c() {

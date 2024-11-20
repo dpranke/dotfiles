@@ -4,7 +4,6 @@
 
 . $HOME/.bashrc.funcs
 . $HOME/.bashrc.funcs.mac
-. $HOME/.git_completion.bash
 
 # bump up the default # of files and the default stack size per process.
 ulimit -n unlimited -s 16384
@@ -18,30 +17,20 @@ fi
 
 export dt=$src/depot_tools
 
-PATH=/usr/bin:/sbin:/bin
-ip /usr/sbin
-ip /usr/local/sbin
-ip /usr/local/bin
-ip /usr/local/git/git-google/bin
-ip /usr/local/git/current/bin
-
 if [ -d /usr/local/Homebrew ]
 then
   HOMEBREW=/usr/local
 elif [ -d /opt/homebrew ]
 then
   HOMEBREW=/opt/homebrew
-  ip $HOMEBREW/bin
 elif [ -d $HOME/homebrew ]
 then
   HOMEBREW=$HOME/homebrew
-  ip $HOMEBREW/bin
 fi
 
-ip $src/google-cloud-sdk/bin
-ip $dt
-ip $HOME/bin
-ip $HOME/mbin
+export PATH=
+ip $HOME/mbin $HOME/bin $dt $HOMEBREW/bin $src/google-cloud-sdk/bin \
+   /usr/local/bin /usr/local/sbin /usr/sbin /usr/bin /sbin /bin
 
 if which mvim > /dev/null
 then
@@ -50,13 +39,16 @@ else
   export EDITOR=vi
 fi
 
-export EMAIL_ADDRESS=dpranke@gmail.com
+export EMAIL_ADDRESS=dpranke@chromium.org
 export HISTSIZE=500
 export INFOPATH=/usr/local/info:/opt/local/info
 export MANPATH=/usr/local/share/man:/opt/local/man:/usr/share/man
 export NINJA_JOBS=''
 export PAGER=less
 export BASH_SILENCE_DEPRECATION_WARNING=1
+
+# TODO: Figure out if I still want to use this
+. $HOME/.git_completion.bash
 
 # Enable shell completion for gcloud.
 if [ -f "$src/google-cloud-sdk/completion.bash.inc" ]
