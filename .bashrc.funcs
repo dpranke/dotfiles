@@ -11,9 +11,7 @@ function ap() {
   local after
   local dir
   local nonempty=0
-  local usage
   local var=PATH
-  local vecho
   local verbose=0
 
   function usage() {
@@ -184,9 +182,7 @@ function ip() {
   local opt_nonempty
   local opt_v
   local prepend
-  local usage
   local var=PATH
-  local vecho
   local verbose=0
 
   function usage() {
@@ -326,7 +322,8 @@ function repeat() {
 # rp - remove directories from path-like env var
 #   usage: rp [-p var] dir...
 function rp() {
-  local comp usage var vecho
+  local comp
+  local var
 
   function usage() {
     echo "usage: rp [-v] [-p var] dir..."
@@ -343,7 +340,7 @@ function rp() {
 
   while getopts "hp:v" opt ; do
     case ${opt} in
-      p) var=${OPTARG} ;;
+      p) var="${OPTARG}" ;;
       v) verbose=1 ;;
       h | ?)
         usage
