@@ -5,28 +5,39 @@
 #      If `after` is given, the dir is inserted after `after` in the `var`
 #      instead of at the end of var.
 function ap() {
-  local OPTARG OPTIND append after= dir= nonempty=0
-  local usage var=PATH vecho verbose=0
+  local OPTARG
+  local OPTIND
+  local append
+  local after
+  local dir
+  local nonempty=0
+  local usage
+  local var=PATH
+  local vecho
+  local verbose=0
 
   function usage() {
-    echo "usage: ap [-nv] [ -a after ] [-p var] dir..."
+    echo "usage: ap [-nv] [-a after] [-p var] dir..."
     echo ""
+    echo "  -a add the path after the \`before\` directory in the var"
+    echo "     instead of at the beginning of the var"
     echo "  -n only add if the directory is not empty"
+    echo "  -p add paths to \`var\` instead of PATH"
     echo "  -v be verbose about what we do"
   }
 
   function vecho() {
-    if [[ $verbose -eq 1 ]] ; then
+    if [[ $verbose -eq 1 ]]; then
       echo "$@"
     fi
   }
 
   function append() {
     local dir="$1"
+    local dotglob=0
 
     if [[ ("${!var}" =~ ":${dir}:") || ("${!var}" =~ ^"${dir}:") || \
-      ("${!var}" =~ ":${dir}"$) ]]
-    then
+      ("${!var}" =~ ":${dir}"$) ]]; then
       vecho "${dir} is already in the ${var}"
       return
     fi
@@ -37,7 +48,6 @@ function ap() {
     fi
 
     if [[ ${nonempty} -eq 1 ]]; then
-      local dotglob=0
       if [[ "$(shopt dotglob)" =~ on ]]; then
         dotglob=1
       fi
@@ -75,8 +85,7 @@ function ap() {
     fi
   }
 
-  while getopts "a:hnp:v" opt
-  do
+  while getopts "a:hnp:v" opt; do
     case ${opt} in
       a) after=${OPTARG} ;;
       n) nonempty=1 ;;
@@ -165,32 +174,38 @@ function home() {
   cd "$HOME/$@"
 }
 
-# ip - insert directories `dir` at the front of the `var` env variable if
-#      they are not already in `var` and they exist.
-#      `var` defaults to PATH if not given
-#      `-b` inserts before `before` in `var`, rather than at the very
-#           front of `var`.
-#      `-n` requires `dir` to be nonempty
-#      `-v` be verbose about what happens
+# insert path into var
 function ip() {
-  local OPTARG OPTIND before= dir= nonempty=0 prepend usage var=PATH vecho
-  local opt_nonempty opt_v
+  local OPTARG
+  local OPTIND
+  local before
+  local dir
+  local nonempty=0
+  local opt_nonempty
+  local opt_v
+  local prepend
+  local usage
+  local var=PATH
+  local vecho
   local verbose=0
 
-  usage() {
-    echo "usage: ip [-nv] [ -b before ] [-p var] dir..."
+  function usage() {
+    echo "usage: ip [-nv] [-b before] [-p var] dir..."
     echo ""
+    echo "  -b add the directories before the \`before\` dir in the var"
+    echo "     instead of at the beginning of the var"
     echo "  -n only add if the directory is not empty"
+    echo "  -p add paths to \`var\` instead of PATH"
     echo "  -v be verbose about what we do"
   }
 
-  vecho() {
+  function vecho() {
     if [[ $verbose -eq 1 ]] ; then
       echo "$@"
     fi
   }
 
-  function prepend () {
+  function prepend() {
     local dir="$1"
 
     if [[ ("${!var}" =~ ":${dir}:") || ("${!var}" =~ ^"${dir}:") || \
@@ -311,36 +326,59 @@ function repeat() {
 # rp - remove directories from path-like env var
 #   usage: rp [-p var] dir...
 function rp() {
-  local comp var
+  local comp usage var vecho
 
-  if [ $# -eq 2 ]
-  then
-    var="$1"
-    shift
-  else
-    var=PATH
+  function usage() {
+    echo "usage: rp [-v] [-p var] dir..."
+    echo ""
+    echo "  -p remove paths from \`var\` instead of PATH"
+    echo "  -v be verbose about what we do"
+  }
+
+  function vecho() {
+    if [[ $verbose -eq 1 ]] ; then
+      echo "$@"
+    fi
+  }
+
+  while getopts "hp:v" opt ; do
+    case ${opt} in
+      p) var=${OPTARG} ;;
+      v) verbose=1 ;;
+      h | ?)
+        usage
+        return
+        ;;
+    esac
+  done
+
+  shift $(( $OPTIND - 1))
+
+  if [[ $# -eq 0 ]]; then
+    usage
+    return
   fi
 
   while [[ $# -gt 0 ]]; do
     comp="$1"
-    if [[ "${!var}" = "${comp}" ]]
-    then
+    if [[ "${!var}" = "${comp}" ]] ; then
       export ${!var}=
-    elif [[ "${!var}" =~ ^"${comp}:" ]]
-    then
+      verb "removed ${comp} from ${!var}"
+    elif [[ "${!var}" =~ ^"${comp}:" ]] ; then
       # front
-      export ${var}=${!var/#${comp}:/}
-    elif [[ "${!var}" =~ ":${comp}:" ]]
-    then
+      export ${var}="${!var/#${comp}:/}"
+      verb "removed ${comp} from ${!var}"
+    elif [[ "${!var}" =~ ":${comp}:" ]] ; then
       # middle
-      export ${var}=${PATH/:${comp}:/:}
+      export ${var}="${PATH/:${comp}:/:}"
+      verb "removed ${comp} from ${!var}"
     elif [[ "${!var}" =~ ":${comp}"$ ]]
     then
       # end
-      export ${var}=${!var/%:$comp/}
+      export ${var}="${!var/%:$comp/}"
+      verb "removed ${comp} from ${!var}"
     else
-      # not found
-      :
+      verb "did not find ${comp} in ${!var}"
     fi
     shift
   done
