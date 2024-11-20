@@ -38,9 +38,9 @@ ap "$WIN32"
 ap "$WIN32/Wbem"
 ap "$PF/PowerShell/7"
 ap "$WIN32/WindowsPowershell/v1.0"
-ap -x "/usr/bin/site_perl"
-ap -x "/usr/bin/vendor_perl"
-ap -x "/usr/bin/core_perl"
+ap -n "/usr/bin/site_perl"
+ap -n "/usr/bin/vendor_perl"
+ap -n "/usr/bin/core_perl"
 
 # Remember that PATH might be updated in $HOME/.bashrc.local.$hostname.
 
