@@ -28,15 +28,9 @@ export GTK_OVERLAY_SCROLLING=0
 export src=$HOME/src
 export dt=$src/depot_tools
 
-export PATH=/bin:/sbin
-ip /usr/sbin
-ip /usr/bin
-ip /usr/local/sbin
-ip /usr/local/bin
-ip $src/google-cloud-sdk/bin
-ip $dt
-ip $HOME/.local/bin
-ip $HOME/bin
+export PATH=
+ip $HOME/bin $HOME/.local/bin $dt $src/google-cloud-sdk/bin \
+   /usr/local/bin /usr/local/sbin /usr/bin /usr/sbin /bin /sbin
 
 if [ -n "$DISPLAY" ]
 then
@@ -59,15 +53,15 @@ then
 fi
 
 # TODO: Figure out which completion code is necessary and useful.
-. $HOME/.git_completion.bash
+# . $HOME/.git_completion.bash
 
 # enable programmable completion features
 if [ -f /etc/bash_completion ] && ! shopt -oq posix; then
-    . /etc/bash_completion
+   . /etc/bash_completion
 fi
 
 # Enable shell completion for gcloud.
-if [ -f "$src/google-cloud-sdk/completion.bash.inc" ]
-then
-  . "$src/google-cloud-sdk/completion.bash.inc"
-fi
+# if [ -f "$src/google-cloud-sdk/completion.bash.inc" ]
+# then
+#  . "$src/google-cloud-sdk/completion.bash.inc"
+# fi

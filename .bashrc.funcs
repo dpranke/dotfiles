@@ -5,88 +5,109 @@
 #      If `after` is given, the dir is inserted after `after` in the `var`
 #      instead of at the end of var.
 function ap() {
-  local OPTARG OPTIND after= dir= nonempty=0 var=PATH verbose=0
+  local OPTARG OPTIND append after= dir= nonempty=0
+  local usage var=PATH vecho verbose=0
 
-  ap_usage() {
-    echo "usage: ap [-nv] [-p var] [ after ] dir"
+  function usage() {
+    echo "usage: ap [-nv] [ -a after ] [-p var] dir..."
     echo ""
     echo "  -n only add if the directory is not empty"
     echo "  -v be verbose about what we do"
   }
 
-  vecho() {
+  function vecho() {
     if [[ $verbose -eq 1 ]] ; then
       echo "$@"
     fi
   }
 
-  while getopts "hnp:v" opt
+  function append() {
+    local dir="$1"
+
+    if [[ ("${!var}" =~ ":${dir}:") || ("${!var}" =~ ^"${dir}:") || \
+      ("${!var}" =~ ":${dir}"$) ]]
+    then
+      vecho "${dir} is already in the ${var}"
+      return
+    fi
+
+    if [[ ! -d "${dir}" ]]; then
+      vecho "${dir} doesn't exist"
+      return
+    fi
+
+    if [[ ${nonempty} -eq 1 ]]; then
+      local dotglob=0
+      if [[ "$(shopt dotglob)" =~ on ]]; then
+        dotglob=1
+      fi
+      shopt -s dotglob
+      if [[ $(echo -n "$dir/*") = "$dir/*" ]]; then
+        vecho "${dir} is empty, not adding to ${var}"
+        if [[ $dotglob = 0 ]]; then
+          shopt -u dotglob
+        fi
+        return
+      else
+        if [[ $dotglob = 0 ]]; then
+          shopt -u dotglob
+        fi
+      fi
+    fi
+
+    if [[ "${after}" == "" ]]; then
+      export ${var}="${!var}:${dir}"
+      vecho "${dir} appended to ${var}"
+      return
+    fi
+
+    if [[ ( "${!var}" = "${after}" ) || ( "${!var}" =~ ^"${after}:" ) ]] then
+      export ${var}=${!var/${after}/"${after}:${dir}"}
+      vecho "${dir} added to ${var} after ${after}"
+    elif [[ "${!var}" =~ ":${after}:" ]] then
+      export ${var}=${!var/:${after}:/:"${after}:${dir}":}
+      vecho "${dir} added to ${var} after ${after}"
+    elif [[ "${!var}" =~ ":${after}"$ ]] then 
+      export ${var}=${!var/:${after}/:"${after}:${dir}"}
+      vecho "${dir} added to ${var} after ${after}"
+    else
+      vecho "${after} isn't in the ${var}"
+    fi
+  }
+
+  while getopts "a:hnp:v" opt
   do
     case ${opt} in
+      a) after=${OPTARG} ;;
       n) nonempty=1 ;;
       p) var=${OPTARG} ;;
       v) verbose=1 ;;
       h | ?)
-        ap_usage
+        usage
         return
         ;;
     esac
   done
 
   shift $(( $OPTIND - 1))
-  if [[ $# -eq 2 ]]; then
-    after=$1
-    dir=$2
-  elif [[ $# -eq 1 ]]; then
-    dir=$1
-  else
-    ap_usage
+
+  if [[ $# -eq 0 ]]; then
+    usage
     return
   fi
 
-  if [[ ("${!var}" =~ ":${dir}:") || ("${!var}" =~ ^"${dir}:") || \
-    ("${!var}" =~ ":${dir}"$) ]]
-  then
-    vecho "${dir} is already in the ${var}"
-    return
+  if [[ ("${!var}" == "") && ("${after}" == "") ]]; then
+    export ${var}="$1"
+    shift
   fi
 
-  if [[ ! -d "${dir}" ]]; then
-    vecho "${dir} doesn't exist"
-    return
-  fi
-
-  if [[ ${nonempty} -eq 1 ]]; then
-    local dotglob=0
-    if [[ "$(shopt dotglob)" =~ on ]]; then
-      dotglob=1
+  while [[ $# -gt 0 ]]; do
+    if [[ -d "$1" ]]; then
+      append "$1"
+      after="$1"
     fi
-    shopt -s dotglob
-    if [[ $(echo -n "$dir/*") = "$dir/*" ]]; then
-      vecho "${dir} is empty, not adding to ${var}"
-      if [[ $dotglob = 0 ]]; then
-        shopt -u dotglob
-      fi
-      return
-    else
-      if [[ $dotglob = 0 ]]; then
-        shopt -u dotglob
-      fi
-    fi
-  fi
-
-  if [[ "${after}" == "" ]]; then
-    export ${var}="${!var}:${dir}"
-    vecho "${dir} appended to ${var}"
-    return
-  fi
-
-  if [[ "${!var}" =~ "${after}" ]]; then
-    export ${var}="${!var/${after}/"${after}:${dir}"}"
-    vecho "${dir} added to ${var} after ${after}"
-  else
-    vecho "${after} isn't in the ${var}"
-  fi
+    shift
+  done
 }
 
 function and() {
@@ -172,18 +193,20 @@ function home() {
   cd "$HOME/$@"
 }
 
-# ip - insert directory `dir` at the front of the `var` env variable if it's
-#      not already there and `dir` exists.
+# ip - insert directories `dir` at the front of the `var` env variable if
+#      they are not already in `var` and they exist.
 #      `var` defaults to PATH if not given
+#      `-b` inserts before `before` in `var`, rather than at the very
+#           front of `var`.
 #      `-n` requires `dir` to be nonempty
 #      `-v` be verbose about what happens
-#      If `before` is given, the dir is inserted before `before` instead
-#      of at the front of var.
 function ip() {
-  local OPTARG OPTIND before= dir= nonempty=0 usage var=PATH vecho verbose=0
+  local OPTARG OPTIND before= dir= nonempty=0 prepend usage var=PATH vecho
+  local opt_nonempty opt_v
+  local verbose=0
 
   usage() {
-    echo "usage: ip [-nv] [-p var] dir [ before ]"
+    echo "usage: ip [-nv] [ -b before ] [-p var] dir..."
     echo ""
     echo "  -n only add if the directory is not empty"
     echo "  -v be verbose about what we do"
@@ -195,12 +218,63 @@ function ip() {
     fi
   }
 
-  while getopts "hnp:v" opt
+  function prepend () {
+    local dir="$1"
+
+    if [[ ("${!var}" =~ ":${dir}:") || ("${!var}" =~ ^"${dir}:") || \
+      ("${!var}" =~ ":${dir}"$) ]]
+    then
+      vecho "${dir} is already in the ${var}"
+      return
+    fi
+
+    if [[ ! -d "${dir}" ]]; then
+      vecho "${dir} doesn't exist"
+      return
+    fi
+
+    if [[ ${nonempty} -eq 1 ]]; then
+      local dotglob=0
+      if [[ "$(shopt dotglob)" =~ on ]]; then
+        dotglob=1
+      fi
+      shopt -s dotglob
+      if [[ $(echo -n "$dir/*") = "$dir/*" ]]; then
+        vecho "${dir} is empty, not adding to ${var}"
+        if [[ $dotglob = 0 ]]; then
+          shopt -u dotglob
+        fi
+        return
+      else
+        if [[ $dotglob = 0 ]]; then
+          shopt -u dotglob
+        fi
+      fi
+    fi
+
+    if [[ "${before}" == "" ]]; then
+      export ${var}="${dir}:${!var}"
+      vecho "${dir} prepended to ${var}"
+      return
+    fi
+
+    if [[ "${!var}" =~ "${before}" ]]; then
+      export ${var}="${!var/${before}/"${dir}:${before}"}"
+      vecho "${dir} added to ${var} before ${before}"
+    else
+      vecho "${before} isn't in the ${var}"
+    fi
+
+    return
+  }
+
+  while getopts "b:hnp:v" opt
   do
     case ${opt} in
-      n) nonempty=1 ;;
+      b) before=${OPTARG} ;;
+      n) nonempty=1 ; opt_nonempty="-n";;
       p) var=${OPTARG} ;;
-      v) verbose=1 ;;
+      v) verbose=1 ; opt_v="-v" ;;
       h | ?)
         usage
         return
@@ -209,61 +283,24 @@ function ip() {
   done
 
   shift $(( $OPTIND - 1))
-  if [[ $# -eq 2 ]]; then
-    dir=$1
-    before=$2
-  elif [[ $# -eq 1 ]]; then
-    dir=$1
-  else
+  if [[ $# -eq 0 ]]; then
     usage
     return
   fi
 
-  if [[ ("${!var}" =~ ":${dir}:") || ("${!var}" =~ ^"${dir}:") || \
-    ("${!var}" =~ ":${dir}"$) ]]
-  then
-    vecho "${dir} is already in the ${var}"
-    return
-  fi
+  first="$1"
 
-  if [[ ! -d "${dir}" ]]; then
-    vecho "${dir} doesn't exist"
-    return
-  fi
-
-  if [[ ${nonempty} -eq 1 ]]; then
-    local dotglob=0
-    if [[ "$(shopt dotglob)" =~ on ]]; then
-      dotglob=1
-    fi
-    shopt -s dotglob
-    if [[ $(echo -n "$dir/*") = "$dir/*" ]]; then
-      vecho "${dir} is empty, not adding to ${var}"
-      if [[ $dotglob = 0 ]]; then
-        shopt -u dotglob
-      fi
-      return
-    else
-      if [[ $dotglob = 0 ]]; then
-        shopt -u dotglob
-      fi
-    fi
-  fi
-
-  if [[ "${before}" == "" ]]; then
-    export ${var}="${dir}:${!var}"
-    vecho "${dir} prepended to ${var}"
-    return
-  fi
-
-  if [[ "${!var}" =~ "${before}" ]]; then
-    export ${var}="${!var/${before}/"${dir}:${before}"}"
-    vecho "${dir} added to ${var} before ${before}"
+  if [[ ("${!var}" == "") && ("${after}" == "") ]]; then
+    export ${var}="${first}"
+    shift
   else
-    vecho "${before} isn't in the ${var}"
+    prepend "${first}"
+    shift
   fi
 
-  return
+  if [[ $# -gt 0 ]]; then
+    ap -a "${first}" -p "${var}" $opt_nonempty $opt_v "$@"
+  fi
 }
 
 alias ls='ls -F'
@@ -299,36 +336,42 @@ function repeat() {
   done
 }
 
-# rp - remove path component
-#   usage: rp [var] component
+# rp - remove directories from path-like env var
+#   usage: rp [-p var] dir...
 function rp() {
-  # set -x
   local comp var
+
   if [ $# -eq 2 ]
   then
-    var=$1
+    var="$1"
     shift
   else
     var=PATH
   fi
-  comp=$1
-  if [[ "${!var}" =~ ^"$1:" ]]
-  then
-    # front
-    export ${var}=${!var/#$comp:/}
-  elif [[ "${!var}" =~ ":$1:" ]]
-  then
-    # middle
-    export ${var}=${PATH/:$comp:/:}
-  elif [[ "${!var}" =~ ":$1"$ ]]
-  then
-    # end
-    export ${var}=${!var/%:$comp/}
-  else
-    # not found
-    :
-  fi
-  # set +x
+
+  while [[ $# -gt 0 ]]; do
+    comp="$1"
+    if [[ "${!var}" = "${comp}" ]]
+    then
+      export ${!var}=
+    elif [[ "${!var}" =~ ^"${comp}:" ]]
+    then
+      # front
+      export ${var}=${!var/#${comp}:/}
+    elif [[ "${!var}" =~ ":${comp}:" ]]
+    then
+      # middle
+      export ${var}=${PATH/:${comp}:/:}
+    elif [[ "${!var}" =~ ":${comp}"$ ]]
+    then
+      # end
+      export ${var}=${!var/%:$comp/}
+    else
+      # not found
+      :
+    fi
+    shift
+  done
 }
 
 
