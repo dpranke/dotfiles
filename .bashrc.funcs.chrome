@@ -1,0 +1,49 @@
+function and() {
+  autoninja -C $csrc/out/dbg "$@"
+}
+
+function andc() {
+  and chrome "$@"
+}
+
+function anr() {
+  autoninja -C $csrc/out/rel "$@"
+}
+
+function anrc() {
+  anr chrome "$@"
+}
+
+function anr2() {
+  autoninja -C $csrc/out/rel2 "$@"
+}
+
+function anr2c() {
+  anr2 chrome "$@"
+}
+
+function gps() {
+  git pull && gclient sync -D
+}
+
+function occ() {
+  $csrc/out/cros/chrome --user-data-dir=$src/udd.cros --enable-logging=stderr \
+      --log-level=0 "$@"
+}
+
+function odc() {
+  $csrc/out/dbg/chrome --user-data-dir=$src/udd.dbg --enable-logging=stderr \
+      --log-level=0 "$@"
+}
+
+function orc() {
+  $csrc/out/rel/chrome --user-data-dir=$src/udd.rel --enable-logging=stderr \
+      --log-level=0 "$@"
+}
+
+function or2c() {
+  $csrc/out/rel2/chrome --user-data-dir=$src/udd.rel2 --enable-logging=stderr \
+      --log-level=0 "$@"
+}
+
+
