@@ -360,22 +360,22 @@ function rp() {
     comp="$1"
     if [[ "${!var}" = "${comp}" ]] ; then
       export ${!var}=
-      verb "removed ${comp} from ${!var}"
+      vecho "removed ${comp} from ${!var}"
     elif [[ "${!var}" =~ ^"${comp}:" ]] ; then
       # front
       export ${var}="${!var/#${comp}:/}"
-      verb "removed ${comp} from ${!var}"
+      vecho "removed ${comp} from ${!var}"
     elif [[ "${!var}" =~ ":${comp}:" ]] ; then
       # middle
       export ${var}="${PATH/:${comp}:/:}"
-      verb "removed ${comp} from ${!var}"
+      vecho "removed ${comp} from ${!var}"
     elif [[ "${!var}" =~ ":${comp}"$ ]]
     then
       # end
       export ${var}="${!var/%:$comp/}"
-      verb "removed ${comp} from ${!var}"
+      vecho "removed ${comp} from ${!var}"
     else
-      verb "did not find ${comp} in ${!var}"
+      vecho "did not find ${comp} in ${!var}"
     fi
     shift
   done
