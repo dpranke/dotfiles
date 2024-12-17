@@ -157,7 +157,7 @@ declare -a dotfiles=(
   bin/esco
   bin/fl
   bin/gcsrc
-  bin/git-update-branch
+  bin/git-reapply
   bin/pset_aux
   bin/ptime
   bin/sel
