@@ -1,0 +1,22 @@
+#!/usr/bin/env python3
+
+"""Prints the path and timestamp of the newest file under argv[1]."""
+
+import datetime
+import os
+import sys
+
+dirs = [sys.argv[1]]
+max_mtime = 0
+while dirs:
+  d = dirs.pop()
+  for de in os.scandir(d):
+    if de.is_dir(follow_symlinks=False):
+      dirs.append(de.path)
+      continue
+    if de.is_file(follow_symlinks=False):
+      s = de.stat()
+      max_mtime = max(max_mtime, s.st_mtime)
+
+dt = datetime.datetime.fromtimestamp(max_mtime)
+print(de.path, dt.isoformat(timespec='seconds'))

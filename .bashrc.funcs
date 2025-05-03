@@ -111,7 +111,7 @@ function ap() {
   while [[ $# -gt 0 ]]; do
     if [[ -d "$1" ]]; then
       append "$1"
-      after="$1"
+      # after="$1"
     fi
     shift
   done
@@ -338,6 +338,7 @@ function rp() {
     fi
   }
 
+  var=PATH
   while getopts "hp:v" opt ; do
     case ${opt} in
       p) var="${OPTARG}" ;;

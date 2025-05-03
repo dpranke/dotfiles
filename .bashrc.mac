@@ -28,9 +28,20 @@ then
   HOMEBREW=$HOME/homebrew
 fi
 
-export PATH=
-ip $HOME/mbin $HOME/bin $dt $HOMEBREW/bin $src/google-cloud-sdk/bin \
-   /usr/local/bin /usr/local/sbin /usr/sbin /usr/bin /sbin /bin
+export PATH=$HOME/mbin
+ap $HOME/bin $HOME/.local/bin $HOME/go/bin
+
+if [ -d /usr/local/Cellar/openjdk/23.0.2 ]
+then
+  export JAVA_HOME=/usr/local/Cellar/openjdk/23.0.2/libexec/openjdk.jdk/Contents/Home
+  ap $JAVA_HOME/bin
+fi
+
+ap $src/google-cloud-sdk/bin \
+   /usr/local/texlive/2025/bin/universal-darwin
+
+ap $HOMEBREW/bin $dt /usr/local/bin /usr/local/sbin /usr/sbin /usr/bin \
+   /sbin /bin
 
 if which mvim > /dev/null
 then
@@ -42,7 +53,11 @@ fi
 export EMAIL_ADDRESS=dpranke@chromium.org
 export HISTSIZE=500
 export INFOPATH=/usr/local/info:/opt/local/info
-export MANPATH=/usr/local/share/man:/opt/local/man:/usr/share/man
+
+ip -p MANPATH /usr/local/man /opt/local/man /usr/share/man \
+    /usr/local/share/man \
+    /usr/local/texlive/2025/texmf-dist/doc/man
+
 export NINJA_JOBS=''
 export PAGER=less
 export BASH_SILENCE_DEPRECATION_WARNING=1
