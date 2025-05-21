@@ -15,8 +15,6 @@ else
   export src=$HOME/src
 fi
 
-export dt=$src/depot_tools
-
 if [ -d /usr/local/Homebrew ]
 then
   HOMEBREW=/usr/local
@@ -29,19 +27,30 @@ then
 fi
 
 export PATH=$HOME/mbin
-ap $HOME/bin $HOME/.local/bin $HOME/go/bin
+ap $HOME/bin \
+   $HOME/.local/bin \
+   $HOME/go/bin
 
-if [ -d /usr/local/Cellar/openjdk/23.0.2 ]
+if [ -d $HOMEBREW/opt/openjdk ]
 then
-  export JAVA_HOME=/usr/local/Cellar/openjdk/23.0.2/libexec/openjdk.jdk/Contents/Home
+  export JAVA_HOME=$HOMEBREW/opt/openjdk
   ap $JAVA_HOME/bin
 fi
 
-ap $src/google-cloud-sdk/bin \
-   /usr/local/texlive/2025/bin/universal-darwin
+ap $HOMEBREW/opt/ruby/bin \
+   $HOMEBREW/opt/rustup/bin \
+   $HOMEBREW/bin
 
-ap $HOMEBREW/bin $dt /usr/local/bin /usr/local/sbin /usr/sbin /usr/bin \
-   /sbin /bin
+export dt=$src/depot_tools
+ap $dt 
+
+ap /usr/local/bin \
+   /usr/local/sbin \
+   /usr/sbin \
+   /usr/bin \
+   /sbin /bin \
+   $src/google-cloud-sdk/bin \
+   /usr/local/texlive/2025/bin/universal-darwin
 
 if which mvim > /dev/null
 then
