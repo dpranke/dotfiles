@@ -13,6 +13,17 @@ def main():
         help='Encode the provided arg'
     )
     parser.add_argument(
+        '-N', '--trailing-newline',
+        action='store_true',
+        default=True,
+        help="add a trailing newline if there isn't one (default)"
+    )
+    parser.add_argument(
+        '-n', '--no-trailing-newline',
+        action='store_false',
+        dest='trailing_newline',
+        help='do not add a trailing newline')
+    parser.add_argument(
         '-o',
         '--output',
         action='store',
@@ -34,9 +45,24 @@ def main():
         help='Decode (unescape) the data'
     )
     parser.add_argument(
+        '-l', '--add-newlines',
+        action='store_true',
+        default=False,
+        help='add/remove newlines after "\\n"s (default)')
+    parser.add_argument(
+        '-L', '--no-add-newlines',
+        action='store_false',
+        dest='add_newlines',
+        help='do not add/remove newlines after "\\n"s')
+    parser.add_argument(
         'file',
         nargs='*',
         help='file(s) to process as input; if "-" is provided, use stdin'
+    )
+    parser.add_argument(
+        '-u', '--unicode',
+        action='store_true',
+        help='Prefer unicode notation over hex escapes'
     )
     args = parser.parse_args()
     if args.output and args.output != '-':
@@ -48,25 +74,24 @@ def main():
         func = encode
     else:
         func = decode
-    try:
-        for s in args.code:
-            func(args, out_fp, s)
 
-        files = args.file
-        if not files and not args.code:
-            files = ['-']
-        for file in files:
-            if file == '-':
-                s = sys.stdin.read()
-            else:
-                with open(file, 'r') as fp:
-                    s = fp.read()
-            func(args, out_fp, s)
-        return 0
-    except Exception as e:
-        import traceback; traceback.print_exception(e)
-        import pdb; pdb.post_mortem()
-        raise
+    files = args.file
+    if not files and not args.code:
+        files = ['-']
+
+    for i, s in enumerate(args.code):
+        is_last = ((i == (len(args.code) - 1)) and not files)
+        func(args, out_fp, s, is_last)
+
+    for i, file in enumerate(files):
+        if file == '-':
+            s = sys.stdin.read()
+        else:
+            with open(file, 'r') as fp:
+                s = fp.read()
+        is_last = (i == (len(files) - 1))
+        func(args, out_fp, s, is_last)
+    return 0
 
 
 enc_chars = {
@@ -80,23 +105,28 @@ enc_chars = {
 
 dec_chars = { v: k for k, v in enc_chars.items() }
 
-def encode(args, fp, s):
+def encode(args, fp, s, is_last):
     for ch in s:
         o = ord(ch)
         if 32 < o < 128:
             r = ch
         elif ch in enc_chars:
             r = enc_chars[ch]
-        elif o < 32 or o < 256:
+        elif (o < 32 or o < 256) and not args.unicode:
             r = f'\\x{o:02x}'
         elif o < 65536:
             r = f'\\u{o:04x}'
         else:
             r = f'\\U{o:08x}'
         fp.write(r)
+        if r == '\\n' and args.add_newlines:
+            fp.write('\n')
+    
+    if args.trailing_newline and is_last and r != '\\n':
+        fp.write('\n')
 
 
-def decode(args, fp, s):
+def decode(args, fp, s, is_last):
     i = 0
     l = len(s)
 
@@ -111,6 +141,11 @@ def decode(args, fp, s):
         ch = s[i]
         o = ord(ch)
         if ch == '\\':
+            if (i + 2 < l) and s[i+1] == 'n' and s[i+2] == '\n' and args.add_newlines:
+                fp.write('\n')
+                i += 3
+                continue
+
             _check(2)
             if s[i+1] == 'x':
                 j, ch = _check(4)
@@ -125,10 +160,11 @@ def decode(args, fp, s):
         else:
             j = 1
 
-        fp.write(ch)
         i += j
+        fp.write(ch)
+    if is_last and ch != '\n' and args.trailing_newline:
+        fp.write('\n')
+
 
 if __name__ == '__main__':
     sys.exit(main())
-
-
