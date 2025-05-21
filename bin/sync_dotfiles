@@ -160,6 +160,9 @@ declare -a dotfiles=(
   bin/git-update-branch
   bin/pset_aux
   bin/ptime
+  bin/pyline
+  bin/pyvis
+  bin/pynl
   bin/sel
   bin/st
   bin/sync_dotfiles

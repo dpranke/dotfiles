@@ -117,6 +117,10 @@ function ap() {
   done
 }
 
+function atx() {
+  racket -ile scribble/reader "(use-at-readtable)" "$@"
+}
+
 function df() {
   command df -h "$@"
 }
@@ -292,6 +296,86 @@ function pset() {
   set | pset_aux "$@"
 }
 
+function py() {
+  local use_pdb=0
+  local use_continue=0
+  local use_module=0
+  local script=''
+
+  # Note that this function doesn't *quite* work the way you'd want.
+  # If you run `py argv.py -h` then pdb will intercept the `-h` and
+  # show *its* help. There doesn't seem to be a way around this; passing
+  # `--` will cause pdb to ignore the arg, but it will also cause
+  # the script or module to ignore the arg. This applies to any flag
+  # pdb recognizes.
+
+  # set -x
+  function usage() {
+    echo "py [-p | --pm] [-d | --pdb] [-h | --help] [-m module | script] ..."
+  }
+
+  if [[ "$1" = "-h" || "$1" = "--help" ]] ; then
+    usage
+    # set +x
+    return
+  fi
+
+  while [[ $# -gt 0 ]] ; do
+    if [[ "$1" = "-d" || "$1" = "--pdb" ]] ; then
+      use_pdb=1
+    elif [[ "$1" = "-p" || "$1" = "--pm" ]] ; then
+      use_continue=1
+    elif [[ "$1" = "-m" ]] ; then
+      use_module=1
+      shift
+      script="$1"
+      shift
+      break
+    else
+      script="$1"
+      shift
+      break
+    fi
+    shift
+  done
+
+  if [[ $# -eq 0 && "$script" = "" ]] ; then
+    usage
+    # set +x
+    return
+  fi
+
+  if [[ $use_continue -eq 1 ]] ; then
+    if [[ $use_module -eq 1 ]] ; then
+      python3 -m pdb -c continue -m "$script" "$@"
+    else
+      python3 -m pdb -c continue "$script" "$@"
+    fi
+  elif [[ $use_pdb -eq 1 ]]; then
+    if [[ $use_module -eq 1 ]] ; then
+      python3 -m pdb -m "$script" "$@"
+    else
+      python3 -m pdb "$script" "$@"
+    fi
+  else
+    if [[ $use_module -eq 1 ]] ; then
+      python3 -m "$script" "$@"
+    else
+      python3 "$script" "$@"
+    fi
+  fi
+
+  # set +x
+}
+
+function r() {
+  if [[ "$csrc" = "" ]]; then
+    echo "Not in a checkout"
+  else 
+    "$csrc/run" "$@"
+  fi
+}
+
 # redot - re-read dot files
 function redot() {
   local old_view
@@ -382,6 +466,17 @@ function rp() {
   done
 }
 
+function scrib() {
+    f=scrib-tmp
+    fn="${f}.txt"
+    if [[ -e "$fn" ]]; then
+        echo "Error: $fn exists; delete first"
+        return
+    fi
+    scribble --text --dest-name "$f" --quiet "$@"
+    cat -e "$fn"
+    rm "$fn"
+}
 
 function setprompt() {
   if [ "$TERM" = "xterm" -o "$TERM" = "xterm-color" -o \

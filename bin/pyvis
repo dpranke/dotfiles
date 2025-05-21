@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+import argparse
+import sys
+import os
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '-c',
+        '--code',
+        action='append',
+        default=[],
+        help='Encode the provided arg'
+    )
+    parser.add_argument(
+        '-o',
+        '--output',
+        action='store',
+        default='-',
+        help='Write to the given file; can use "-" for stdout (the default)'
+    )
+    parser.add_argument(
+        '-e',
+        '--encode',
+        action='store_true',
+        default=True,
+        help='Encode (escape) the data (the default)'
+    )
+    parser.add_argument(
+        '-d',
+        '--decode',
+        action='store_false',
+        dest='encode',
+        help='Decode (unescape) the data'
+    )
+    parser.add_argument(
+        'file',
+        nargs='*',
+        help='file(s) to process as input; if "-" is provided, use stdin'
+    )
+    args = parser.parse_args()
+    if args.output and args.output != '-':
+        out_fp = open(args.output, 'w', encoding='utf8')
+    else:
+        out_fp = sys.stdout
+
+    if args.encode:
+        func = encode
+    else:
+        func = decode
+    try:
+        for s in args.code:
+            func(args, out_fp, s)
+
+        files = args.file
+        if not files and not args.code:
+            files = ['-']
+        for file in files:
+            if file == '-':
+                s = sys.stdin.read()
+            else:
+                with open(file, 'r') as fp:
+                    s = fp.read()
+            func(args, out_fp, s)
+        return 0
+    except Exception as e:
+        import traceback; traceback.print_exception(e)
+        import pdb; pdb.post_mortem()
+        raise
+
+
+enc_chars = {
+    '\b': r'\b',
+    '\f': r'\f',
+    '\n': r'\n',
+    '\r': r'\r',
+    '\t': r'\t',
+    '\v': r'\v',
+}
+
+dec_chars = { v: k for k, v in enc_chars.items() }
+
+def encode(args, fp, s):
+    for ch in s:
+        o = ord(ch)
+        if 32 < o < 128:
+            r = ch
+        elif ch in enc_chars:
+            r = enc_chars[ch]
+        elif o < 32 or o < 256:
+            r = f'\\x{o:02x}'
+        elif o < 65536:
+            r = f'\\u{o:04x}'
+        else:
+            r = f'\\U{o:08x}'
+        fp.write(r)
+
+
+def decode(args, fp, s):
+    i = 0
+    l = len(s)
+
+    def _check(j):
+        if i + j >= l:
+            return ValueError(f'Input ended with a bad escape "{s[i:]}"')
+        if j == 2:
+            return j, ''
+        return j, chr(int(s[i+2:i+j], base=16))
+
+    while i < l:
+        ch = s[i]
+        o = ord(ch)
+        if ch == '\\':
+            _check(2)
+            if s[i+1] == 'x':
+                j, ch = _check(4)
+            elif s[i+1] == 'u':
+                j, ch = _check(6)
+            elif s[i+1] == 'U':
+                j, ch = _check(10)
+            elif s[i:i+2] in dec_chars:
+                j, ch = 2, dec_chars[s[i:i+2]]
+            else:
+                raise ValueError(f'Bad escape "{s[i:i+2]}" at pos {i}')
+        else:
+            j = 1
+
+        fp.write(ch)
+        i += j
+
+if __name__ == '__main__':
+    sys.exit(main())
+
+

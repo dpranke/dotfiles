@@ -5,16 +5,16 @@ if has("gui_win32")
   endif
 endif
 
-" do case-insensitive searching
+" Do case-insensitive searching by default.
 set ignorecase
 
-" backspace across line boundaries
+" Let backspace move across line boundaries.
 set backspace=indent,eol,start
 
 set autoindent
 set expandtab
-set tabstop=2
-set shiftwidth=2
+set tabstop=4
+set shiftwidth=4
 set shiftround
 set textwidth=0
 set mouse=a
@@ -24,51 +24,57 @@ set number
 set ruler
 set laststatus=2
 
-" turn off welcome message when starting Vim w/o a file
+" Turn off welcome message when starting Vim w/o a file.
 set shortmess+=I
 
-" display a column at 80 characters to indicate long lines
+" Display a column at 80 characters to indicate long lines.
 set colorcolumn=80
+
+" Make tabs visible with the triangle, and show trailing whitespace with the
+" dot. Also, highlight trailing whitespace.
+set listchars=tab:▸\ ,trail:·
+set list
+highlight ExtraWhitespace ctermbg=red guibg=red
+match ExtraWhitespace /\s\+$/
 
 syntax on
 
-" don't expand tabs in makefiles
-autocmd FileType make setlocal noet sw=4 ts=4
+" Don't expand tabs in makefiles.
+autocmd FileType make setlocal noet
 
-" use 4-spaces in Python (PEP-8 style)
-autocmd FileType python setlocal sw=4 ts=4
-
-" set commands to insert and clear debugger breakpoints
+" Set commands to insert and clear debugger breakpoints in Python code.
 autocmd FileType python nmap ,d Oimport pdb; pdb.set_trace()<ESC>:w
 autocmd FileType python nmap ,D dd:w
 
-" strip trailing whitespace.
+" Strip trailing whitespace when writing out the file.
 autocmd BufWritePre <buffer> %s/\s\+$//e
 
-" Leave insert mode by pressing j-j instead of <esc>
+" Leave insert mode by pressing j-j instead of <esc>.
 imap jj <Esc>
 
+" Type `,` to start a map-based command
 let mapleader = ","
 
+" Don't show these types of files when autocompleting filenames.
 set wildignore=*.o,*.pyc
 
 set hidden
 
-" change all windows to directory of file in the buffer
+" Change all windows to directory of file in the buffer.
 " %p - full path of filename
 " %h - head (dirname) of full path
 command! CD cd %:p:h
 
-" Change to directory of the file in the buffer (only this window)
+" Change to directory of the file in the buffer (only this window).
 command! LCD lcd %:p:h
 
 set splitbelow
 set splitright
 
-" make crontab edit-in-place work
+" Make crontab edit-in-place work.
 au BufEnter /private/tmp/crontab.* setl backupcopy=yes
 
-" Ensure that we get the correct indentation for python from our plugins
+" Ensure that we get the correct indentation for python from our plugins.
 filetype plugin indent on
 
 " tweak YouCompleteMe settings
