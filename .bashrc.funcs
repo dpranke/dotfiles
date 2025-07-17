@@ -117,12 +117,8 @@ function ap() {
   done
 }
 
-function atrack() {
-  racket -ile scribble/reader "(use-at-readtable)" "$@"
-}
-
 function atx() {
-  $src/pyfloyd/utils/at-exp "$@"
+  racket -ile scribble/reader "(use-at-readtable)" "$@"
 }
 
 function df() {

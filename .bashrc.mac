@@ -2,6 +2,18 @@
 # .bashrc for Mac-specific stuff
 #
 
+# Mac ships with an outdated version of bash. Switch to a newer one
+# if available. Do this instead of using `chsh` just to be a little more
+# transparent about what is happening and not have to worry about remembering
+# to run `chsh` when setting up a new account.
+if $(echo $BASH_VERSION | grep '^3' > /dev/null)
+then
+  if [[ -e /opt/homebrew/bin/bash && "$PS1" != "" ]]
+  then
+    exec /opt/homebrew/bin/bash
+  fi
+fi
+
 . $HOME/.bashrc.funcs
 . $HOME/.bashrc.funcs.mac
 
@@ -37,12 +49,16 @@ then
   ap $JAVA_HOME/bin
 fi
 
-ap $HOMEBREW/opt/ruby/bin \
-   $HOMEBREW/opt/rustup/bin \
-   $HOMEBREW/bin
+# Add paths to keg-only packages that will override Apple's shipped versions.
+ap $HOMEBREW/opt/llvm/bin \
+   $HOMEBREW/opt/ruby/bin \
+   $HOMEBREW/opt/rustup/bin
+
+# Add path to all other Homebrew packages
+ap $HOMEBREW/bin
 
 export dt=$src/depot_tools
-ap $dt 
+ap $dt
 
 ap /usr/local/bin \
    /usr/local/sbin \
@@ -59,11 +75,14 @@ else
   export EDITOR=vi
 fi
 
-export EMAIL_ADDRESS=dpranke@chromium.org
+export EMAIL_ADDRESS=dpranke@gmail.com
 export HISTSIZE=500
 export INFOPATH=/usr/local/info:/opt/local/info
 
-ip -p MANPATH /usr/local/man /opt/local/man /usr/share/man \
+ip -p MANPATH /usr/local/man \
+    $HOMEBREW/share/man \
+    /opt/local/man \
+    /usr/share/man \
     /usr/local/share/man \
     /usr/local/texlive/2025/texmf-dist/doc/man
 

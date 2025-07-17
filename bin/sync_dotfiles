@@ -110,6 +110,7 @@ declare -a dotfiles=(
   .vimrc
   _gvimrc
   _vimrc
+  Brewfile
   bat/and.bat
   bat/andc.bat
   bat/anr.bat
