@@ -98,3 +98,9 @@ if [ -f "$src/google-cloud-sdk/completion.bash.inc" ]
 then
   . "$src/google-cloud-sdk/completion.bash.inc"
 fi
+
+# Enable FZF's shell integration for bash
+if which fzf > /dev/null
+then
+  eval "$(fzf --bash)"
+fi

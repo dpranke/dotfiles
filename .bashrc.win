@@ -55,3 +55,9 @@ then
     "/c/src/msys64/usr/bin/$@"
   }
 fi
+
+# Enable FZF's shell integration for bash
+if which fzf > /dev/null
+then
+  eval "$(fzf --bash)"
+fi
